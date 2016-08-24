@@ -242,7 +242,7 @@ def bulk_ner_openie(document):
 def print_top5_relations(args):
     relations = []
 
-    with open('temp/output-allpapers-interrupted.tsv', 'r') as input:
+    with open('temp/output.tsv', 'r') as input:
         for line in input.readlines():
             relations.append(line.split('\t')[2])
 
