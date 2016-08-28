@@ -76,3 +76,15 @@ Processing file: data/input/acl_2015_P15-1067_relate.txt
 Processing file: data/input/emnlp_2006_W06-1622_relate.txt
 Processing file: data/input/emnlp_2013_D13-1017_relate.txt
 Broke in data/input/emnlp_2013_D13-1204_relate.txt
+
+
+
+
+
+
+
+-----------------------
+
+Sentences for debugging:
+ Using many ASR hypotheses helps recover the ASR errors of NE words in 1-best ASR results and improves NER accuracy.
+ In recent years, researchers have shown that even using a limited amount of manually aligned data improves word alignment significantly (Callison-Burch et al., 2004).
