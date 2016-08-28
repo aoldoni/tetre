@@ -75,5 +75,4 @@ Processing file: data/input/acl_2014_P14-1105_relate.txt
 Processing file: data/input/acl_2015_P15-1067_relate.txt
 Processing file: data/input/emnlp_2006_W06-1622_relate.txt
 Processing file: data/input/emnlp_2013_D13-1017_relate.txt
-
 Broke in data/input/emnlp_2013_D13-1204_relate.txt

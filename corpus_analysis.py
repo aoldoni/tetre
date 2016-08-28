@@ -13,12 +13,13 @@ for synset in wn.synsets('improves'):
 
 query_list = list(set(query_list))
 
-q = r'/NN.? << improves/'
+# q = r'/improves/'
 
 # unparsed = Corpus('data/input-corpus/')
 # corpus = unparsed.parse()
 
-corpus = Corpus('data/input-small-parsed/')
+corpus = Corpus('data/input-corpus-single-parsed/')
 
-lines = corpus.concordance({T: q})
-lines.format(window=50, n=100000, columns=[F,L,M,R])
+lines = corpus.concordance({L: query_list}, show=[L,P])
+
+lines.format(window=50, n=100000, columns=[L,M,R])
