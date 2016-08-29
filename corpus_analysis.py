@@ -13,11 +13,16 @@ from nltk.corpus import wordnet as wn
 import spacy
 import spacy.en
 from nltk import Tree
-from inspect import getmembers, isfunction
+from inspect import getmembers, isfunction, isgeneratorfunction
 
 from internallib.directories import *
 from internallib.dependency_helpers import *
 from internallib import dependency_patterns
+
+import logging, sys
+logger = logging.getLogger('root')
+FORMAT = "[%(filename)s:%(lineno)s - %(funcName)30s()] %(message)s"
+logging.basicConfig(format=FORMAT, stream=sys.stderr, level=logging.DEBUG)
 
 auto_pattern_prefix = "auto_"
 word_being_analysed = "improves"
@@ -58,6 +63,10 @@ def spacy_parse(args):
 
     i = 1
 
+    lines_extracted = 0
+    total_relations = 0
+    total_lines = 0
+
     for fn in os.listdir(args.directory+raw_input):
         if (fn == ".DS_Store"):
             continue
@@ -79,27 +88,56 @@ def spacy_parse(args):
         for sentence in en_doc.sents:
             for token in sentence:
                 if (token.orth_.lower() == word_being_analysed.lower()):
+
+                    i = i+1
+
+                    if (i < 67):
+                        continue;
+
                     # left = spacy_tree_noun_detection(token, token, all_noun_chuncks, 1)
                     # middel = token
                     # right = spacy_tree_noun_detection(token, token, all_noun_chuncks, -1)
 
-                    # print(fn)
+                    logging.debug(fn)
 
                     # print_tree(sentence)
 
                     results = spacy_pattern_based_finder(token, all_noun_chuncks)
 
-                    print(sentence)
-                    # print(all_noun_chuncks)
-                    print(token, results['left'], results['right'])
+                    logging.debug(all_noun_chuncks)
 
-                    # if (len(results["left"]) > 0 and len(results["right"]) > 0):
-                        # print(results["left"], token, results["right"])
+                    print("FILE: ", fn)
+                    print("SENTENCE: ", sentence)
+
+                    print()
+
+                    if (len(results) > 0):
+                        print(len(results), "RELATIONS FOUND!!!")
+                        for result in results:
+                            print("\t", token, "(" , result , ")")
+
+                    else:
+                        print("NO RELATIONS FOUND.")
+
+                    print()
+
+                    if (len(results) > 0):
+                        lines_extracted = lines_extracted+1
+
+                    total_relations = total_relations + len(results)
+                    total_lines = total_lines+1
                     
-                    print("------------------------")
+                    print("CURRENT STATS:")
+                    print("total_sentences_found: ", lines_extracted)
+                    print("total_sentences:       ", total_lines)
+                    print("total_relations:       ", total_relations)
+                    print("percentage:            ", "{0:.0f}%".format((100. * lines_extracted)/total_lines))
 
-                    i = i+1
-                    if (i > 20):
+                    print()
+                    print("-----------------------")
+                    print()
+
+                    if (i >= 69):
                         sys.exit()
 
 def spacy_pattern_based_finder(token, all_noun_chuncks):
@@ -108,18 +146,20 @@ def spacy_pattern_based_finder(token, all_noun_chuncks):
     dep_labels_right = []
 
     result = {}
+    final_reslult = {"left": [], "right": []}
 
     for function in functions_list:
         if (auto_pattern_prefix in function[0]):
             result = function[1](token, all_noun_chuncks)
 
-            print(function[0], function[1], result)
+            logging.debug([function[0], function[1], result])
 
             if (len(result["left"]) > 0 and result["left"][0] != None and \
              len(result["right"]) > 0 and result["right"][0] != None):
-                return result
+                final_reslult["left"] = final_reslult["left"] + result["left"]
+                final_reslult["right"] = final_reslult["right"] + result["right"]
 
-    return {"left": [], "right": []}
+    return prune_duplicates(zip_tuples(final_reslult))
 
 def regenerate(argv):
     args = argparser().parse_args(argv[1:])

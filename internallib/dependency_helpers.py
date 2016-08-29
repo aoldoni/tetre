@@ -1,41 +1,97 @@
+import sys
+import itertools
+
+import logging, sys
+logger = logging.getLogger('root')
+FORMAT = "[%(filename)s:%(lineno)s - %(funcName)30s()] %(message)s"
+logging.basicConfig(format=FORMAT, stream=sys.stderr, level=logging.DEBUG)
+
+def pattern_extract_noun_chuncks(token, all_noun_chuncks, repeatable_token):
+
+    nc = clean_none_from_array([get_noun_chunck(token, all_noun_chuncks)])
+    result = []
+
+    if (len(nc) == 0):
+        for child in token.children:
+            nc = nc + clean_none_from_array([get_noun_chunck(child, all_noun_chuncks)])
+
+        for n in nc:
+            result.append(" ".join([str(token), str(n)]))
+
+        return result
+
+    return nc[0]
+
+def clean_none_from_array(list_with):
+    return [x for x in list_with if x is not None]
+
 def pattern_based_finder_dobj_right(token, all_noun_chuncks):
     nc = None
 
     where_to_dobj_from = token
 
     for child in where_to_dobj_from.children:
-        if (child.dep_ == "dobj"):
-            final_token = patter_recurse_on_prep(child)
-
-            nc = get_noun_chunck(final_token, all_noun_chuncks)
-
-    return nc
+        logging.debug(["p0", token, child, child.dep_ ])
+        if (child.dep_ in ["dobj", "xcomp", "compound"]):
+            logging.debug(["p1"])
+            for i in patter_recurse_on_prep(child):
+                nc = get_noun_chunck(i, all_noun_chuncks)
+                logging.debug(["p2", i, token, child, child.dep_, nc])
+                yield nc
 
 def patter_recurse_on_prep(token):
 
     where_to_dobj_from = token
+
+    logging.debug(["c0", token, token.pos_])
+
+    if (token.pos_ in ['NOUN', 'PROPN']):
+        yield token
     
     prep_found = False
     for child in token.children:
-        # print(["1", token, child, child.dep_, child.orth_ ])
+        logging.debug(["c1", token, child, child.dep_, child.orth_ ])
         if (child.dep_ == "prep" and child.orth_ == "of"):
             prep_found = True
             where_to_dobj_from = child
 
-    # print(["2", prep_found])
+    logging.debug(["c2", prep_found])
 
-    if not prep_found:
-        return token
-    else:
+    if prep_found:
         for grangrandchild in where_to_dobj_from.children:
-            # print(["3", token, where_to_dobj_from, grangrandchild, grangrandchild.pos_])
-            if (grangrandchild.pos_ == "NOUN"):
-                return patter_recurse_on_prep(grangrandchild)
+            logging.debug(["c3", token, where_to_dobj_from, grangrandchild, grangrandchild.pos_])
+            if (grangrandchild.pos_ in ['NOUN', 'PROPN']):
+                yield from patter_recurse_on_prep(grangrandchild)
+    elif (token.pos_ not in ['NOUN', 'PROPN']):
+
+        # Pattern 7 - acl_2008_P08-1082_relate.txt
+        # Recent work has showed that structured retrieval improves answer ranking for factoid questions
+
+        logging.debug(["c4"])
+        child_list = list(token.children)
+        if (len(child_list) == 1):
+            yield from patter_recurse_on_prep(child_list[0])
 
 def get_noun_chunck(token, all_noun_chuncks):
+
+    find = None
+
     for nc in all_noun_chuncks:
         if (token in list(nc)):
             return nc
+
+    if (find == None):
+
+        # Pattern 8 - acl_2009_P09-1056_relate.txt
+        # HMM-smoothing improves on the
+        # most closely related work, the Structural Correspondence Learning technique for domain
+        # adaptation (Blitzer et al.
+
+        if token.pos_ in ['NOUN', 'PROPN']:
+            if (token.head is not token):
+                return str(token) + " " + str(token.head)
+            else:
+                return token
 
 def to_nltk_tree(node):
     if node.n_lefts + node.n_rights > 0:
@@ -45,3 +101,20 @@ def to_nltk_tree(node):
 
 def print_tree(sent):
     to_nltk_tree(sent.root).pretty_print()
+
+def zip_tuples(results):
+    tuples = []
+
+    for i in range(0, len(results["left"])):
+        tuples.append( [str(results["left"][i]) , str(results["right"][i])] )
+
+    return tuples
+
+def prune_duplicates(results):
+    b = list()
+
+    for sublist in results:
+        if sublist not in b:
+            b.append(sublist)
+
+    return b
