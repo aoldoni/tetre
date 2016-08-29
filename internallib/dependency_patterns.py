@@ -3,8 +3,7 @@ from internallib.dependency_helpers import *
 import logging, sys
 logger = logging.getLogger('root')
 FORMAT = "[%(filename)s:%(lineno)s - %(funcName)30s()] %(message)s"
-logging.basicConfig(format=FORMAT, stream=sys.stderr, level=logging.DEBUG)
-
+logging.basicConfig(format=FORMAT, stream=sys.stderr, level=logging.INFO)
 
 def auto_pattern1(token, all_noun_chuncks):
     dep_labels_left = []
@@ -96,22 +95,28 @@ def auto_pattern4(token, all_noun_chuncks, use_token = None):
     if (use_token == None):
         use_token = token
 
-    logging.debug(["31", token])
+    logging.debug(["41", token])
 
     for child in token.children:
 
-        logging.debug(["32", token, child, child.dep_])
+        logging.debug(["42", token, child, child.dep_])
 
         if (child.dep_ in ["csubj", "nsubj"]):
+
+            logging.debug(["420 - RIGHT HAND", token, child, child.dep_, use_token])
+
             for i in pattern_based_finder_dobj_right(use_token, all_noun_chuncks):
 
-                logging.debug(["321", token, child, child.dep_])
+                logging.debug(["421", token, child, child.dep_])
 
                 if (child.pos_ in ['NOUN', 'PROPN']):
+
+                    logging.debug(["430 - LEFT HAND", token, child, child.dep_])
+
                     for final_token in patter_recurse_on_prep(child):
                         final_token_nc = get_noun_chunck(final_token, all_noun_chuncks)
 
-                        logging.debug(["33", token, child, child.dep_, final_token])
+                        logging.debug(["431", token, child, child.dep_, final_token, final_token_nc])
 
                         # Pattern 6 - acl_2008_P08-1063_relate.txt
                         # They show that splitting Arg2 instances into subgroups based on
@@ -127,15 +132,16 @@ def auto_pattern4(token, all_noun_chuncks, use_token = None):
                             dep_labels_left.append(get_noun_chunck(final_token, all_noun_chuncks))
                             dep_labels_right.append(i)
                 else:
+                    logging.debug(["440 - LEFT HAND", token, child, child.dep_])
                     for final_token in pattern_based_finder_dobj_right(child, all_noun_chuncks):
 
-                        logging.debug(["34", token, child, child.dep_, final_token])
+                        logging.debug(["441 - LEFT HAND", token, child, child.dep_, final_token])
 
                         dep_labels_left.append(final_token)
                         dep_labels_right.append(i)
         elif (child.dep_ in ["acl"]):
 
-            logging.debug(["35", token, child, child.dep_, child.children])
+            logging.debug(["45", token, child, child.dep_, child.children])
 
             for grandchild in child.children:
                 if grandchild.dep_ in ["csubj", "nsubj"]:
@@ -190,43 +196,6 @@ def auto_pattern4(token, all_noun_chuncks, use_token = None):
 #             for grandchild in child.children:
 #                 if grandchild.dep_ in ["csubj", "nsubj"]:
 #                     return auto_pattern8(child, all_noun_chuncks, use_token)
-
-#     return {"left": dep_labels_left, "right": dep_labels_right}
-
-# def auto_pattern9997(token, all_noun_chuncks):
-#     dep_labels_left = []
-#     dep_labels_right = []
-
-#     # Pattern 4 - acl_2006_P06-2118_relate.txt
-#     # However, they concluded that the contribution of linguistic motivated features,
-#     # such as features extracted from a syntactic parse, is insignificant, a finding they
-#     # attributed to unique properties of Chinese given that the same syntactic features
-#     # significantly improves the WSD accuracy.
-
-#     another_subj = token
-#     if (token.dep_ in ["conj", "pcomp"]):
-#         another_subj = token.head
-#         return auto_pattern3(another_subj, all_noun_chuncks, token)
-
-#     return {"left": dep_labels_left, "right": dep_labels_right}
-
-# def auto_pattern9998(token, all_noun_chuncks):
-#     dep_labels_left = []
-#     dep_labels_right = []
-
-#     # Pattern 4 - acl_2006_P06-2118_relate.txt
-#     # However, they concluded that the contribution of linguistic motivated features,
-#     # such as features extracted from a syntactic parse, is insignificant, a finding they
-#     # attributed to unique properties of Chinese given that the same syntactic features
-#     # significantly improves the WSD accuracy.
-
-#     # Pattern 5 - acl_2006_P06-1078_relate.txt
-#     # Using many ASR hypotheses helps recover the ASR errors of NE words in 1-best ASR results and improves NER accuracy.
-
-#     another_subj = token
-#     if (token.dep_ in ["conj", "pcomp"]):
-#         another_subj = token.head
-#         return auto_pattern4(another_subj, all_noun_chuncks, token)
 
 #     return {"left": dep_labels_left, "right": dep_labels_right}
 

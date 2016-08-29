@@ -22,7 +22,7 @@ from internallib import dependency_patterns
 import logging, sys
 logger = logging.getLogger('root')
 FORMAT = "[%(filename)s:%(lineno)s - %(funcName)30s()] %(message)s"
-logging.basicConfig(format=FORMAT, stream=sys.stderr, level=logging.DEBUG)
+logging.basicConfig(format=FORMAT, stream=sys.stderr, level=logging.INFO)
 
 auto_pattern_prefix = "auto_"
 word_being_analysed = "improves"
@@ -44,24 +44,26 @@ def lemma_search(args):
     query_list = []
 
     for synset in wn.synsets(word_being_analysed):
-        query_list = query_list + synset.lemma_names()
-        print(synset.lemma_names())
+        query_list.append(synset)
+        # print(synset.lemma_names())
 
     query_list = list(set(query_list))
+
+    print(query_list)
 
     # q = r'/improves/'
 
     # unparsed = Corpus('data/input-corpus/')
     # corpus = unparsed.parse()
 
-    corpus = Corpus(args.directory)
-    lines = corpus.concordance({L: query_list}, show=[L,P])
-    lines.format(window=50, n=100000, columns=[L,M,R])
+    # corpus = Corpus(args.directory)
+    # lines = corpus.concordance({L: query_list}, show=[L,P])
+    # lines.format(window=50, n=100000, columns=[L,M,R])
 
 def spacy_parse(args):
     en_nlp = spacy.load('en')
 
-    i = 1
+    i = 0
 
     lines_extracted = 0
     total_relations = 0
@@ -89,9 +91,7 @@ def spacy_parse(args):
             for token in sentence:
                 if (token.orth_.lower() == word_being_analysed.lower()):
 
-                    i = i+1
-
-                    if (i < 67):
+                    if (i < 0):
                         continue;
 
                     # left = spacy_tree_noun_detection(token, token, all_noun_chuncks, 1)
@@ -100,13 +100,17 @@ def spacy_parse(args):
 
                     logging.debug(fn)
 
-                    # print_tree(sentence)
-
                     results = spacy_pattern_based_finder(token, all_noun_chuncks)
 
                     logging.debug(all_noun_chuncks)
 
                     print("FILE: ", fn)
+                    print("ID SEQUENCE: ", i)
+
+                    print()
+                    print_tree(sentence)
+                    print()
+
                     print("SENTENCE: ", sentence)
 
                     print()
@@ -137,7 +141,9 @@ def spacy_parse(args):
                     print("-----------------------")
                     print()
 
-                    if (i >= 69):
+                    i = i+1
+
+                    if (i >= 300):
                         sys.exit()
 
 def spacy_pattern_based_finder(token, all_noun_chuncks):

@@ -1,10 +1,12 @@
 import sys
 import itertools
 
+from nltk import Tree
+
 import logging, sys
 logger = logging.getLogger('root')
 FORMAT = "[%(filename)s:%(lineno)s - %(funcName)30s()] %(message)s"
-logging.basicConfig(format=FORMAT, stream=sys.stderr, level=logging.DEBUG)
+logging.basicConfig(format=FORMAT, stream=sys.stderr, level=logging.INFO)
 
 def pattern_extract_noun_chuncks(token, all_noun_chuncks, repeatable_token):
 
@@ -30,13 +32,26 @@ def pattern_based_finder_dobj_right(token, all_noun_chuncks):
 
     where_to_dobj_from = token
 
+    logging.debug(["p0", token])
+
     for child in where_to_dobj_from.children:
-        logging.debug(["p0", token, child, child.dep_ ])
-        if (child.dep_ in ["dobj", "xcomp", "compound"]):
-            logging.debug(["p1"])
+
+        logging.debug(["p1", token, child, child.dep_ ])
+
+        # Pattern 10 - acl_2015_P15-2093_relate.txt
+        # While matrix factorization is widely used in recommender systems,
+        # matrix co-factorization helps to handle multiple aspects of the data and improves in
+        # predicting individual decisions (Hong et al.
+
+        if (child.dep_ in ["dobj", "xcomp", "compound", "prep"]):
+
+            logging.debug(["p2"])
+
             for i in patter_recurse_on_prep(child):
                 nc = get_noun_chunck(i, all_noun_chuncks)
-                logging.debug(["p2", i, token, child, child.dep_, nc])
+
+                logging.debug(["p3", i, token, child, child.dep_, nc])
+                
                 yield nc
 
 def patter_recurse_on_prep(token):
