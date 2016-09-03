@@ -1,0 +1,11 @@
+.DS_Store
+data/
+models/
+parsey/
+stanford/
+temp/
+training/
+.env/
+*.bin
+*.txt
+*.zip

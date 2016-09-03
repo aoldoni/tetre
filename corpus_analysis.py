@@ -15,9 +15,13 @@ import spacy.en
 from nltk import Tree
 from inspect import getmembers, isfunction, isgeneratorfunction
 
+from internallib.openie import *
+
 from internallib.directories import *
 from internallib.dependency_helpers import *
 from internallib import dependency_patterns
+
+import subprocess
 
 import logging, sys
 logger = logging.getLogger('root')
@@ -37,7 +41,8 @@ def argparser():
                     help='search for a given lemma and its variations in a parsed corpus')
     ap.add_argument('-s', '--spacy', action='store_true',
                     help='tries spacy command')
-
+    ap.add_argument('-m', '--mine', action='store_true',
+                    help='uses spacy to try to mine candidate trees')
     return ap
 
 def lemma_search(args):
@@ -68,6 +73,8 @@ def spacy_parse(args):
     lines_extracted = 0
     total_relations = 0
     total_lines = 0
+
+    process = start_openie_process()
 
     for fn in os.listdir(args.directory+raw_input):
         if (fn == ".DS_Store"):
@@ -102,6 +109,9 @@ def spacy_parse(args):
 
                     results = spacy_pattern_based_finder(token, all_noun_chuncks)
 
+                    process = start_openie_process()
+                    results_openie = send_openie_sentence(process, str(sentence).encode('utf-8')).decode('utf-8').strip().split('\n')
+
                     logging.debug(all_noun_chuncks)
 
                     print("FILE: ", fn)
@@ -116,12 +126,22 @@ def spacy_parse(args):
                     print()
 
                     if (len(results) > 0):
-                        print(len(results), "RELATIONS FOUND!!!")
+                        print(len(results), "RELATIONS FOUND BY MANUAL PARSER!!!")
                         for result in results:
                             print("\t", token, "(" , result , ")")
 
                     else:
-                        print("NO RELATIONS FOUND.")
+                        print("NO RELATIONS FOUND BY MANUAL PARSER.")
+
+                    print()
+
+                    if (len(results_openie) > 0):
+                        print(len(results_openie), "RELATIONS FOUND BY OPENIE!!!")
+                        for result in results_openie:
+                            print("\t", openie_to_pretty(result.split("\t")))
+
+                    else:
+                        print("NO RELATIONS FOUND BY OPENIE.")
 
                     print()
 
@@ -143,8 +163,20 @@ def spacy_parse(args):
 
                     i = i+1
 
-                    if (i >= 300):
+                    if (i >= 99999999):
                         sys.exit()
+
+def start_openie_process():
+    process=subprocess.Popen('java -cp stanford/stanford-corenlp-full-2015-12-09/*:stanford/stanford-ner-2015-12-09/lib/* -Xmx8g edu.stanford.nlp.naturalli.OpenIE -props config/dblp-pipeline-openie.properties',
+                         stdin=subprocess.PIPE,
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE,
+                         shell=True)
+    return process
+
+def send_openie_sentence(process, inputdata):
+    stdoutdata,stderrdata = process.communicate(input=inputdata)
+    return stdoutdata
 
 def spacy_pattern_based_finder(token, all_noun_chuncks):
 
@@ -167,6 +199,9 @@ def spacy_pattern_based_finder(token, all_noun_chuncks):
 
     return prune_duplicates(zip_tuples(final_reslult))
 
+def mine_candidate_trees(args):
+    return
+
 def regenerate(argv):
     args = argparser().parse_args(argv[1:])
 
@@ -177,6 +212,8 @@ def regenerate(argv):
         lemma_search(args)
     elif (args.spacy):
         spacy_parse(args)
+    elif (args.mine):
+        mine_candidate_trees(args)
 
 if __name__ == '__main__':
     sys.exit(regenerate(sys.argv))
