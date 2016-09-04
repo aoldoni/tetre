@@ -3,7 +3,14 @@
 import sys
 import os
 import csv
+import pprint
 import itertools
+import functools
+import subprocess
+import types
+import logging
+
+from functools import reduce
 
 ### import everything
 from corpkit import *
@@ -19,18 +26,22 @@ from internallib.openie import *
 
 from internallib.directories import *
 from internallib.dependency_helpers import *
+from internallib.mining_patterns import *
 from internallib import dependency_patterns
+from internallib import mining_patterns
 
-import subprocess
-
-import logging, sys
 logger = logging.getLogger('root')
 FORMAT = "[%(filename)s:%(lineno)s - %(funcName)30s()] %(message)s"
 logging.basicConfig(format=FORMAT, stream=sys.stderr, level=logging.INFO)
 
-auto_pattern_prefix = "auto_"
+
 word_being_analysed = "improves"
-functions_list = [o for o in getmembers(dependency_patterns) if isfunction(o[1])]
+
+
+auto_pattern_prefix = "auto_"
+dependency_patterns_list = [o for o in getmembers(dependency_patterns) if isfunction(o[1])]
+mining_patterns_list = [o for o in getmembers(mining_patterns) if isfunction(o[1])]
+
 
 def argparser():
     import argparse
@@ -186,7 +197,7 @@ def spacy_pattern_based_finder(token, all_noun_chuncks):
     result = {}
     final_reslult = {"left": [], "right": []}
 
-    for function in functions_list:
+    for function in dependency_patterns_list:
         if (auto_pattern_prefix in function[0]):
             result = function[1](token, all_noun_chuncks)
 
@@ -199,8 +210,90 @@ def spacy_pattern_based_finder(token, all_noun_chuncks):
 
     return prune_duplicates(zip_tuples(final_reslult))
 
+def mine_pattern_based_finder(token):
+
+    dep_labels_left = []
+    dep_labels_right = []
+
+    for function in mining_patterns_list:
+        if (auto_pattern_prefix in function[0]):
+
+            prev_result = function[1](token)
+
+            if (isinstance(prev_result, types.GeneratorType)):
+                results = list(prev_result)
+            else:
+                results = [prev_result]
+
+            results = [result for result in results if result["is_result"]]
+
+            if (len(results) > 0):
+                return results
+
+    return [{"is_result": False, "result" : None, "rule" : -1}]
+
+def mine_candidate_trees_inner(args):
+    en_nlp = spacy.load('en')
+
+    i = 0
+
+    for fn in os.listdir(args.directory+raw_input):
+        if (fn == ".DS_Store"):
+            continue
+
+        name = args.directory + raw_input + fn
+
+        raw_text = ''
+
+        with open(name, 'r') as input:
+            raw_text = input.read()
+
+        en_doc = en_nlp(raw_text)
+
+
+        for sentence in en_doc.sents:
+            for token in sentence:
+                if (token.orth_.lower() == word_being_analysed.lower()):
+
+                    results = mine_pattern_based_finder(token)
+
+                    for result in results:
+                        group_accounting(result, sentence, fn)
+
+                    i += 1
+
+                    # if (i > 25):
+                    #     return i
+
+                    # print()
+                    # print("-----------------------------")
+
+                    # print("FILE: ", fn)
+
+                    # print()
+                    # print_tree(sentence)
+                    # print()
+
+                    # print("SENTENCE: ", sentence)
+
+                    # pp.pprint([group for group in groups if group["sum"] > threshold_sum_to_print])
+                    # print("-----------------------------")
+                    # print()
+
+                    for result in results:
+                        if (not result["is_result"]):
+                            raise Exception("Untreated pattern!")
+                            return i
+
+    # print("-----------------------------")
+    # print("OVER!")
+    # print("-----------------------------")
+    return i
+
 def mine_candidate_trees(args):
-    return
+    i = mine_candidate_trees_inner(args)
+    group_print(group_sorting(groups_positive), i, True)
+    group_print(group_sorting(groups_negative), i, False)
 
 def regenerate(argv):
     args = argparser().parse_args(argv[1:])
