@@ -108,11 +108,14 @@ def get_noun_chunck(token, all_noun_chuncks):
             else:
                 return token
 
-def to_nltk_tree_general(node, attr_list = ["dep_", "pos_"]):
+def to_nltk_tree_general(node, attr_list = ["dep_", "pos_"], simplification = 0):
     node_representation = ''
 
     value_list = [getattr(node, attr) for attr in attr_list]
     node_representation = "/".join(value_list)
+
+    # if (simplification == 1):
+        # node_representation += "/" +
 
     if node.n_lefts + node.n_rights > 0:
         return Tree(node_representation, [to_nltk_tree_general(child, attr_list) for child in node.children])

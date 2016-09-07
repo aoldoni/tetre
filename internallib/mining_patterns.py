@@ -18,7 +18,7 @@ root_conditions.append('''
        |
     dobj/NOUN
 ''')
-def auto_extract_trees_pattern_0(token):
+def auto_extract_trees_pattern_00(token):
     result = None
     is_result = False
 
@@ -38,7 +38,7 @@ root_conditions.append('''
        |
     pobj/PROPN
 ''')
-def auto_extract_trees_pattern_1(token):
+def auto_extract_trees_pattern_01(token):
     result = None
     is_result = False
 
@@ -58,13 +58,13 @@ def auto_extract_trees_pattern_1(token):
 root_conditions.append('''
     improves
        |
-    xcomp/VERB
+    dobj/VERB
 ''')
-def auto_extract_trees_pattern_2(token):
+def auto_extract_trees_pattern_02(token):
     result = None
     is_result = False
 
-    first_child = next((child for child in token.children if child.dep_ in ["xcomp"] and child.pos_ in ["VERB"]), None)
+    first_child = next((child for child in token.children if child.dep_ in ["dobj"] and child.pos_ in ["VERB"]), None)
 
     if (first_child != None):
         result = to_nltk_tree_general(first_child)
@@ -76,41 +76,9 @@ def auto_extract_trees_pattern_2(token):
 root_conditions.append('''
     improves
        |
-    dobj/VERB
-''')
-def auto_extract_trees_pattern_3(token):
-    result = None
-    is_result = False
-
-    first_child = next((child for child in token.children if child.dep_ in ["dobj"] and child.pos_ in ["VERB"]), None)
-
-    if (first_child != None):
-        result = to_nltk_tree_general(first_child)
-        is_result = True
-
-    return {"is_result": is_result, "result" : result, "rule" : 3, "type": True}
-
-
-root_conditions.append('''
-    conj/improves/VERB
-''')
-def auto_extract_trees_pattern_4(token):
-    result = None
-    is_result = False
-
-    if token.dep_ in ["conj"] and token.pos_ in ["VERB"]:
-        result = to_nltk_tree_general(token)
-        is_result = True
-
-    return {"is_result": is_result, "result" : result, "rule" : 4, "type": False}
-
-
-root_conditions.append('''
-    improves
-       |
     dobj/PROPN
 ''')
-def auto_extract_trees_pattern_5(token):
+def auto_extract_trees_pattern_03(token):
     result = None
     is_result = False
 
@@ -120,22 +88,7 @@ def auto_extract_trees_pattern_5(token):
         result = to_nltk_tree_general(first_child)
         is_result = True
 
-    return {"is_result": is_result, "result" : result, "rule" : 5, "type": True}
-
-
-root_conditions.append('''
-    csubj/improves/VERB
-''')
-def auto_extract_trees_pattern_6(token):
-
-    result = None
-    is_result = False
-
-    if token.dep_ in ["csubj"] and token.pos_ in ["VERB"]:
-        result = to_nltk_tree_general(token)
-        is_result = True
-
-    return {"is_result": is_result, "result" : result, "rule" : 6, "type": False}
+    return {"is_result": is_result, "result" : result, "rule" : 3, "type": True}
 
 
 root_conditions.append('''
@@ -145,7 +98,7 @@ root_conditions.append('''
        |
     pobj/PRON
 ''')
-def auto_extract_trees_pattern_7(token):
+def auto_extract_trees_pattern_04(token):
     result = None
     is_result = False
 
@@ -159,22 +112,7 @@ def auto_extract_trees_pattern_7(token):
         result = to_nltk_tree_general(second_child)
         is_result = True
 
-    return {"is_result": is_result, "result" : result, "rule" : 7, "type": True}
-
-
-root_conditions.append('''
-    advcl/improves/VERB
-''')
-def auto_extract_trees_pattern_8(token):
-
-    result = None
-    is_result = False
-
-    if token.dep_ in ["advcl"] and token.pos_ in ["VERB"]:
-        result = to_nltk_tree_general(token)
-        is_result = True
-
-    return {"is_result": is_result, "result" : result, "rule" : 8, "type": False}
+    return {"is_result": is_result, "result" : result, "rule" : 4, "type": True}
 
 
 root_conditions.append('''
@@ -184,7 +122,7 @@ root_conditions.append('''
        |
     pobj/NOUN
 ''')
-def auto_extract_trees_pattern_9(token):
+def auto_extract_trees_pattern_05(token):
     result = None
     is_result = False
 
@@ -198,7 +136,7 @@ def auto_extract_trees_pattern_9(token):
         result = to_nltk_tree_general(second_child)
         is_result = True
 
-    return {"is_result": is_result, "result" : result, "rule" : 9, "type": True}
+    return {"is_result": is_result, "result" : result, "rule" : 5, "type": True}
 
 
 root_conditions.append('''
@@ -208,7 +146,7 @@ root_conditions.append('''
        |
     pobj/ADJ
 ''')
-def auto_extract_trees_pattern_10(token):
+def auto_extract_trees_pattern_06(token):
     result = None
     is_result = False
 
@@ -222,7 +160,7 @@ def auto_extract_trees_pattern_10(token):
         result = to_nltk_tree_general(second_child)
         is_result = True
 
-    return {"is_result": is_result, "result" : result, "rule" : 10, "type": True}
+    return {"is_result": is_result, "result" : result, "rule" : 6, "type": True}
 
 
 root_conditions.append('''
@@ -232,7 +170,7 @@ root_conditions.append('''
        |
     pobj/NOUN
 ''')
-def auto_extract_trees_pattern_11(token):
+def auto_extract_trees_pattern_07(token):
     result = None
     is_result = False
 
@@ -246,25 +184,7 @@ def auto_extract_trees_pattern_11(token):
         result = to_nltk_tree_general(second_child)
         is_result = True
 
-    return {"is_result": is_result, "result" : result, "rule" : 11, "type": True}
-
-
-root_conditions.append('''
-    improves
-       |
-    nsubj/NOUN
-''')
-def auto_extract_trees_pattern_12(token):
-    result = None
-    is_result = False
-
-    first_child = next((child for child in token.children if child.dep_ in ["nsubj"] and child.pos_ in ["NOUN"]), None)
-
-    if (first_child != None):
-        result = to_nltk_tree_general(first_child)
-        is_result = True
-
-    return {"is_result": is_result, "result" : result, "rule" : 12, "type": True}
+    return {"is_result": is_result, "result" : result, "rule" : 7, "type": True}
 
 
 root_conditions.append('''
@@ -272,7 +192,7 @@ root_conditions.append('''
        |
     dep/NUM
 ''')
-def auto_extract_trees_pattern_13(token):
+def auto_extract_trees_pattern_08(token):
     result = None
     is_result = False
 
@@ -282,7 +202,67 @@ def auto_extract_trees_pattern_13(token):
         result = to_nltk_tree_general(first_child)
         is_result = True
 
-    return {"is_result": is_result, "result" : result, "rule" : 13, "type": True}
+    return {"is_result": is_result, "result" : result, "rule" : 8, "type": True}
+
+
+root_conditions.append('''
+    improves
+       |
+    dobj/NUM
+''')
+def auto_extract_trees_pattern_09(token):
+    result = None
+    is_result = False
+
+    first_child = next((child for child in token.children if child.dep_ in ["dobj"] and child.pos_ in ["NUM"]), None)
+
+    if (first_child != None):
+        result = to_nltk_tree_general(first_child)
+        is_result = True
+
+    return {"is_result": is_result, "result" : result, "rule" : 9, "type": True}
+
+
+root_conditions.append('''
+    improves
+       |
+    prep/PART
+       |
+    pobj/PROPN
+''')
+def auto_extract_trees_pattern_10(token):
+    result = None
+    is_result = False
+
+    first_child = next((child for child in token.children if child.dep_ in ["prep"] and child.pos_ in ["PART"]), None)
+    second_child = None
+
+    if (first_child != None):
+        second_child = next((child for child in first_child.children if child.dep_ in ["pobj"] and child.pos_ in ["PROPN"]), None)
+
+    if (second_child != None):
+        result = to_nltk_tree_general(second_child)
+        is_result = True
+
+    return {"is_result": is_result, "result" : result, "rule" : 10, "type": True}
+
+
+root_conditions.append('''
+          dobj/NOUN
+              |
+              |
+    relcl/improves/VERB
+''')
+def auto_extract_trees_pattern_11(token):
+    result = None
+    is_result = False
+
+    if token.dep_ in ["relcl"] and token.pos_ in ["VERB"] \
+        and token.head.dep_ in ["dobj"] and token.head.pos_ in ["NOUN"] and token.head != token:
+        result = to_nltk_tree_general(token.head)
+        is_result = True
+
+    return {"is_result": is_result, "result" : result, "rule" : 11, "type": True}
 
 
 root_conditions.append('''
@@ -295,7 +275,7 @@ root_conditions.append('''
                                              |                                     |
                                          nsubj/NOUN                            dobj/NOUN
 ''')
-def auto_extract_trees_pattern_14(token):
+def auto_extract_trees_pattern_12(token):
     result = None
     is_result = False
 
@@ -315,7 +295,7 @@ def auto_extract_trees_pattern_14(token):
         if (second_child != None):
             result = to_nltk_tree_general(second_child)
             is_result = True
-            yield {"is_result": is_result, "result" : result, "rule" : 14, "type": True}
+            yield {"is_result": is_result, "result" : result, "rule" : 12, "type": True}
 
         second_child = None
 
@@ -325,10 +305,10 @@ def auto_extract_trees_pattern_14(token):
         if (second_child != None):
             result = to_nltk_tree_general(second_child)
             is_result = True
-            yield {"is_result": is_result, "result" : result, "rule" : 14, "type": True}
+            yield {"is_result": is_result, "result" : result, "rule" : 12, "type": True}
 
 
-    return {"is_result": is_result, "result" : result, "rule" : 14, "type": True}
+    return {"is_result": is_result, "result" : result, "rule" : 12, "type": True}
 
 
 root_conditions.append('''
@@ -336,7 +316,7 @@ root_conditions.append('''
        |
     advcl/VERB
 ''')
-def auto_extract_trees_pattern_15(token):
+def auto_extract_trees_pattern_13(token):
     result = None
     is_result = False
 
@@ -346,43 +326,67 @@ def auto_extract_trees_pattern_15(token):
         result = to_nltk_tree_general(first_child)
         is_result = True
 
-    return {"is_result": is_result, "result" : result, "rule" : 15, "type": True}
-
-
-root_conditions.append('''
-          dobj/NOUN
-              |
-              |
-    relcl/improves/VERB
-''')
-def auto_extract_trees_pattern_16(token):
-    result = None
-    is_result = False
-
-    if token.dep_ in ["relcl"] and token.pos_ in ["VERB"] \
-        and token.head.dep_ in ["dobj"] and token.head.pos_ in ["NOUN"] and token.head != token:
-        result = to_nltk_tree_general(token.head)
-        is_result = True
-
-    return {"is_result": is_result, "result" : result, "rule" : 16, "type": True}
+    return {"is_result": is_result, "result" : result, "rule" : 13, "type": True}
 
 
 root_conditions.append('''
     improves
        |
-    dobj/NUM
+    xcomp/VERB
 ''')
-def auto_extract_trees_pattern_17(token):
+def auto_extract_trees_pattern_14(token):
     result = None
     is_result = False
 
-    first_child = next((child for child in token.children if child.dep_ in ["dobj"] and child.pos_ in ["NUM"]), None)
+    first_child = next((child for child in token.children if child.dep_ in ["xcomp"] and child.pos_ in ["VERB"]), None)
 
     if (first_child != None):
         result = to_nltk_tree_general(first_child)
         is_result = True
 
-    return {"is_result": is_result, "result" : result, "rule" : 17, "type": True}
+    return {"is_result": is_result, "result" : result, "rule" : 14, "type": True}
+
+
+root_conditions.append('''
+    improves
+       |
+    prep/ADP
+       |
+    pcomp/VERB
+''')
+def auto_extract_trees_pattern_15(token):
+    result = None
+    is_result = False
+
+    first_child = next((child for child in token.children if child.dep_ in ["prep"] and child.pos_ in ["ADP"]), None)
+    second_child = None
+
+    if (first_child != None):
+        second_child = next((child for child in first_child.children if child.dep_ in ["pcomp"] and child.pos_ in ["VERB"]), None)
+
+    if (second_child != None):
+        result = to_nltk_tree_general(second_child)
+        is_result = True
+
+    return {"is_result": is_result, "result" : result, "rule" : 15, "type": True}
+
+
+root_conditions.append('''
+    improves
+       |
+    ccomp/VERB
+''')
+def auto_extract_trees_pattern_16(token):
+    result = None
+    is_result = False
+
+    first_child = next((child for child in token.children if child.dep_ in ["ccomp"] and child.pos_ in ["VERB"]), None)
+
+    if (first_child != None):
+        result = to_nltk_tree_general(first_child)
+        is_result = True
+
+    return {"is_result": is_result, "result" : result, "rule" : 16, "type": True}
 
 
 root_conditions.append('''
@@ -391,7 +395,7 @@ root_conditions.append('''
               |
     nsubj/improves/VERB
 ''')
-def auto_extract_trees_pattern_18(token):
+def auto_extract_trees_pattern_17(token):
     result = None
     is_result = False
 
@@ -400,31 +404,7 @@ def auto_extract_trees_pattern_18(token):
         result = to_nltk_tree_general(token.head)
         is_result = True
 
-    return {"is_result": is_result, "result" : result, "rule" : 18, "type": True}
-
-
-root_conditions.append('''
-    improves
-       |
-    prep/PART
-       |
-    pobj/PROPN
-''')
-def auto_extract_trees_pattern_19(token):
-    result = None
-    is_result = False
-
-    first_child = next((child for child in token.children if child.dep_ in ["prep"] and child.pos_ in ["PART"]), None)
-    second_child = None
-
-    if (first_child != None):
-        second_child = next((child for child in first_child.children if child.dep_ in ["pobj"] and child.pos_ in ["PROPN"]), None)
-
-    if (second_child != None):
-        result = to_nltk_tree_general(second_child)
-        is_result = True
-
-    return {"is_result": is_result, "result" : result, "rule" : 19, "type": True}
+    return {"is_result": is_result, "result" : result, "rule" : 17, "type": True}
 
 
 root_conditions.append('''
@@ -434,7 +414,7 @@ root_conditions.append('''
        |
     nsubj/PROPN
 ''')
-def auto_extract_trees_pattern_20(token):
+def auto_extract_trees_pattern_18(token):
     result = None
     is_result = False
 
@@ -448,7 +428,76 @@ def auto_extract_trees_pattern_20(token):
         result = to_nltk_tree_general(second_child)
         is_result = True
 
-    return {"is_result": is_result, "result" : result, "rule" : 20, "type": True}
+    return {"is_result": is_result, "result" : result, "rule" : 18, "type": True}
+
+
+root_conditions.append('''
+    improves
+       |
+    nsubj/NOUN
+''')
+def auto_extract_trees_pattern_19(token):
+    result = None
+    is_result = False
+
+    first_child = next((child for child in token.children if child.dep_ in ["nsubj"] and child.pos_ in ["NOUN"]), None)
+
+    if (first_child != None):
+        result = to_nltk_tree_general(first_child)
+        is_result = True
+
+    return {"is_result": is_result, "result" : result, "rule" : 19, "type": True}
+
+
+
+
+
+root_conditions.append('''
+    conj/improves/VERB
+''')
+def auto_extract_trees_pattern_20(token):
+    result = None
+    is_result = False
+
+    if token.dep_ in ["conj"] and token.pos_ in ["VERB"]:
+        result = to_nltk_tree_general(token)
+        is_result = True
+
+    return {"is_result": is_result, "result" : result, "rule" : 20, "type": False}
+
+
+root_conditions.append('''
+    csubj/improves/VERB
+''')
+def auto_extract_trees_pattern_21(token):
+
+    result = None
+    is_result = False
+
+    if token.dep_ in ["csubj"] and token.pos_ in ["VERB"]:
+        result = to_nltk_tree_general(token)
+        is_result = True
+
+    return {"is_result": is_result, "result" : result, "rule" : 21, "type": False}
+
+
+root_conditions.append('''
+    advcl/improves/VERB
+''')
+def auto_extract_trees_pattern_22(token):
+
+    result = None
+    is_result = False
+
+    if token.dep_ in ["advcl"] and token.pos_ in ["VERB"]:
+        result = to_nltk_tree_general(token)
+        is_result = True
+
+    return {"is_result": is_result, "result" : result, "rule" : 22, "type": False}
+
+
+
+
 
 def group_accounting_add(result, sentence, file, groups):
     found = False
