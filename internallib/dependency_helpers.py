@@ -1,7 +1,13 @@
 import sys
 import itertools
+import os
 
 from nltk import Tree
+
+import spacy
+import spacy.en
+
+from internallib.directories import *
 
 import logging, sys
 logger = logging.getLogger('root')
@@ -147,3 +153,25 @@ def prune_duplicates(results):
             b.append(sublist)
 
     return b
+
+def get_tokens(args):
+    en_nlp = spacy.load('en')
+
+    for fn in os.listdir(args.directory+raw_input):
+        if (fn == ".DS_Store"):
+            continue
+
+        name = args.directory + raw_input + fn
+
+        raw_text = ''
+
+        with open(name, 'r') as input:
+            raw_text = input.read()
+
+        en_doc = en_nlp(raw_text)
+
+
+        for sentence in en_doc.sents:
+            for token in sentence:
+                if (token.orth_.lower() == args.word.lower()):
+                    yield token

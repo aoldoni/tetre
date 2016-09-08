@@ -15,6 +15,7 @@ from functools import reduce
 ### import everything
 from corpkit import *
 from corpkit.dictionaries import *
+
 from nltk.corpus import wordnet as wn
 
 import spacy
@@ -27,33 +28,35 @@ from internallib.openie import *
 from internallib.directories import *
 from internallib.dependency_helpers import *
 from internallib.mining_patterns import *
+from internallib.graph import *
 from internallib import dependency_patterns
 from internallib import mining_patterns
+from internallib import graph
 
 logger = logging.getLogger('root')
 FORMAT = "[%(filename)s:%(lineno)s - %(funcName)30s()] %(message)s"
 logging.basicConfig(format=FORMAT, stream=sys.stderr, level=logging.INFO)
 
-
 word_being_analysed = "improves"
-
 
 auto_pattern_prefix = "auto_"
 dependency_patterns_list = [o for o in getmembers(dependency_patterns) if isfunction(o[1])]
 mining_patterns_list = [o for o in getmembers(mining_patterns) if isfunction(o[1])]
-
 
 def argparser():
     import argparse
     ap = argparse.ArgumentParser(description='Analyse corpus scripts',
                                  usage='%(prog)s [OPTIONS] DIRECTORY_PLEASE_NAME_FULL_INPUT_PATH')
     ap.add_argument('directory')
+    ap.add_argument('word')
     ap.add_argument('-l', '--lemma_search', action='store_true',
                     help='search for a given lemma and its variations in a parsed corpus')
     ap.add_argument('-s', '--spacy', action='store_true',
                     help='tries spacy command')
     ap.add_argument('-m', '--mine', action='store_true',
                     help='uses spacy to try to mine candidate trees')
+    ap.add_argument('-g', '--graph', action='store_true',
+                    help='uses spacy to generate tree graphs')
     return ap
 
 def lemma_search(args):
@@ -321,6 +324,9 @@ def regenerate(argv):
         spacy_parse(args)
     elif (args.mine):
         mine_candidate_trees(args)
+    elif (args.graph):
+        cmd = Command(args)
+        cmd.run()
 
 if __name__ == '__main__':
     sys.exit(regenerate(sys.argv))

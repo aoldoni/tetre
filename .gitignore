@@ -5,6 +5,7 @@ parsey/
 stanford/
 temp/
 training/
+output/
 .env/
 *.bin
 *.txt
