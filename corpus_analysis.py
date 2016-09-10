@@ -57,6 +57,7 @@ def argparser():
                     help='uses spacy to try to mine candidate trees')
     ap.add_argument('-g', '--graph', action='store_true',
                     help='uses spacy to generate tree graphs')
+    ap.add_argument('-format', help='format of the tree node accumulator')
     return ap
 
 def lemma_search(args):

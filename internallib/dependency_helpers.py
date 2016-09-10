@@ -9,6 +9,7 @@ import spacy.en
 
 from internallib.directories import *
 
+
 import logging, sys
 logger = logging.getLogger('root')
 FORMAT = "[%(filename)s:%(lineno)s - %(funcName)30s()] %(message)s"
@@ -174,4 +175,4 @@ def get_tokens(args):
         for sentence in en_doc.sents:
             for token in sentence:
                 if (token.orth_.lower() == args.word.lower()):
-                    yield token
+                    yield token, sentence

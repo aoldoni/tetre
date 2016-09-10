@@ -1,0 +1,22 @@
+<html>
+<head>
+    <title>Results</title>
+    <link rel="stylesheet" href="assets/colorbox.css" />
+    <script type="text/javascript" src="assets/jquery.min.js"></script>
+    <script type="text/javascript" src="assets/jquery.colorbox-min.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function(){
+                $(".sentences_group").colorbox({rel:'sentences_group', transition:"none", width:"75%", height:"75%"});
+            });
+        </script>
+</head>
+<body>
+
+<p>All results for word "improves"</p>
+
+<img class="main_img" src="{{ main_img }}" />
+
+{{ all_sentences }}
+
+</body>
+</html>
