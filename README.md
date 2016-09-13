@@ -71,6 +71,7 @@ E.g.:
     - `stanford/stanford-ner-2015-12-09`
 
 6. Inside `stanford/stanford-corenlp-full-2015-12-09/src` replace the code with:  
+    `cd stanford/stanford-corenlp-full-2015-12-09/src`  
     `rm -rf *`  
     `git clone https://github.com/aoldoni/comp9596-stanford-corenlp-full`  
 
