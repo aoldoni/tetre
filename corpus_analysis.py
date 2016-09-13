@@ -46,7 +46,7 @@ mining_patterns_list = [o for o in getmembers(mining_patterns) if isfunction(o[1
 def argparser():
     import argparse
     ap = argparse.ArgumentParser(description='Analyse corpus scripts',
-                                 usage='%(prog)s [OPTIONS] DIRECTORY_PLEASE_NAME_FULL_INPUT_PATH')
+                                 usage='%(prog)s [OPTIONS] WORD DIRECTORY_DATA')
     ap.add_argument('directory')
     ap.add_argument('word')
     ap.add_argument('-l', '--lemma_search', action='store_true',
@@ -319,6 +319,9 @@ def regenerate(argv):
 
     if (not args.directory.endswith("/")):
         args.directory = args.directory + "/"
+
+    if args.word != False:
+        word_being_analysed = args.word
 
     if (args.lemma_search):
         lemma_search(args)

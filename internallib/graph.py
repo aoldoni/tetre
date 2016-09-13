@@ -234,7 +234,8 @@ class Command(object):
 
         t = Template(index)
         c = Context({"main_img": "images/main_image.png",
-                     "all_sentences": mark_safe(all_imgs_html)})
+                     "all_sentences": mark_safe(all_imgs_html),
+                     "word": self.args.word})
 
         with open(self.output_path + 'results.html', 'w') as output:
             output.write(t.render(c))
@@ -307,7 +308,7 @@ class CommandGroup(Command):
         for token, sentence in get_tokens(self.args):
             img_path = self.process_sentence(sentence)
 
-            print("TOKEN - ", token.pos_, token.n_lefts, token.n_rights, list(token.children))
+            # print("TOKEN - ", token.pos_, token.n_lefts, token.n_rights, list(token.children))
 
             node_representation = token.pos_
             if token.n_lefts + token.n_rights > 0:
@@ -348,7 +349,7 @@ class CommandGroup(Command):
 
         all_imgs_html = ""
 
-        pprint.pprint(group_sorting(self.groups))
+        # pprint.pprint(group_sorting(self.groups))
 
         for group in group_sorting(self.groups):
             t = Template(each_img_accumulator)
@@ -369,7 +370,8 @@ class CommandGroup(Command):
             all_imgs_html += each_img_html
 
         t = Template(index_group)
-        c = Context({"all_sentences": mark_safe(all_imgs_html)})
+        c = Context({"all_sentences": mark_safe(all_imgs_html),
+                     "word": self.args.word})
 
         with open(self.output_path+'results.html', 'w') as output:
             output.write(t.render(c))
