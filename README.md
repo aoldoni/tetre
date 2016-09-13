@@ -8,7 +8,7 @@ These scripts help utilising existing tools in the task of information extractin
 - Download this toolkit:
     `git clone https://github.com/aoldoni/comp9596.git .`
 
-- Create directories and prepare assets data:
+- Create directories and prepare assets data:  
     `mkdir data models parsey stanford training`  
     `mkdir data/input data/output data/downloaded`  
     `mkdir data/output/html data/output/ngram data/output/openie data/output/rel`  
@@ -110,12 +110,12 @@ Paths and dependencies are maintained inside `internalib/directories/py`.
 
 1. Run `./get_data data`
 2. All the papers "related.txt" should now be in the `data/downloaded` folder.
-3. Move all `txt` files from `data/downloaded` to this inside `data/input`.
+3. Move all `txt` files from `data/downloaded` to `data/input`.
 4. Make sure you are inside the proper Virtualenv from Spacy (e.g.: `source .env/bin/activate`).
 5. Run:
     `./corpus_analysis.py data -g -format dep_,pos_ -behaviour groupby`
 
-Note you can change the behaviour to `accumulator` as to show the accumlated tre with the occurrencies of the dependency tree and part-of-speech tags.
+Note you can change the behaviour to `-behaviour accumulator` as to show the accumlated tre with the occurrencies of the dependency tree and part-of-speech tags.
 
 
 # NOTES
