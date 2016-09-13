@@ -5,7 +5,7 @@ These scripts help utilising existing tools in the task of information extractin
 
 # INSTALLATION
 
-- Download this toolkit:
+- Download this toolkit:  
     `git clone https://github.com/aoldoni/comp9596.git .`
 
 - Create directories and prepare assets data:  
@@ -25,17 +25,17 @@ The next steps depend on what you will be trying to run. In case of MacOS, uou m
 
 - Install PIP: https://pip.pypa.io/en/stable/installing/ - please install it using `python3` so all packages will be installed under the new version. This is important since if you install pip under `python` (i.e. for Python 2) the packages installed will not work in the python3 version of the code.
 
-- Install Graphviz binaries: http://www.graphviz.org/Download..php
-
-E.g.:
+E.g.:  
     `python3 get_pip.py`
 
-- Install the following Python/Python3 modules:
-    requests
-    BeautifulSoup4
+- Install the following Python/Python3 modules:  
+    - requests
+    - BeautifulSoup4
 
-E.g.:
+E.g.:  
     `python3 -m pip requests BeautifulSoup4`
+
+- Install Graphviz binaries: http://www.graphviz.org/Download..php
 
 
 ## INSTALLATION MAIN PACKAGES
@@ -43,15 +43,14 @@ E.g.:
 - Install Spacy, Virtualenv, and Spacy's English model: https://spacy.io/docs/#getting-started
 - Install NLTK (as a python3 module): http://www.nltk.org/install.html
 - Install Brat 1.3 Crunchy Frog: http://brat.nlplab.org/installation.html
-
 - Install the following Python/Python3 modules:
-    nltk
-    corpkit
-    corenlp-xml
-    django
-    graphviz
+    - nltk
+    - corpkit
+    - corenlp-xml
+    - django
+    - graphviz
 
-E.g.:
+E.g.:  
     `python3 -m pip nltk corpkit corenlp-xml`
 
 
@@ -60,7 +59,7 @@ E.g.:
 1. Install Java: http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html
 2. Install Maven: https://maven.apache.org/install.html
 
-3. Move into created directory:
+3. Move into created directory:  
     `cd stanford`
 
 4. Download the jars for:
@@ -71,7 +70,7 @@ E.g.:
     - `stanford/stanford-corenlp-full-2015-12-09`
     - `stanford/stanford-ner-2015-12-09`
 
-6. Inside `stanford/stanford-corenlp-full-2015-12-09/src` replace the code with:
+6. Inside `stanford/stanford-corenlp-full-2015-12-09/src` replace the code with:  
     `rm -rf *`  
     `git clone https://github.com/aoldoni/comp9596-stanford-corenlp-full`  
 
@@ -84,7 +83,7 @@ E.g.:
 
 ## INSTALLATION GOOGLE'S PARSEY
 
-- Move into created directory:
+- Move into created directory:  
     `cd parsey`
 
 - Install Google Syntaxnet: https://github.com/tensorflow/models/tree/master/syntaxnet#installation
@@ -93,15 +92,15 @@ E.g.:
 # SCRIPTS AND PURPOSE
 
 Scripts entry points are listed below with the intentions in a somewhat useful order:
-- get_data.py : Download data form the txt output server.
-- corpus_analysis.py : Generate data on the details of a given relationship.
-- process_gazette.py : Generate the gazette from the Microsoft academic data.
-- find_relations.py : Find the relations using either Stanford's OpenIE or Relation Extractor.
-- process_relations.py : Heuristics for OpenIE output processing. E.g.: Allows you to only keep relatinos with at least one NER recognized entity.
-- recompile_stanford.py : Recompile Stanford's full CoreNLP using Maven. This is needed for non-standard labels for NER.
-- regenerate_models.py : Regenerates the models to be used in the Stanford's CoreNLP based on anotated from Brat.
+- `get_data.py` : Download data form the txt output server.
+- `corpus_analysis.py` : Generate data on the details of a given relationship.
+- `process_gazette.py` : Generate the gazette from the Microsoft academic data.
+- `find_relations.py` : Find the relations using either Stanford's OpenIE or Relation Extractor.
+- `process_relations.py` : Heuristics for OpenIE output processing. E.g.: Allows you to only keep relatinos with at least one NER recognized entity.
+- `recompile_stanford.py` : Recompile Stanford's full CoreNLP using Maven. This is needed for non-standard labels for NER.
+- `regenerate_models.py` : Regenerates the models to be used in the Stanford's CoreNLP based on anotated from Brat.
 
-Paths and dependencies are maintained inside `internalib/directories/py`.
+Paths and dependencies are maintained inside `internalib/directories.py`.
 
 
 # USAGE
@@ -112,12 +111,14 @@ Paths and dependencies are maintained inside `internalib/directories/py`.
 2. All the papers "related.txt" should now be in the `data/downloaded` folder.
 3. Move all `txt` files from `data/downloaded` to `data/input`.
 4. Make sure you are inside the proper Virtualenv from Spacy (e.g.: `source .env/bin/activate`).
-5. Run:
-    `./corpus_analysis.py data -g -format dep_,pos_ -behaviour groupby`
+5. Run:  
+    `./corpus_analysis.py data improves -g -format dep_,pos_ -behaviour groupby`
 
 Notes that you can change the behaviour to `-behaviour accumulator` as to show the accumlated tre with the occurrencies of the dependency tree and part-of-speech tags.
 
 The script behaviour is to simply replace the content of the output folder (normally `data/output/html`) with newly generated, so please backup the outputs as you go. Please leave the `assets` folder inside `data/output/html`.
+
+The word `improves` can also be changed to any word.
 
 
 # NOTES
