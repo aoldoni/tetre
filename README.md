@@ -1,25 +1,23 @@
-TOOLKIT FOR EXPLORING TEXTS FOR RELATION EXTRACTION
----------------------------------------------------
+# TOOLKIT FOR EXPLORING TEXTS FOR RELATION EXTRACTION
 
 These scripts help utilising existing tools in the task of information extractino in a new corpus. They are mostly standalone commandline tools and functions that do data transformation, and parsing/preparation, while also invoking some other selected third party tools.
 
 
-INSTALLATION
-------------
+# INSTALLATION
 
 - Download this toolkit:
     `git clone https://github.com/aoldoni/comp9596.git .`
 
 - Create directories and prepare assets data:
-    `mkdir data models parsey stanford training`
-    `mkdir data/input data/output data/downloaded`
-    `mkdir data/output/html data/output/ngram data/output/openie data/output/rel`
+    `mkdir data models parsey stanford training`  
+    `mkdir data/input data/output data/downloaded`  
+    `mkdir data/output/html data/output/ngram data/output/openie data/output/rel`  
     `cp -R templates/assets data/output/html/assets`
 
 The next steps depend on what you will be trying to run. In case of MacOS, uou might want to replace some of these steps with using `brew`. Information to installing brew can be found at http://brew.sh/.
 
 
-# INSTALLATION PYTHON DEPENDENCIES
+## INSTALLATION PYTHON DEPENDENCIES
 
 - Install Python: http://docs.python-guide.org/en/latest/starting/installation/
     - This program expects Python 2 to be running as `python`.
@@ -40,7 +38,7 @@ E.g.:
     `python3 -m pip requests BeautifulSoup4`
 
 
-# INSTALLATION MAIN PACKAGES
+## INSTALLATION MAIN PACKAGES
 
 - Install Spacy, Virtualenv, and Spacy's English model: https://spacy.io/docs/#getting-started
 - Install NLTK (as a python3 module): http://www.nltk.org/install.html
@@ -57,7 +55,7 @@ E.g.:
     `python3 -m pip nltk corpkit corenlp-xml`
 
 
-# INSTALLATION STANFORD'S CORENLP
+## INSTALLATION STANFORD'S CORENLP
 
 1. Install Java: http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html
 2. Install Maven: https://maven.apache.org/install.html
@@ -74,8 +72,8 @@ E.g.:
     - `stanford/stanford-ner-2015-12-09`
 
 6. Inside `stanford/stanford-corenlp-full-2015-12-09/src` replace the code with:
-    `rm -rf *`
-    `git clone https://github.com/aoldoni/comp9596-stanford-corenlp-full`
+    `rm -rf *`  
+    `git clone https://github.com/aoldoni/comp9596-stanford-corenlp-full`  
 
 7. `cd ../../..`
 
@@ -84,7 +82,7 @@ E.g.:
 9. The file `stanford/stanford-corenlp-full-2015-12-09/stanford-corenlp-dblp.jar` should now exist.
 
 
-# INSTALLATION GOOGLE'S PARSEY
+## INSTALLATION GOOGLE'S PARSEY
 
 - Move into created directory:
     `cd parsey`
@@ -92,8 +90,7 @@ E.g.:
 - Install Google Syntaxnet: https://github.com/tensorflow/models/tree/master/syntaxnet#installation
 
 
-SCRIPTS AND PURPOSE
--------------------
+# SCRIPTS AND PURPOSE
 
 Scripts entry points are listed below with the intentions in a somewhat useful order:
 - get_data.py : Download data form the txt output server.
@@ -107,22 +104,20 @@ Scripts entry points are listed below with the intentions in a somewhat useful o
 Paths and dependencies are maintained inside `internalib/directories/py`.
 
 
-USAGE
------
+# USAGE
 
-# ANALYSE A RELATION
+## ANALYSE A RELATION
 
 1. Run `./get_data data`
 2. All the papers "related.txt" should now be in the `data/downloaded` folder.
 3. Move all `txt` files from `data/downloaded` to this inside `data/input`.
 4. Make sure you are inside the proper Virtualenv from Spacy (e.g.: `source .env/bin/activate`).
 5. Run:
-    - ./corpus_analysis.py data -g -format dep_,pos_ -behaviour groupby
-5. Run:
-    - ./corpus_analysis.py data -g -format dep_,pos_ -behaviour accumulator
+    `./corpus_analysis.py data -g -format dep_,pos_ -behaviour groupby`
+
+Note you can change the behaviour to `accumulator` as to show the accumlated tre with the occurrencies of the dependency tree and part-of-speech tags.
 
 
+# NOTES
 
-NOTES
------
-- This toolkit already contains an altered versino of Sampo Pyysalo's library https://github.com/spyysalo/standoff2conll which generates files in the Stanford's Relation Extractor based on the Brat's annotation standoff format.
+- This toolkit already contains an enhanced version of Sampo Pyysalo's library https://github.com/spyysalo/standoff2conll which generates files in the Stanford's Relation Extractor training formar, based on the Brat's annotation standoff format.
