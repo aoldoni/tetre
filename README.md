@@ -13,7 +13,7 @@ INSTALLATION BASE
 - Create directotories:
     `mkdir data models parsey stanford training`
 
-The next steps depend on what you will be trying to run. In case of MacOS, uou might want to replace some of these steps with using `brew`. Information to installing brew can be found at http://brew.sh/ .
+The next steps depend on what you will be trying to run. In case of MacOS, uou might want to replace some of these steps with using `brew`. Information to installing brew can be found at http://brew.sh/.
 
 
 INSTALLATION SPACY AND PYTHON DEPENDENCIES
