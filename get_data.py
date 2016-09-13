@@ -27,10 +27,7 @@ def get_all_related():
                                 relate_url = default_url + a_l0['href'] + a_l1['href'] + a_l2['href'] + a_l3['href']
                                 
                                 if a_l3['href'] == 'relate.txt':
-                                    # print(["is_link", relate_url ])
                                     yield [relate_url, [a_l0['href'] , a_l1['href'] , a_l2['href'] , a_l3['href']] ]
-                                # else:
-                                    # print(["NO", relate_url ])
 
     return
 

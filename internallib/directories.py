@@ -15,5 +15,8 @@ stanford_path = 'stanford/stanford-corenlp-full-2015-12-09/'
 output_openie = 'output/openie/'
 output_rel = 'output/rel/'
 output_ngram = 'output/ngram/'
+output_html = 'output/html/'
 
 raw_input = 'input/'
+
+html_templates = 'templates/'

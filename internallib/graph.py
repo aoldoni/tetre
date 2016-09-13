@@ -37,6 +37,8 @@ class Command(object):
         self.accumulated_print_each = 10
         self.file_extension = "png"
 
+        self.output_path = self.args.directory+output_html
+
     def run(self):
 
         accumulated_global_count = 0
@@ -144,7 +146,7 @@ class Command(object):
 
             i += 1
 
-        e.render('output/html/images/main_image' + id)
+        e.render(self.output_path + 'images/main_image' + id)
 
         return 'images/main_image' + id
 
@@ -161,7 +163,7 @@ class Command(object):
         img_path = 'images/' + img_name + "." + self.file_extension
         self.sentence_imgs.append(img_path)
 
-        e.render('output/html/images/' + img_name)
+        e.render(self.output_path + 'images/' + img_name)
 
         self.current_sentence_id += 1
 
@@ -200,13 +202,13 @@ class Command(object):
         each_img_accumulator = ""
         each_img = ""
 
-        with open('output/templates/index.html', 'r') as index:
+        with open(html_templates + 'index.html', 'r') as index:
             index = index.read()
 
-        with open('output/templates/each_img.html', 'r') as each_img:
+        with open(html_templates + 'each_img.html', 'r') as each_img:
             each_img = each_img.read()
 
-        with open('output/templates/each_img_accumulator.html', 'r') as each_img_accumulator:
+        with open(html_templates + 'each_img_accumulator.html', 'r') as each_img_accumulator:
             each_img_accumulator = each_img_accumulator.read()
 
         last_img = 0
@@ -234,7 +236,7 @@ class Command(object):
         c = Context({"main_img": "images/main_image.png",
                      "all_sentences": mark_safe(all_imgs_html)})
 
-        with open('output/html/results.html', 'w') as output:
+        with open(self.output_path + 'results.html', 'w') as output:
             output.write(t.render(c))
 
         return
@@ -275,7 +277,7 @@ class CommandGroup(Command):
 
         img_name = 'sentence-'+str(self.current_sentence_id)
 
-        e.render('output/html/images/' + img_name)
+        e.render(self.output_path + 'images/' + img_name)
 
         self.current_sentence_id += 1
 
@@ -333,13 +335,13 @@ class CommandGroup(Command):
         each_img_accumulator = ""
         each_img = ""
 
-        with open('output/templates/index_group.html', 'r') as index_group:
+        with open(html_templates + 'index_group.html', 'r') as index_group:
             index_group = index_group.read()
 
-        with open('output/templates/each_img.html', 'r') as each_img:
+        with open(html_templates + 'each_img.html', 'r') as each_img:
             each_img = each_img.read()
 
-        with open('output/templates/each_img_accumulator.html', 'r') as each_img_accumulator:
+        with open(html_templates + 'each_img_accumulator.html', 'r') as each_img_accumulator:
             each_img_accumulator = each_img_accumulator.read()
 
         i = 0
@@ -369,7 +371,7 @@ class CommandGroup(Command):
         t = Template(index_group)
         c = Context({"all_sentences": mark_safe(all_imgs_html)})
 
-        with open('output/html/results.html', 'w') as output:
+        with open(self.output_path+'results.html', 'w') as output:
             output.write(t.render(c))
 
         return
