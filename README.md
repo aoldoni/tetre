@@ -1,90 +1,71 @@
-1. run regenerate.py
+TOOLKIT FOR EXPLORING TEXTS FOR RELATION EXTRACTION
+---------------------------------------------------
 
-java -cp stanford/stanford-corenlp-full-2015-12-09/*:stanford/stanford-ner-2015-12-09/lib/* -Xmx2g edu.stanford.nlp.pipeline.StanfordCoreNLP -props dblp-pipeline.properties
-
-java -cp stanford/stanford-corenlp-full-2015-12-09/*:stanford/stanford-ner-2015-12-09/lib/* -Xmx4g edu.stanford.nlp.naturalli.OpenIE -props dblp-pipeline-openie.properties
-
+These scripts help utilising existing tools in the task of information extractino in a new corpus. They are mostly standalone commandline tools and functions that do data transformation, and parsing/preparation, while also invoking some other selected third party tools.
 
 
+INSTALLATION BASE
+-----------------
 
-Annotation:
-- Parameters estart and eend is the multiple entities for REL.
-- Debugging classifier, if it is not correct.
-- Opulent verb - it is not very meaningful since it is too common.
+- Download this toolkit:
+    `git clone https://github.com/aoldoni/comp9596.git .`
 
-Next steps:
-    - Get older output, classify more papers and sent to Dr. Wei.
-    - Try to find the source of the problem - for "it".
+- Create directotories:
+    `mkdir data models parsey stanford training`
 
-    - Disable of coref to simplify.
-    - Customize the output of OpenIE.
-    - Is there anything we can do to improve the output.
-        - Can we see if OpenIE has entities?
-        - Heuristics?
-        - Use OpenIE input and filter out noises.
+The next steps depend on what you will be trying to run. In case of MacOS, uou might want to replace some of these steps with using `brew`. Information to installing brew can be found at http://brew.sh/ .
 
-----------------------------
 
-Possible approaches:
-    - Gazette - Y
+INSTALLATION SPACY AND PYTHON DEPENDENCIES
+------------------------------------------
 
-    - I think it was very clear from our meeting that the OpenIE tool is the more promising one. I just wonder at this point if we would “stop” any work on the Relation Extractor or advance on both in parallel. What I mean is:
-    
-    - Currently the only relations I annotate are “Improves / Worsen / IsA / Uses”. Moreover, in practice, unfortunately “Improves / Worsen” are not really seen too much. When then checking the “top 50” relations from the OpenIE, and ignoring the “opulent verbs” we find other relations such as: ('provide', 47), ('deﬁnes', 46), ('extend', 46), ('compute', 42), ('achieve', 42), ('builds on', 40), ('introduced', 38), ('consider', 38), ('using', 38), ('ﬁnd', 35), ('generate', 35), ('was', 34), ('store', 31), ('focuses on', 31), ('propose', 28), ('were', 26), ('accessing', 25), ('cleaning', 25) …. is there any value in going back from these "emerged” relations and, if they are correct, annotate the data to train the Relation Extractor?
-    
-    - Still I only annotated around 20 papers for training. At some point I remember you mentioned maybe we should annotate at least 100 to do a fair comparison between the methods (Ideally much much more, but given the constraints at least 100). Is it still correct? I.e.: In parallel, I should continue to manually annotate more data for the Relation Extractor model.
+- Install Python: http://docs.python-guide.org/en/latest/starting/installation/
+    - This program expects Python 2 to be running as `python`.
+    - This program expects Python 3 to be running as `python3`.
 
-    - What could be our goal?
-        - Make OpenIE fit a schema
-        - Define a schema to be matched with openIE.
-        - Strategy: accumlate the documents that actually contain these relations (biased, but OK for the purpose).
-        - Then compare with Relatino Extractor in a text of 100 of these annotated relations.
-        - Then do cross-validation and measure performance.
+- Install PIP: https://pip.pypa.io/en/stable/installing/
+- Install Spacy and Virtualenv: https://spacy.io/docs/#getting-started
+- Install NLTK: http://www.nltk.org/install.html
+- Install Brat 1.3 Crunchy Frog: http://brat.nlplab.org/installation.html
 
-    Full path for maximization:
-    - Use Stanfor NLP for POS
-    - Rule Based NER? E.g.: match the gazette?
-    - Global NER? E.g.: extract all the entities and then share these globally when filtering relations.
 
-    Future work:
-    - Other papers entity resolution:
-        - add entities form other papers / trivial but would help a lot with meaning.
-        - some papers don't name their processes.
-    - Entity disambiguation.
-    - Coref resolution.
+INSTALLATION STANFORD'S CORENLP
+-------------------------------
 
-----------------------------
+- Install Java: http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html
+- Install Maven: https://maven.apache.org/install.html
 
-- Debug some lines - line by line. Show the results form each classifier.
-- Note the limitations:
-    - Relation Extractor - just in the same sentences.
-    - OpenIE - seem much more relevant results, but not involving entities. Just close relations, as there are 2 trainers, 1 to determine the sentence split. and another to have internal.
+- Move into created directory:
+    `cd stanford`
 
-----------------------------
-
-- Install standoff2conll
-- Install corpkit
-- Install corenlp-xml
+- Download the jars:
+    - 
 
 
 
-
-
-ERRORS:
-Processing file: data/input/acl_2014_P14-1105_relate.txt
-Processing file: data/input/acl_2015_P15-1067_relate.txt
-Processing file: data/input/emnlp_2006_W06-1622_relate.txt
-Processing file: data/input/emnlp_2013_D13-1017_relate.txt
-Broke in data/input/emnlp_2013_D13-1204_relate.txt
+INSTALLATION GOOGLE'S PARSEY
+-------------------------------
+    `cd parsey`
 
 
 
+SCRIPTS AND PURPOSE
+-------------------
 
+Scripts are listed below with the intentions in a somewhat useful order:
+- corpus_analysis.py
+- find_relations.py
+- get_data.py
+- process_gazette.py
+- process_relations.py
+- recompile_stanford.py
+- regenerate_models.py
 
+Paths and dependencies are 
 
+USAGE
+-----
 
------------------------
-
-Sentences for debugging:
- Using many ASR hypotheses helps recover the ASR errors of NE words in 1-best ASR results and improves NER accuracy.
- In recent years, researchers have shown that even using a limited amount of manually aligned data improves word alignment significantly (Callison-Burch et al., 2004).
+NOTES
+-----
+- This toolkit already contains an altered versino of Sampo Pyysalo's library https://github.com/spyysalo/standoff2conll which generates files in the Stanford's Relation Extractor based on the Brat's annotation standoff format.
