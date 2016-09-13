@@ -58,6 +58,7 @@ def argparser():
     ap.add_argument('-g', '--graph', action='store_true',
                     help='uses spacy to generate tree graphs')
     ap.add_argument('-format', help='format of the tree node accumulator')
+    ap.add_argument('-behaviour', help='grouping or listing')
     return ap
 
 def lemma_search(args):
@@ -326,7 +327,10 @@ def regenerate(argv):
     elif (args.mine):
         mine_candidate_trees(args)
     elif (args.graph):
-        cmd = Command(args)
+        if (args.behaviour == "accumulator"):
+            cmd = Command(args)
+        elif (args.behaviour == "groupby"):
+            cmd = CommandGroup(args)
         cmd.run()
 
 if __name__ == '__main__':

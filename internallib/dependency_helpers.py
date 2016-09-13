@@ -115,17 +115,18 @@ def get_noun_chunck(token, all_noun_chuncks):
             else:
                 return token
 
-def to_nltk_tree_general(node, attr_list = ["dep_", "pos_"], simplification = 0):
+def to_nltk_tree_general(node, attr_list = ["dep_", "pos_"], level = 99999):
+
     node_representation = ''
 
     value_list = [getattr(node, attr) for attr in attr_list]
     node_representation = "/".join(value_list)
 
-    # if (simplification == 1):
-        # node_representation += "/" +
+    if level == 0:
+        return node_representation
 
     if node.n_lefts + node.n_rights > 0:
-        return Tree(node_representation, [to_nltk_tree_general(child, attr_list) for child in node.children])
+        return Tree(node_representation, [to_nltk_tree_general(child, attr_list, level-1) for child in node.children])
     else:
         return node_representation
 
@@ -154,6 +155,10 @@ def prune_duplicates(results):
             b.append(sublist)
 
     return b
+
+def group_sorting(groups):
+    newlist = sorted(groups, key=lambda x: x["sum"], reverse=True)
+    return newlist
 
 def get_tokens(args):
     en_nlp = spacy.load('en')

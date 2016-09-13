@@ -524,10 +524,6 @@ def group_accounting(result, sentence, file):
     else:
         group_accounting_add(result, sentence, file, groups_negative)
 
-def group_sorting(groups):
-    newlist = sorted(groups, key=lambda x: x["sum"], reverse=True)
-    return newlist
-
 def group_print(groups, i, type):
     pp = pprint.PrettyPrinter(indent=4)
 
