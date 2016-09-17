@@ -115,7 +115,9 @@ Paths and dependencies are maintained inside `internalib/directories.py`.
 5. Run:  
     `./corpus_analysis.py data improves -g -format dep_,pos_ -behaviour groupby`
 
-Notes that you can change the behaviour to `-behaviour accumulator` as to show the accumlated tre with the occurrencies of the dependency tree and part-of-speech tags.
+Notes:
+- Change the behaviour to `-behaviour accumulator` as to show the accumlated tree with the occurrencies of the dependency tree and part-of-speech tags.
+- Change the command to `-format dep_,pos_ -behaviour groupby` so you can apply simplificatino rules in the trees.
 
 The script behaviour is to simply replace the content of the output folder (normally `data/output/html`) with newly generated, so please backup the outputs as you go. Please leave the `assets` folder inside `data/output/html`.
 
