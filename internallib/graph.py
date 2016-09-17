@@ -15,8 +15,11 @@ from functools import reduce
 import pprint
 
 from internallib.dependency_helpers import *
+from internallib.directories import *
 
-class Command(object):
+from internallib.graph_processing import Process
+
+class CommandAccumulative(object):
     def __init__(self, args):
         self.args = args
 
@@ -132,7 +135,7 @@ class Command(object):
             percentage = (100 * len(value)) / total_len_accumulator_children
             sorted_values = sorted(value.items(), key=operator.itemgetter(1))
             e.node(str(i), "\n".join([value[0] for value in sorted_values]))
-            e.edge(main_node, str(i), label=key, xlabel="{0:.2f}".format(percentage))
+            e.edge(main_node, str(i), label=key, xlabel="{0:.2f}%".format(percentage))
 
             i += 1
 
@@ -142,7 +145,7 @@ class Command(object):
             percentage = (100 * len(value)) / total_len_accumulator_parents
             sorted_values = sorted(value.items(), key=operator.itemgetter(1))
             e.node(str(i), "\n".join([value[0] for value in sorted_values]))
-            e.edge(str(i), main_node, label=key, xlabel="{0:.2f}".format(percentage))
+            e.edge(str(i), main_node, label=key, xlabel="{0:.2f}%".format(percentage))
 
             i += 1
 
@@ -242,13 +245,40 @@ class Command(object):
 
         return
 
-class CommandGroup(Command):
+
+
+class CommandGroup(CommandAccumulative):
     def __init__(self, args):
-        Command.__init__(self, args)
+        CommandAccumulative.__init__(self, args)
         self.args = args
         self.groups = []
 
         self.depth = 1
+
+        self.take_pos_into_consideration = len([params for params in self.args.format.split(",") if params == "pos_"])
+
+    def run(self):
+
+        rule_applier = Process()
+        params = self.args.format.split(",")
+
+        for token, sentence in get_tokens(self.args):
+            img_path = self.process_sentence(sentence)
+
+            # print("TOKEN - ", token.pos_, token.n_lefts, token.n_rights, list(token.children))
+
+            node_representation = token.pos_
+            if token.n_lefts + token.n_rights > 0:
+                tree = Tree(node_representation, [to_nltk_tree_general(child, attr_list=params, level=0) for child in token.children])
+            else:
+                tree = Tree(node_representation, [])
+
+            self.group_accounting_add(tree, token, sentence, img_path)
+
+        self.main_image = self.graph_gen_generate(self.accumulated_parents, self.accumulated_children)
+        self.graph_gen_html()
+
+        return
 
     def group_accounting_add(self, tree, token, sentence, img_path):
         found = False
@@ -258,16 +288,17 @@ class CommandGroup(Command):
                 group["sum"] = group["sum"] + 1
                 group["sentences"].append({"sentence" : sentence, "token" : token, "img_path" : img_path})
                 found = True
+                break
 
         if (not found):
             self.groups.append({"representative" : tree, \
                 "sum" : 1, \
-                "img" : self.gen_group_image(token, self.depth), \
+                "img" : self.gen_group_image(token, tree, self.depth), \
                 "sentences" : [ \
                     {"sentence" : sentence, "token" : token, "img_path" : img_path} \
                 ]})
 
-    def gen_group_image(self, token, depth):
+    def gen_group_image(self, token, tree, depth):
         e = Digraph(self.args.word, format='png')
         e.attr('node', shape='box')
 
@@ -296,30 +327,14 @@ class CommandGroup(Command):
             current_global_id[str(self.current_token_id)] = child
 
         for child_id, child in current_global_id.items():
-            e.node(child_id, child.pos_)
+            if (self.take_pos_into_consideration):
+                e.node(child_id, child.pos_)
+            else:
+                e.node(child_id, "???")
             e.edge(str(parent_id), child_id, label=child.dep_)
 
         for child_id, child in current_global_id.items():
             self.sentence_to_graph_recursive_with_depth(child, child_id, e, depth-1)
-
-        return
-
-    def run(self):
-        for token, sentence in get_tokens(self.args):
-            img_path = self.process_sentence(sentence)
-
-            # print("TOKEN - ", token.pos_, token.n_lefts, token.n_rights, list(token.children))
-
-            node_representation = token.pos_
-            if token.n_lefts + token.n_rights > 0:
-                tree = Tree(node_representation, [to_nltk_tree_general(child, level=0) for child in token.children])
-            else:
-                tree = Tree(node_representation, [])
-
-            self.group_accounting_add(tree, token, sentence, img_path)
-
-        self.main_image = self.graph_gen_generate(self.accumulated_parents, self.accumulated_children)
-        self.graph_gen_html()
 
         return
 
@@ -352,6 +367,7 @@ class CommandGroup(Command):
         # pprint.pprint(group_sorting(self.groups))
 
         for group in group_sorting(self.groups):
+
             t = Template(each_img_accumulator)
             c = Context({"accumulator_img": group["img"]})
             all_imgs_html += t.render(c)
@@ -377,3 +393,53 @@ class CommandGroup(Command):
             output.write(t.render(c))
 
         return
+
+
+
+class CommandSimplifiedGroup(CommandGroup):
+    def __init__(self, args):
+        CommandGroup.__init__(self, args)
+
+    def run(self):
+
+        rule_applier = Process()
+        params = self.args.format.split(",")
+
+        for token, sentence in get_tokens(self.args):
+            img_path = self.process_sentence(sentence)
+
+            # print("TOKEN - ", token.pos_, token.n_lefts, token.n_rights, list(token.children))
+
+            node_representation = token.pos_
+            if token.n_lefts + token.n_rights > 0:
+                tree = Tree(node_representation, [to_nltk_tree_general(child, attr_list=params, level=0) for child in token.children])
+            else:
+                tree = Tree(node_representation, [])
+
+            tree = rule_applier.applyAll(tree, token)
+            self.group_accounting_add(tree, token, sentence, img_path)
+
+        self.main_image = self.graph_gen_generate(self.accumulated_parents, self.accumulated_children)
+        self.graph_gen_html()
+
+    def gen_group_image(self, token, tree, depth):
+        e = Digraph(self.args.word, format='png')
+        e.attr('node', shape='box')
+
+        current_id = self.current_token_id
+        e.node(str(current_id), tree.label())
+
+        current_global_id = {}
+
+        for child in tree:
+            self.current_token_id = self.current_token_id + 1
+            current_global_id[str(self.current_token_id)] = child
+
+        for child_id, child in current_global_id.items():
+            e.node(child_id, "???")
+            e.edge(str(current_id), child_id, label=child)
+
+        img_name = 'sentence-'+str(self.current_sentence_id)
+        e.render(self.output_path + 'images/' + img_name)
+        self.current_sentence_id += 1
+        return 'images/' + img_name + "." + self.file_extension

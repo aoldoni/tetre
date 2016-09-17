@@ -175,7 +175,7 @@ def get_tokens(args):
             raw_text = input.read()
 
         en_doc = en_nlp(raw_text)
-
+        
 
         for sentence in en_doc.sents:
             for token in sentence:
