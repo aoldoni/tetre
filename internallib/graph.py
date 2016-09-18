@@ -15,6 +15,7 @@ from functools import reduce
 import pprint
 
 from internallib.dependency_helpers import *
+from internallib.tree_utils import *
 from internallib.directories import *
 
 from internallib.graph_processing import Process
@@ -251,7 +252,7 @@ class CommandGroup(CommandAccumulative):
     def __init__(self, args):
         CommandAccumulative.__init__(self, args)
         self.args = args
-        self.groups = []
+        self.groups = {}
 
         self.depth = 1
 
@@ -283,20 +284,37 @@ class CommandGroup(CommandAccumulative):
     def group_accounting_add(self, tree, token, sentence, img_path):
         found = False
 
-        for group in self.groups:
-            if (group["representative"] == tree):
-                group["sum"] = group["sum"] + 1
-                group["sentences"].append({"sentence" : sentence, "token" : token, "img_path" : img_path})
-                found = True
-                break
+        # nltk_tree_to_qtree(tree)
 
-        if (not found):
-            self.groups.append({"representative" : tree, \
+        string = nltk_tree_to_qtree(tree)
+
+        if (string in self.groups):
+            group = self.groups[string]
+
+            group["sum"] = group["sum"] + 1
+            group["sentences"].append({"sentence" : sentence, "token" : token, "img_path" : img_path})
+        else:
+            self.groups[string] = {"representative" : tree, \
                 "sum" : 1, \
                 "img" : self.gen_group_image(token, tree, self.depth), \
                 "sentences" : [ \
                     {"sentence" : sentence, "token" : token, "img_path" : img_path} \
-                ]})
+                ]}
+
+        # for group in self.groups:
+        #     if (group["representative"] == tree):
+        #         group["sum"] = group["sum"] + 1
+        #         group["sentences"].append({"sentence" : sentence, "token" : token, "img_path" : img_path})
+        #         found = True
+        #         break
+
+        # if (not found):
+        #     self.groups.append({"representative" : tree, \
+        #         "sum" : 1, \
+        #         "img" : self.gen_group_image(token, tree, self.depth), \
+        #         "sentences" : [ \
+        #             {"sentence" : sentence, "token" : token, "img_path" : img_path} \
+        #         ]})
 
     def gen_group_image(self, token, tree, depth):
         e = Digraph(self.args.word, format='png')
@@ -418,6 +436,7 @@ class CommandSimplifiedGroup(CommandGroup):
                 tree = Tree(node_representation, [])
 
             tree = rule_applier.applyAll(tree, token)
+
             self.group_accounting_add(tree, token, sentence, img_path)
 
         self.main_image = self.graph_gen_generate(self.accumulated_parents, self.accumulated_children)

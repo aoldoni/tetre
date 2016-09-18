@@ -157,6 +157,8 @@ def prune_duplicates(results):
     return b
 
 def group_sorting(groups):
+    if isinstance(groups, dict):
+        groups = list(groups.values())
     newlist = sorted(groups, key=lambda x: x["sum"], reverse=True)
     return newlist
 
@@ -186,4 +188,4 @@ def get_tokens(args):
 
 def highlight_word(sentence, word):
     string_sentence = str(sentence)
-    return string_sentence.replace(word, "<strong>"+word+"</strong>")
+    return string_sentence.replace(word, "<strong>" + word.upper() + "</strong>")
