@@ -20,6 +20,8 @@ from internallib.directories import *
 
 from internallib.graph_processing import Process
 
+from internallib.cache import get_cached_sentence_image
+
 class CommandAccumulative(object):
     def __init__(self, args):
         self.args = args
@@ -155,20 +157,26 @@ class CommandAccumulative(object):
         return 'images/main_image' + id
 
     def sentence_to_graph(self, sentence):
-        e = Digraph(self.args.word, format='png')
-        e.attr('node', shape='box')
-
-        current_id = self.current_token_id
-        e.node(str(current_id), sentence.root.orth_)
-
-        self.sentence_to_graph_recursive(sentence.root, current_id, e)
 
         img_name = 'sentence-'+str(self.current_sentence_id)
-        img_path = 'images/' + img_name + "." + self.file_extension
+        img_dot_path = 'images/' + img_name
+        img_path = img_dot_path + "." + self.file_extension
         self.sentence_imgs.append(img_path)
 
-        e.render(self.output_path + 'images/' + img_name)
+        found = get_cached_sentence_image(self.args, \
+                                            self.output_path, \
+                                            self.current_sentence_id, \
+                                            self.file_extension)
 
+        if (not found):
+            e = Digraph(self.args.word, format=self.file_extension)
+            e.attr('node', shape='box')
+
+            current_id = self.current_token_id
+            e.node(str(current_id), sentence.root.orth_)
+            self.sentence_to_graph_recursive(sentence.root, current_id, e)
+            e.render(self.output_path + img_dot_path)
+        
         self.current_sentence_id += 1
 
         return img_path
@@ -237,7 +245,7 @@ class CommandAccumulative(object):
             all_imgs_html += each_img_html
 
         t = Template(index)
-        c = Context({"main_img": "images/main_image.png",
+        c = Context({"main_img": "images/main_image." + self.file_extension,
                      "all_sentences": mark_safe(all_imgs_html),
                      "word": self.args.word})
 
@@ -302,7 +310,7 @@ class CommandGroup(CommandAccumulative):
                 ]}
 
     def gen_group_image(self, token, tree, depth):
-        e = Digraph(self.args.word, format='png')
+        e = Digraph(self.args.word, format=self.file_extension)
         e.attr('node', shape='box')
 
         current_id = self.current_token_id
@@ -428,7 +436,7 @@ class CommandSimplifiedGroup(CommandGroup):
         self.graph_gen_html()
 
     def gen_group_image(self, token, tree, depth):
-        e = Digraph(self.args.word, format='png')
+        e = Digraph(self.args.word, format=self.file_extension)
         e.attr('node', shape='box')
 
         current_id = self.current_token_id

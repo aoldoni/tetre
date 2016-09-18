@@ -16,6 +16,7 @@ output_openie = 'output/openie/'
 output_rel = 'output/rel/'
 output_ngram = 'output/ngram/'
 output_html = 'output/html/'
+output_cache = 'output/cache/'
 
 raw_input = 'input/'
 

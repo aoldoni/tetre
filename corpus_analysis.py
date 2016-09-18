@@ -59,6 +59,8 @@ def argparser():
                     help='uses spacy to generate tree graphs')
     ap.add_argument('-format', help='format of the tree node accumulator')
     ap.add_argument('-behaviour', help='groupby|listing|simplified_groupby')
+    ap.add_argument('-f', '--force_clean', action='store_true',
+                    help='ignores any caching and forces reprocessing')
     return ap
 
 def lemma_search(args):

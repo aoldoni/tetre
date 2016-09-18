@@ -9,10 +9,10 @@ These scripts help utilising existing tools in the task of information extractin
     `git clone https://github.com/aoldoni/comp9596.git .`
 
 - Create directories and prepare assets data:  
-    `mkdir data models parsey stanford training`  
-    `mkdir data/input data/output data/downloaded`  
-    `mkdir data/output/html data/output/ngram data/output/openie data/output/rel`  
-    `cp -R templates/assets data/output/html/assets`
+    `mkdir data models parsey stanford training data/input data/output data/downloaded data/output/html data/output/ngram data/output/openie data/output/rel data/output/cache`
+    `cd data/output/html/assets`
+    `ln -s ../../../templates/assets/ assets`
+    `cd ../../..`
 
 The next steps depend on what you will be trying to run. In case of MacOS, uou might want to replace some of these steps with using `brew`. Information to installing brew can be found at http://brew.sh/.
 

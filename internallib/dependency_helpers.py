@@ -1,6 +1,8 @@
 import sys
 import itertools
 import os
+import pickle
+
 
 from nltk import Tree
 
@@ -8,6 +10,7 @@ import spacy
 import spacy.en
 
 from internallib.directories import *
+from internallib.cache import get_cached_tokens
 
 
 import logging, sys
@@ -163,28 +166,10 @@ def group_sorting(groups):
     return newlist
 
 def get_tokens(args):
-    en_nlp = spacy.load('en')
+    sentences = get_cached_tokens(args)
 
-    for fn in os.listdir(args.directory+raw_input):
-        if (fn == ".DS_Store"):
-            continue
-
-        name = args.directory + raw_input + fn
-
-        raw_text = ''
-
-        with open(name, 'r') as input:
-            raw_text = input.read()
-
-        if (args.word not in raw_text):
-            continue
-
-        en_doc = en_nlp(raw_text)
-
-        for sentence in en_doc.sents:
-            for token in sentence:
-                if (token.orth_.lower() == args.word.lower()):
-                    yield token, sentence
+    for token, sentence in sentences:
+        yield token, sentence
 
 def highlight_word(sentence, word):
     string_sentence = str(sentence)
