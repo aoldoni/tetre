@@ -174,8 +174,10 @@ def get_tokens(args):
         with open(name, 'r') as input:
             raw_text = input.read()
 
+        if (args.word not in raw_text):
+            continue
+
         en_doc = en_nlp(raw_text)
-        
 
         for sentence in en_doc.sents:
             for token in sentence:
