@@ -301,21 +301,6 @@ class CommandGroup(CommandAccumulative):
                     {"sentence" : sentence, "token" : token, "img_path" : img_path} \
                 ]}
 
-        # for group in self.groups:
-        #     if (group["representative"] == tree):
-        #         group["sum"] = group["sum"] + 1
-        #         group["sentences"].append({"sentence" : sentence, "token" : token, "img_path" : img_path})
-        #         found = True
-        #         break
-
-        # if (not found):
-        #     self.groups.append({"representative" : tree, \
-        #         "sum" : 1, \
-        #         "img" : self.gen_group_image(token, tree, self.depth), \
-        #         "sentences" : [ \
-        #             {"sentence" : sentence, "token" : token, "img_path" : img_path} \
-        #         ]})
-
     def gen_group_image(self, token, tree, depth):
         e = Digraph(self.args.word, format='png')
         e.attr('node', shape='box')
