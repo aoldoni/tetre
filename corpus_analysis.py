@@ -225,9 +225,6 @@ def mine_pattern_based_finder(token):
     for function in mining_patterns_list:
         if (auto_pattern_prefix in function[0]):
 
-            # print("-- result --")
-            # print(function[0])
-
             prev_result = function[1](token)
 
             if (isinstance(prev_result, types.GeneratorType)):
@@ -236,10 +233,6 @@ def mine_pattern_based_finder(token):
                 results = [prev_result]
 
             results = [result for result in results if result["is_result"]]
-
-            # print(results)
-            # print(len(results))
-            # print("-- result --")
 
             if (len(results) > 0):
                 return results
@@ -269,46 +262,18 @@ def mine_candidate_trees_inner(args):
             for token in sentence:
                 if (token.orth_.lower() == word_being_analysed.lower()):
 
-                    # print()
-                    # print("SENTENCE:            ", str(sentence).replace("\r","").replace("\n","").strip())
-                    # print()
-
                     results = mine_pattern_based_finder(token)
-
-                    # print()
-                    # print("-----------------------------")
 
                     for result in results:
                         group_accounting(result, sentence, fn)
 
                     i += 1
 
-                    # if (i > 25):
-                    #     return i
-
-                    # print()
-                    # print("-----------------------------")
-
-                    # print("FILE: ", fn)
-
-                    # print()
-                    # print_tree(sentence)
-                    # print()
-
-                    # print("SENTENCE: ", sentence)
-
-                    # pp.pprint([group for group in groups if group["sum"] > threshold_sum_to_print])
-                    # print("-----------------------------")
-                    # print()
-
                     for result in results:
                         if (not result["is_result"]):
                             raise Exception("Untreated pattern!")
                             return i
 
-    # print("-----------------------------")
-    # print("OVER!")
-    # print("-----------------------------")
     return i
 
 def mine_candidate_trees(args):

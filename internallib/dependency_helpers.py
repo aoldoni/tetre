@@ -3,7 +3,6 @@ import itertools
 import os
 import pickle
 
-
 from nltk import Tree
 
 import spacy
@@ -11,7 +10,6 @@ import spacy.en
 
 from internallib.directories import *
 from internallib.cache import get_cached_tokens
-
 
 import logging, sys
 logger = logging.getLogger('root')

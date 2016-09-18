@@ -9,6 +9,7 @@ import spacy
 import spacy.en
 
 from internallib.directories import *
+from internallib.tree_utils import TreeNode, spacy_to_treenode
 
 def get_cached_sentence_image(args, output_path, current_sentence_id, file_extension):
     updated_at_date = os.path.getmtime(args.directory + raw_input)
@@ -28,41 +29,40 @@ def get_cached_sentence_image(args, output_path, current_sentence_id, file_exten
 def get_cached_tokens(args):
     sentences = []
 
-    can_pickle = False
-
     updated_at_date = os.path.getmtime(args.directory + raw_input)
     cache_key = args.word.lower() + str(int(updated_at_date))
     cache_file = args.directory + output_cache + cache_key + ".spacy"
 
-    # if (os.path.isfile(cache_file) and not args.force_clean and can_pickle):
-    #     with open(cache_file, 'rb') as f:
-    #         sentences = pickle.load(f)
-    # else:
-    en_nlp = spacy.load('en')
+    if (os.path.isfile(cache_file) and not args.force_clean):
+        with open(cache_file, 'rb') as f:
+            sentences = pickle.load(f)
+    else:
+        en_nlp = spacy.load('en')
 
+        for fn in os.listdir(args.directory+raw_input):
+            if (fn == ".DS_Store"):
+                continue
 
-    for fn in os.listdir(args.directory+raw_input):
-        if (fn == ".DS_Store"):
-            continue
+            name = args.directory + raw_input + fn
 
-        name = args.directory + raw_input + fn
+            raw_text = ''
 
-        raw_text = ''
+            with open(name, 'r') as input:
+                raw_text = input.read()
 
-        with open(name, 'r') as input:
-            raw_text = input.read()
+            if (args.word not in raw_text):
+                continue
 
-        if (args.word not in raw_text):
-            continue
+            en_doc = en_nlp(raw_text)
 
-        en_doc = en_nlp(raw_text)
+            for sentence in en_doc.sents:
+                sentence_tree = spacy_to_treenode(sentence.root, string_representation = str(sentence))
 
-        for sentence in en_doc.sents:
-            for token in sentence:
-                if (token.orth_.lower() == args.word.lower()):
-                    sentences.append( (token, sentence) )
+                for token in sentence_tree.to_sentence_list():
+                    if (token.orth_.lower() == args.word.lower()):
+                        sentences.append( (token, sentence_tree) )
 
-        # with open(cache_file, "wb") as f:
-        #     pickle.dump(sentences, f, protocol=pickle.HIGHEST_PROTOCOL)
+            with open(cache_file, "wb") as f:
+                pickle.dump(sentences, f, protocol=pickle.HIGHEST_PROTOCOL)
 
     return sentences
