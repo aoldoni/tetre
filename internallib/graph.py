@@ -263,6 +263,7 @@ class CommandGroup(CommandAccumulative):
         self.groups = {}
 
         self.depth = 1
+        self.current_group_id = 0
 
         self.take_pos_into_consideration = len([params for params in self.args.format.split(",") if params == "pos_"])
 
@@ -318,11 +319,11 @@ class CommandGroup(CommandAccumulative):
 
         self.sentence_to_graph_recursive_with_depth(token, current_id, e, depth)
 
-        img_name = 'sentence-'+str(self.current_sentence_id)
+        img_name = 'group-'+str(self.current_sentence_id)
 
         e.render(self.output_path + 'images/' + img_name)
 
-        self.current_sentence_id += 1
+        self.current_group_id += 1
 
         return 'images/' + img_name + "." + self.file_extension
 
@@ -452,7 +453,7 @@ class CommandSimplifiedGroup(CommandGroup):
             e.node(child_id, "???")
             e.edge(str(current_id), child_id, label=child)
 
-        img_name = 'sentence-'+str(self.current_sentence_id)
+        img_name = 'group-'+str(self.current_sentence_id)
         e.render(self.output_path + 'images/' + img_name)
-        self.current_sentence_id += 1
+        self.current_group_id += 1
         return 'images/' + img_name + "." + self.file_extension
