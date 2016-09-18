@@ -386,7 +386,8 @@ class CommandGroup(CommandAccumulative):
             all_imgs_html += each_img_html
 
         t = Template(index_group)
-        c = Context({"all_sentences": mark_safe(all_imgs_html),
+        c = Context({"groups_num": len(self.groups),
+                     "all_sentences": mark_safe(all_imgs_html),
                      "word": self.args.word})
 
         with open(self.output_path+'results.html', 'w') as output:
