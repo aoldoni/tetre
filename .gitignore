@@ -12,3 +12,4 @@ output/*.*
 *.txt
 *.zip
 internallib/__pycache_
+internallib/__pycache__/
