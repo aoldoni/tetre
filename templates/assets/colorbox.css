@@ -65,3 +65,12 @@
     display: block;
     margin: 0 auto;
 }
+
+a.sentences_group {
+    color:black;
+    font-style: italic;
+}
+
+a.sentences_group strong {
+    color:red;
+}

@@ -181,3 +181,7 @@ def get_tokens(args):
             for token in sentence:
                 if (token.orth_.lower() == args.word.lower()):
                     yield token, sentence
+
+def highlight_word(sentence, word):
+    string_sentence = str(sentence)
+    return string_sentence.replace(word, "<strong>"+word+"</strong>")

@@ -378,7 +378,7 @@ class CommandGroup(CommandAccumulative):
                 t = Template(each_img)
                 c = Context({"s_id": i,
                              "path": sentence["img_path"],
-                             "sentence": sentence["sentence"]})
+                             "sentence": mark_safe(highlight_word(sentence["sentence"], self.args.word))})
                 each_img_html += t.render(c)
 
                 i += 1
