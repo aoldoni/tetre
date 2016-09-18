@@ -11,3 +11,4 @@ output/*.*
 *.bin
 *.txt
 *.zip
+internallib/__pycache_
