@@ -9,14 +9,14 @@ import spacy
 import spacy.en
 
 from internallib.directories import *
-from internallib.tree_utils import TreeNode, spacy_to_treenode
+from internallib.tree_utils import TreeNode, spacysentence_to_fullsentence
 
-def get_cached_sentence_image(args, output_path, current_sentence_id, file_extension):
+def get_cached_sentence_image(args, output_path, sentence, file_extension):
     updated_at_date = os.path.getmtime(args.directory + raw_input)
     cache_key = args.word.lower() + str(int(updated_at_date))
     cache_file = args.directory + output_cache + cache_key
 
-    img_name = 'sentence-'+str(current_sentence_id)
+    img_name = 'sentence-'+str(sentence.file_id)+"-"+str(sentence.id)
     img_path = 'images/' + img_name + "." + file_extension
 
     cache_file_final = output_path + 'images/' + img_name + "." + file_extension
@@ -39,6 +39,8 @@ def get_cached_tokens(args):
     else:
         en_nlp = spacy.load('en')
 
+        file_id = 0
+
         for fn in os.listdir(args.directory+raw_input):
             if (fn == ".DS_Store"):
                 continue
@@ -55,14 +57,20 @@ def get_cached_tokens(args):
 
             en_doc = en_nlp(raw_text)
 
-            for sentence in en_doc.sents:
-                sentence_tree = spacy_to_treenode(sentence.root, string_representation = str(sentence))
+            sentence_id = 0
 
-                for token in sentence_tree.to_sentence_list():
+            for sentence in en_doc.sents:
+                sentence_tree = spacysentence_to_fullsentence(sentence, file_id, sentence_id)
+
+                for token in sentence_tree:
                     if (token.orth_.lower() == args.word.lower()):
                         sentences.append( (token, sentence_tree) )
 
-            with open(cache_file, "wb") as f:
-                pickle.dump(sentences, f, protocol=pickle.HIGHEST_PROTOCOL)
+                sentence_id +=1
+
+            file_id += 1
+
+        with open(cache_file, "wb") as f:
+            pickle.dump(sentences, f, protocol=pickle.HIGHEST_PROTOCOL)
 
     return sentences

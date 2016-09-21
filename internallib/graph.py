@@ -45,8 +45,9 @@ class CommandAccumulative(object):
 
         self.output_path = self.args.directory+output_html
 
-    def run(self):
+        self.file_name = "results-" + args.word + ".html"
 
+    def run(self):
         accumulated_global_count = 0
         accumulated_local_count = 0
 
@@ -77,8 +78,6 @@ class CommandAccumulative(object):
         return
 
     def get_token_representation(self, token):
-        # return str(token).strip()
-
         string_representation = []
         params = self.args.format.split(",")
         for param in params:
@@ -92,7 +91,6 @@ class CommandAccumulative(object):
         return self.sentence_to_graph(sentence)
 
     def graph_gen_accumulate(self, token, accumulator_parents, accumulator_children):
-
         if token.dep_.strip() != "":
             if (token.dep_ not in accumulator_parents):
                 accumulator_parents[token.dep_] = {}
@@ -157,15 +155,14 @@ class CommandAccumulative(object):
         return 'images/main_image' + id
 
     def sentence_to_graph(self, sentence):
-
-        img_name = 'sentence-'+str(self.current_sentence_id)
+        img_name = 'sentence-'+str(sentence.file_id)+"-"+str(sentence.id)
         img_dot_path = 'images/' + img_name
         img_path = img_dot_path + "." + self.file_extension
         self.sentence_imgs.append(img_path)
 
         found = get_cached_sentence_image(self.args, \
                                             self.output_path, \
-                                            self.current_sentence_id, \
+                                            sentence, \
                                             self.file_extension)
 
         if (not found):
@@ -182,7 +179,6 @@ class CommandAccumulative(object):
         return img_path
 
     def sentence_to_graph_recursive(self, token, parent_id, e):
-
         if len(list(token.children)) == 0:
             return
 
@@ -249,7 +245,7 @@ class CommandAccumulative(object):
                      "all_sentences": mark_safe(all_imgs_html),
                      "word": self.args.word})
 
-        with open(self.output_path + 'results.html', 'w') as output:
+        with open(self.output_path + self.file_name, 'w') as output:
             output.write(t.render(c))
 
         return
@@ -268,7 +264,6 @@ class CommandGroup(CommandAccumulative):
         self.take_pos_into_consideration = len([params for params in self.args.format.split(",") if params == "pos_"])
 
     def run(self):
-
         rule_applier = Process()
         params = self.args.format.split(",")
 
@@ -317,18 +312,14 @@ class CommandGroup(CommandAccumulative):
         current_id = self.current_token_id
         e.node(str(current_id), token.pos_)
 
-        self.sentence_to_graph_recursive_with_depth(token, current_id, e, depth)
+        self.group_to_graph_recursive_with_depth(token, current_id, e, depth)
 
-        img_name = 'group-'+str(self.current_sentence_id)
-
+        img_name = 'command-group-'+self.args.word+"-"+str(self.current_group_id)
         e.render(self.output_path + 'images/' + img_name)
-
         self.current_group_id += 1
-
         return 'images/' + img_name + "." + self.file_extension
 
-    def sentence_to_graph_recursive_with_depth(self, token, parent_id, e, depth):
-
+    def group_to_graph_recursive_with_depth(self, token, parent_id, e, depth):
         if len(list(token.children)) == 0 or depth == 0:
             return
 
@@ -346,7 +337,7 @@ class CommandGroup(CommandAccumulative):
             e.edge(str(parent_id), child_id, label=child.dep_)
 
         for child_id, child in current_global_id.items():
-            self.sentence_to_graph_recursive_with_depth(child, child_id, e, depth-1)
+            self.group_to_graph_recursive_with_depth(child, child_id, e, depth-1)
 
         return
 
@@ -402,7 +393,7 @@ class CommandGroup(CommandAccumulative):
                      "all_sentences": mark_safe(all_imgs_html),
                      "word": self.args.word})
 
-        with open(self.output_path+'results.html', 'w') as output:
+        with open(self.output_path + self.file_name, 'w') as output:
             output.write(t.render(c))
 
         return
@@ -414,7 +405,6 @@ class CommandSimplifiedGroup(CommandGroup):
         CommandGroup.__init__(self, args)
 
     def run(self):
-
         rule_applier = Process()
         params = self.args.format.split(",")
 
@@ -453,7 +443,8 @@ class CommandSimplifiedGroup(CommandGroup):
             e.node(child_id, "???")
             e.edge(str(current_id), child_id, label=child)
 
-        img_name = 'group-'+str(self.current_sentence_id)
+        img_name = 'command-simplified-group-'+self.args.word+"-"+str(self.current_group_id)
         e.render(self.output_path + 'images/' + img_name)
         self.current_group_id += 1
+
         return 'images/' + img_name + "." + self.file_extension

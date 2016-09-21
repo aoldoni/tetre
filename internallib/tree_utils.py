@@ -1,10 +1,14 @@
 from nltk import Tree
 import collections
 
+
 class TreeNode(object):
 
     def __init__(self, dep_, pos_, orth_, idx, n_lefts, n_rights):
         self.children = []
+
+        self.comparing_rule_head    = ["pos_"]
+        self.comparing_rule_child   = ["dep_"]
 
         self.dep_ = dep_
         self.pos_ = pos_
@@ -13,8 +17,6 @@ class TreeNode(object):
 
         self.n_lefts = n_lefts
         self.n_rights = n_rights
-
-        self.original_string_representation = ""
 
         self.root = None
         self.head = None
@@ -28,9 +30,6 @@ class TreeNode(object):
 
     def set_head(self, head):
         self.head = head
-
-    def set_string_representation(self, string_representation):
-        self.original_string_representation = string_representation
 
     def set_is_root(self):
         self.head = self
@@ -57,31 +56,69 @@ class TreeNode(object):
         "\n" + self.orth_ + "/" + self.dep_ + "/" + self.pos_ + " [ ".join([str(child) for child in self.children]) + " ] "
 
     def __str__(self):
-        if (len(self.original_string_representation) > 0):
-            return self.original_string_representation
-        else:
-            return self.orth_
+        return self.orth_
 
-    # def __iter__(self):
-    #     return self
+    # def __eq__(self, other): 
+    #     if self.__class__ is not other.__class__:
+    #         return False
 
-    # def __next__(self):
-    #     try:
-    #         result = self.text[self.index].upper()
-    #     except IndexError:
-    #         raise StopIteration
-        
-    #     self.index += 1
-    #     return result
+    #     for rule in self.comparing_rule_head:
+    #         if not getattr(self,rule) == getattr(self,other):
+    #             return False
 
-def spacy_to_treenode(spacy, parent = None, root = None, string_representation = ""):
-    node = TreeNode(spacy.dep_, spacy.pos_, spacy.orth_, \
-                    spacy.idx, spacy.n_lefts, spacy.n_rights)
+    #     # Parents are the same, continue checking the children.
+    #     return recursive_child_compare(self, other)
+
+    # @staticmethod    
+    # def recursive_child_compare(self, other):
+    #     other_list = list(other.children)
+
+    #     for child in self.children:
+    #         if child in other_list:
+
+    #     # This code is incomplete
+    #     for rule in self.comparing_rule_head:
+    #         if not getattr(self,rule) == getattr(self,other):
+    #             return False
+
+
+class FullSentence(object):
+    def __init__(self, root, file_id, sentence_id):
+        self.iterable = []
+        self.root = root
+        self.string_representation = ""
+        self.pointer = 0
+        self.file_id = file_id
+        self.id = sentence_id
+
+    def set_string_representation(self, string_representation):
+        self.string_representation = string_representation
+
+    def __iter__(self):
+        self.pointer = 0
+        self.iterable = self.root.to_sentence_list()
+        return self
+
+    def __next__(self):
+        if self.pointer >= len(self.iterable):
+            raise StopIteration
+
+        next_value = self.iterable[self.pointer]
+        self.pointer += 1
+
+        return next_value
+
+    def __str__(self):
+        return self.string_representation
+
+
+def spacynode_to_treenode(spacy_token, parent = None, root = None, string_representation = ""):
+    node = TreeNode(spacy_token.dep_, spacy_token.pos_, spacy_token.orth_, \
+                    spacy_token.idx, spacy_token.n_lefts, spacy_token.n_rights)
 
     if isinstance(parent, TreeNode):
         node.set_head(parent)
     elif parent is None:
-        node.set_string_representation(string_representation)
         node.set_is_root()
     else:
         raise ValueError('Unsupported parent node provided to spacy_to_tree2 method')
@@ -90,13 +127,43 @@ def spacy_to_treenode(spacy, parent = None, root = None, string_representation =
         node.set_root(root)
     elif root is None:
         root = node
+        node.set_is_root()
     else:
         raise ValueError('Unsupported root node provided to spacy_to_tree2 method')
 
-    for child in spacy.children:
-        node.add_child(spacy_to_treenode(child, node, root))
+    for child in spacy_token.children:
+        node.add_child(spacynode_to_treenode(child, node, root))
 
     return node
+
+
+def spacysentence_to_fullsentence(spacy_sentence, file_id, sentence_id):
+    tree_node   = spacynode_to_treenode(spacy_sentence.root)
+
+    sentence    = FullSentence(tree_node, file_id, sentence_id)
+    sentence.set_string_representation(str(spacy_sentence))
+
+    return sentence
+
+
+# def treenode_to_qtree(tree, level = 0):
+#     self_result = " [ "
+
+#     if (isinstance(tree, Tree)):
+#         for rule in self.comparing_rule_head:
+#             if not getattr(self,rule) == getattr(self,other):
+                
+
+#         if (len(tree) > 0):
+#             self_result += " ".join([treenode_to_qtree(node) for node in sorted(tree)])
+
+#     else:
+#         self_result += " " + str(tree) + " "
+
+#     self_result += " ] "
+
+#     return self_result
+
 
 def nltk_tree_to_qtree(tree):
     self_result = " [ "
@@ -113,6 +180,7 @@ def nltk_tree_to_qtree(tree):
     self_result += " ] "
 
     return self_result
+
 
 def flatten_list(l):
     for el in l:
