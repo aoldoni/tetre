@@ -42,6 +42,8 @@ def get_cached_tokens(args):
         file_id = 0
 
         for fn in os.listdir(args.directory+raw_input):
+            file_id += 1
+
             if (fn == ".DS_Store"):
                 continue
 
@@ -60,15 +62,13 @@ def get_cached_tokens(args):
             sentence_id = 0
 
             for sentence in en_doc.sents:
+                sentence_id +=1
+                
                 sentence_tree = spacysentence_to_fullsentence(sentence, file_id, sentence_id)
 
                 for token in sentence_tree:
                     if (token.orth_.lower() == args.word.lower()):
                         sentences.append( (token, sentence_tree) )
-
-                sentence_id +=1
-
-            file_id += 1
 
         with open(cache_file, "wb") as f:
             pickle.dump(sentences, f, protocol=pickle.HIGHEST_PROTOCOL)
