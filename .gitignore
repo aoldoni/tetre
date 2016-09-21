@@ -11,5 +11,6 @@ output/*.*
 *.bin
 *.txt
 *.zip
+*.pyc
 internallib/__pycache_
 internallib/__pycache__/
