@@ -1,0 +1,27 @@
+<table cellspacing="0" cellpadding="0" width="100%">
+    <tr>
+        <td style="width:150px;border-top: 1px solid #cdd0d4;border-right: 1px solid #cdd0d4;padding-top: 10px;" valign="top">
+            <strong>Sentence: {{ s_id }}</strong>
+        </td>
+        <td style="width:80px; border-top: 1px solid #cdd0d4; padding-top: 10px;" valign="top">
+            {{ rel }}
+        </td>
+        <td valign="top" style="border-top: 1px solid #cdd0d4; padding-top: 10px;">
+            <strong>(</strong> <strong>subj:</strong> {{ subj }} <strong>;</strong> <strong>obj:</strong> {{ obj }} <strong>)</strong>
+        </td>
+
+    </tr>
+    {{ others }}
+    <tr>
+        <td style="width:150px;border-right: 1px solid #cdd0d4" valign="top"></td>
+        <td style="padding-top: 10px;" colspan="2" valign="top">
+                <a class="sentences_group" href="{{ path }}" title="{{ sentence }}">{{ sentence }}</a>
+        </td>
+    </tr>
+    <tr>
+        <td style="width:150px;border-right: 1px solid #cdd0d4;padding-top: 10px;" valign="top">
+        </td>
+        <td style="padding-top: 10px;" colspan="2" valign="top">
+        </td>
+    </tr>
+</table>

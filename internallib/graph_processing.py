@@ -1,49 +1,30 @@
 from nltk import Tree
 from types import FunctionType
 from internallib.dependency_helpers import *
+from internallib.rule_applier import *
 import inspect
 from functools import wraps
-
-class RuleApplier(object):
-    deco_list = []
-
-    def __init__(self):
-        return
-
-    @staticmethod
-    def register_function(func):
-        RuleApplier.deco_list.append(func)
-        return func
-
-    def get_rules(self):
-        return iter([rule for rule in RuleApplier.deco_list if self.__class__.__name__ in str(rule)])
-
-    def apply(self, nltk_tree, spacy_tree):
-
-        # print(self.__class__.__name__, "before", nltk_tree)
-
-        root = nltk_tree.label()
-        node_set = [node for node in nltk_tree]
-        
-        for rule in self.get_rules():
-            root, node_set = rule(self, root, node_set, spacy_tree)
-            # print(self.__class__.__name__, "during", [root, node_set])
-
-        t = Tree(root, list(sorted(node_set)))
-
-        # print(self.__class__.__name__, "after", t)
-        # print("")
-
-        return t
 
 class Growth(RuleApplier):
     def __init__(self):
         RuleApplier.__init__(self)
 
     @RuleApplier.register_function
+    def recurse_on_relcl(self, root, node_set, spacy_tree):
+        return root, node_set, spacy_tree
+
+    @RuleApplier.register_function
     def recurse_on_conj(self, root, node_set, spacy_tree):
 
+        # print("----------------------------------")
+        # print("GROWTH")
+        # print(root, node_set, ", ".join([str(child) for child in spacy_tree.children]))
+
+        upwards = ["conj"]
+        subs = ['nsubj', 'csubj', 'nsubjpass', 'csubjpass']
+
         token = spacy_tree
+        token_head = spacy_tree
 
         while True:
             # try:
@@ -51,47 +32,78 @@ class Growth(RuleApplier):
             # except AttributeError:
             #     root, node_set
 
-            if (token.dep_ in ["conj"] and token.head != token):
-                token = token.head
+            if (token_head.dep_ in upwards and token_head.head != token):
+                token_head = token_head.head
 
-                for child in token.children:
-                    if child.dep_ in ['nsubj', 'csubj', 'nsubjpass', 'csubjpass']:
+                for child in token_head.children:
+                    if child.dep_ in subs:
                         node_set.append(child.dep_ )
-                    if child.dep_ in ['dobj','iobj','pobj']:
-                        node_set.append(child.dep_ )
+                    # if child.dep_ in ['dobj','iobj','pobj']:
+                    #     node_set.append(child.dep_ )
             else:
                 break
 
-        return root, node_set
+
+        token = spacy_tree
+        token_head = spacy_tree
+
+        # print(root, node_set, ", ".join([str(child) for child in spacy_tree.children]))
+
+        while True:
+
+            if (token_head.dep_ in upwards and token_head.head != token_head):
+                token_head = token_head.head
+
+                needs_loop = True
+                while needs_loop:
+                    # print("restart")
+
+                    changed = False
+                    children_list = token_head.children[:]
+                    for i in range(0, len(children_list)):
+
+                        # print(i, len(children_list), len(token_head.children))
+
+                        if token_head.children[i].dep_ in subs:
+                            # token_head.children[i].dep_ in ['dobj','iobj','pobj']:
+                            token.children.append(token_head.children[i])
+                            token_head.children.pop(i)
+                            changed = True
+                            break
+
+                    if not changed:
+                        needs_loop = False
+                        # print("finish")
+
+            else:
+                break
+
+        # print(root, node_set, ", ".join([str(child) for child in spacy_tree.children]))
+
+        return root, node_set, spacy_tree
 
 class Reduction(RuleApplier):
     def __init__(self):
         RuleApplier.__init__(self)
 
-        self.tags_to_be_removed = set(['punct', 'cc', 'conj', 'mark'])
-
-        ## c.f. the grouping at http://universaldependencies.org/u/dep/all.html#al-u-dep/nsubjpass
-        ##
-        # rule1: subject
-        self.translation_rules = \
-        [
-            (['nsubj', 'csubj', 'nsubjpass', 'csubjpass'], 'subj'),
-            (['dobj','iobj','pobj'], 'obj'),
-        ]
-
     @RuleApplier.register_function
     def remove_duplicates(self, root, node_set, spacy_tree):
-        return root, set(node_set)
+        return root, set(node_set), spacy_tree
 
     @RuleApplier.register_function
     def remove_tags(self, root, node_set, spacy_tree):
         node_set = set(node_set) - self.tags_to_be_removed
-        return root, node_set
+
+        for child in spacy_tree.children:
+            if child.dep_ in self.tags_to_be_removed:
+                child.nofollow = True
+
+        return root, node_set, spacy_tree
 
     @RuleApplier.register_function
     def tranform_tags(self, root, node_set, spacy_tree):
         node_set = set([self.rewrite_dp_tag(node) for node in node_set])
-        return root, node_set
+        return root, node_set, spacy_tree
 
     def rewrite_dp_tag(self, tag):
         for rule in self.translation_rules:

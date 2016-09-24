@@ -18,7 +18,8 @@ from internallib.dependency_helpers import *
 from internallib.tree_utils import *
 from internallib.directories import *
 
-from internallib.graph_processing import Process
+from internallib.graph_processing import Process, Reduction
+from internallib.graph_extraction import ProcessExtraction
 
 from internallib.cache import get_cached_sentence_image
 
@@ -264,12 +265,12 @@ class CommandGroup(CommandAccumulative):
         self.take_pos_into_consideration = len([params for params in self.args.format.split(",") if params == "pos_"])
 
     def run(self):
-        rule_applier = Process()
         params = self.args.format.split(",")
 
         for token, sentence in get_tokens(self.args):
             img_path = self.process_sentence(sentence)
 
+            # print("--------------")
             # print("TOKEN - ", token.pos_, token.n_lefts, token.n_rights, list(token.children))
 
             node_representation = token.pos_
@@ -277,6 +278,9 @@ class CommandGroup(CommandAccumulative):
                 tree = Tree(node_representation, [to_nltk_tree_general(child, attr_list=params, level=0) for child in token.children])
             else:
                 tree = Tree(node_representation, [])
+
+            # print(tree, [node for node in tree])
+            # print(token, [node for node in token.children])
 
             self.group_accounting_add(tree, token, sentence, img_path)
 
@@ -288,9 +292,8 @@ class CommandGroup(CommandAccumulative):
     def group_accounting_add(self, tree, token, sentence, img_path):
         found = False
 
-        # nltk_tree_to_qtree(tree)
-
         string = nltk_tree_to_qtree(tree)
+        # string2 = treenode_to_qtree(token)
 
         if (string in self.groups):
             group = self.groups[string]
@@ -406,12 +409,17 @@ class CommandSimplifiedGroup(CommandGroup):
 
     def run(self):
         rule_applier = Process()
+        rule_extraction = ProcessExtraction()
+
         params = self.args.format.split(",")
 
         for token, sentence in get_tokens(self.args):
             img_path = self.process_sentence(sentence)
 
-            # print("TOKEN - ", token.pos_, token.n_lefts, token.n_rights, list(token.children))
+            # print("")
+            # print("")
+            # print("--------------")
+            # print(sentence)
 
             node_representation = token.pos_
             if token.n_lefts + token.n_rights > 0:
@@ -419,9 +427,20 @@ class CommandSimplifiedGroup(CommandGroup):
             else:
                 tree = Tree(node_representation, [])
 
+            # print("BEFORE: ",tree.label(), [node for node in tree])
+            # print("BEFORE: ",token.pos_, [node.dep_ for node in token.children])
+
             tree = rule_applier.applyAll(tree, token)
 
-            self.group_accounting_add(tree, token, sentence, img_path)
+            # print("AFTER:  ",tree.label(), [node for node in tree])
+            # print("AFTER:  ",token.pos_, [node.dep_ for node in token.children])
+
+            rules = rule_extraction.applyAll(tree, token, sentence)
+
+            # print("RULES:  ",rules)
+
+
+            self.group_accounting_add(tree, token, sentence, img_path, rules)
 
         self.main_image = self.graph_gen_generate(self.accumulated_parents, self.accumulated_children)
         self.graph_gen_html()
@@ -448,3 +467,119 @@ class CommandSimplifiedGroup(CommandGroup):
         self.current_group_id += 1
 
         return 'images/' + img_name + "." + self.file_extension
+
+    def group_accounting_add(self, tree, token, sentence, img_path, rules):
+        found = False
+
+        string = nltk_tree_to_qtree(tree)
+        # string2 = treenode_to_qtree(token)
+
+        if (string in self.groups):
+            group = self.groups[string]
+
+            group["sum"] = group["sum"] + 1
+            group["sentences"].append({"sentence" : sentence, "token" : token, "img_path" : img_path, "rules" : rules})
+        else:
+            self.groups[string] = {"representative" : tree, \
+                "sum" : 1, \
+                "img" : self.gen_group_image(token, tree, self.depth), \
+                "sentences" : [ \
+                    {"sentence" : sentence, "token" : token, "img_path" : img_path, "rules" : rules} \
+                ]}
+
+    def graph_gen_html_sentence(self, sentence, i):
+        each_sentence = ""
+        each_sentence_opt = ""
+
+        with open(html_templates + 'each_sentence.html', 'r') as each_sentence:
+            each_sentence = each_sentence.read()
+
+        with open(html_templates + 'each_sentence_opt.html', 'r') as each_sentence_opt:
+            each_sentence_opt = each_sentence_opt.read()
+        
+        each_img_html_others = ""
+
+        subj = ""
+        obj = ""
+        others = ""
+
+        has_subj = False
+        has_obj = False
+
+        to = Template(each_sentence_opt)
+        rule = Reduction()
+
+        for results in sentence["rules"]:
+            for key, value in results.items():
+                dep = rule.rewrite_dp_tag(key)
+
+                if dep == 'subj' and not has_subj:
+                    subj = value
+                    has_subj = True
+                elif dep == 'obj' and not has_obj:
+                    obj = value
+                    has_obj = True
+                else:
+                    c = Context({"opt": dep, "result": value})
+                    others += to.render(c)
+
+        ts = Template(each_sentence)
+        c = Context({"s_id": i,
+                     "path": sentence["img_path"],
+                     "sentence": mark_safe(highlight_word(sentence["sentence"], self.args.word)),
+                     "subj" : subj,
+                     "obj" : obj,
+                     "rel" : self.args.word,
+                     "others" : mark_safe(others)})
+
+        return ts.render(c)
+
+
+    def graph_gen_html(self):
+        settings.configure()
+        settings.TEMPLATES = [
+            {
+                'BACKEND': 'django.template.backends.django.DjangoTemplates'
+            }
+        ]
+        django.setup()
+
+        index_group = ""
+        each_img_accumulator = ""
+        each_img = ""
+
+        with open(html_templates + 'index_group.html', 'r') as index_group:
+            index_group = index_group.read()
+
+        with open(html_templates + 'each_img_accumulator.html', 'r') as each_img_accumulator:
+            each_img_accumulator = each_img_accumulator.read()
+
+        i = 0
+
+        all_imgs_html = ""
+
+        # pprint.pprint(group_sorting(self.groups))
+
+        for group in group_sorting(self.groups):
+
+            t = Template(each_img_accumulator)
+            c = Context({"accumulator_img": group["img"]})
+            all_imgs_html += t.render(c)
+
+            each_sentence_html = ""
+
+            for sentence in group["sentences"]:
+                each_sentence_html += self.graph_gen_html_sentence(sentence, i)
+                i += 1
+
+            all_imgs_html += each_sentence_html
+
+        t = Template(index_group)
+        c = Context({"groups_num": len(self.groups),
+                     "all_sentences": mark_safe(all_imgs_html),
+                     "word": self.args.word})
+
+        with open(self.output_path + self.file_name, 'w') as output:
+            output.write(t.render(c))
+
+        return

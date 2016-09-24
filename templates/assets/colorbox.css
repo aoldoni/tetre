@@ -69,6 +69,7 @@
 a.sentences_group {
     color:black;
     font-style: italic;
+    text-decoration: none;
 }
 
 a.sentences_group strong {

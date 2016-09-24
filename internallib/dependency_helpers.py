@@ -171,4 +171,4 @@ def get_tokens(args):
 
 def highlight_word(sentence, word):
     string_sentence = str(sentence)
-    return string_sentence.replace(word, "<strong>" + word.upper() + "</strong>")
+    return string_sentence.replace(word, "<strong>" + word + "</strong>")

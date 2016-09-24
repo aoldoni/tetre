@@ -18,6 +18,8 @@ class TreeNode(object):
         self.n_lefts = n_lefts
         self.n_rights = n_rights
 
+        self.nofollow = False
+
         self.root = None
         self.head = None
         self.set_is_root()
@@ -54,6 +56,20 @@ class TreeNode(object):
 
     def to_tree_string(self):
         "\n" + self.orth_ + "/" + self.dep_ + "/" + self.pos_ + " [ ".join([str(child) for child in self.children]) + " ] "
+
+    def to_comparable_value_as_child(self):
+        result = []
+        for rule in self.comparing_rule_child:
+            result.append(getattr(self,rule))
+
+        return "/".join(result)
+
+    def to_comparable_value_as_head(self):
+        result = []
+        for rule in self.comparing_rule_head:
+            result.append(getattr(self,rule))
+
+        return "/".join(result)
 
     def __str__(self):
         return self.orth_
@@ -146,23 +162,23 @@ def spacysentence_to_fullsentence(spacy_sentence, file_id, sentence_id):
     return sentence
 
 
-# def treenode_to_qtree(tree, level = 0):
-#     self_result = " [ "
+def treenode_to_qtree(tree, level = 1, first = True):
+    if level < 0:
+        return ""
 
-#     if (isinstance(tree, Tree)):
-#         for rule in self.comparing_rule_head:
-#             if not getattr(self,rule) == getattr(self,other):
-                
+    self_result = " [ "
 
-#         if (len(tree) > 0):
-#             self_result += " ".join([treenode_to_qtree(node) for node in sorted(tree)])
+    if first:
+        self_result += " " + tree.to_comparable_value_as_head() + " "
+    else:
+        self_result += " " + tree.to_comparable_value_as_child() + " "
 
-#     else:
-#         self_result += " " + str(tree) + " "
+    if (len(tree.children) > 0):
+        self_result += " ".join([treenode_to_qtree(node, level-1, False) for node in sorted(tree.children, key=lambda node: node.to_comparable_value_as_child())])
 
-#     self_result += " ] "
+    self_result += " ] "
 
-#     return self_result
+    return self_result
 
 
 def nltk_tree_to_qtree(tree):
