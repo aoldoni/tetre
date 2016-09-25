@@ -4,7 +4,7 @@ class RuleApplier(object):
     deco_list = []
 
     def __init__(self):
-        self.tags_to_be_removed = set(['punct', 'cc', 'conj', 'mark'])
+        self.tags_to_be_removed = set(['punct', 'cc', 'conj', 'mark', ' ', ''])
 
         ## c.f. the grouping at http://universaldependencies.org/u/dep/all.html#al-u-dep/nsubjpass
         ##
@@ -13,6 +13,7 @@ class RuleApplier(object):
         [
             (['nsubj', 'csubj', 'nsubjpass', 'csubjpass'], 'subj'),
             (['dobj','iobj','pobj'], 'obj'),
+            (['npadvmod', 'amod', 'advmod', 'nummod', 'quantmod', 'rcmod', 'tmod', 'vmod'], 'mod')
         ]
 
         return

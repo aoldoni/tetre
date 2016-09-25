@@ -37,7 +37,8 @@ def get_cached_tokens(args):
         with open(cache_file, 'rb') as f:
             sentences = pickle.load(f)
     else:
-        en_nlp = spacy.load('en')
+        en_nlp = spacy.en.English()
+        # en_nlp = spacy.load('en')
 
         file_id = 0
 
@@ -63,7 +64,7 @@ def get_cached_tokens(args):
 
             for sentence in en_doc.sents:
                 sentence_id +=1
-                
+
                 sentence_tree = spacysentence_to_fullsentence(sentence, file_id, sentence_id)
 
                 for token in sentence_tree:

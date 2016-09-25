@@ -163,6 +163,34 @@ def group_sorting(groups):
     newlist = sorted(groups, key=lambda x: x["sum"], reverse=True)
     return newlist
 
+def get_uncached_tokens(args):
+    en_nlp = spacy.load('en')
+
+    file_id = 0
+
+    for fn in os.listdir(args.directory+raw_input):
+        file_id += 1
+
+        if (fn == ".DS_Store"):
+            continue
+
+        name = args.directory + raw_input + fn
+
+        raw_text = ''
+
+        with open(name, 'r') as input:
+            raw_text = input.read()
+
+        en_doc = en_nlp(raw_text)
+
+        sentence_id = 0
+
+        for sentence in en_doc.sents:
+            sentence_id +=1
+
+            for token in sentence:
+                yield token, sentence
+
 def get_tokens(args):
     sentences = get_cached_tokens(args)
 

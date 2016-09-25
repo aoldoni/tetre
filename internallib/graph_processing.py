@@ -8,46 +8,69 @@ from functools import wraps
 class Growth(RuleApplier):
     def __init__(self):
         RuleApplier.__init__(self)
+        self.subs = ['nsubj', 'csubj', 'nsubjpass', 'csubjpass']
 
     @RuleApplier.register_function
-    def recurse_on_relcl(self, root, node_set, spacy_tree):
+    def replace_on_relcl(self, root, node_set, spacy_tree):
+
+        upwards = ["relcl"]
+        downwards = "nsubj"
+
+        #adjust representation
+        has_subj = False
+
+        for node in node_set:
+            if node in self.subs:
+                has_subj = True
+
+        if not has_subj:
+            node_set.append(downwards)
+
+        #adjust tree
+        token = spacy_tree
+        token_head = spacy_tree
+        if (token_head.dep_ in upwards and token_head.head != token):
+            token_head = token_head.head
+
+            children_list = token.children[:]
+            for i in range(0, len(children_list)):
+                if (children_list[i].dep_ in self.subs):
+                    token.children.pop(i)
+
+            children_list = token_head.children[:]
+            for i in range(0, len(children_list)):
+                if (children_list[i].orth_ == token.orth_):
+                    token_head.children.pop(i)
+
+            token_head.dep_ = downwards
+            token.children.append(token_head)
+
         return root, node_set, spacy_tree
 
     @RuleApplier.register_function
     def recurse_on_conj(self, root, node_set, spacy_tree):
 
-        # print("----------------------------------")
-        # print("GROWTH")
-        # print(root, node_set, ", ".join([str(child) for child in spacy_tree.children]))
-
         upwards = ["conj"]
-        subs = ['nsubj', 'csubj', 'nsubjpass', 'csubjpass']
 
+        #adjust representation
         token = spacy_tree
         token_head = spacy_tree
 
         while True:
-            # try:
-            #     head = token.head
-            # except AttributeError:
-            #     root, node_set
 
             if (token_head.dep_ in upwards and token_head.head != token):
                 token_head = token_head.head
 
                 for child in token_head.children:
-                    if child.dep_ in subs:
+                    if child.dep_ in self.subs:
                         node_set.append(child.dep_ )
-                    # if child.dep_ in ['dobj','iobj','pobj']:
-                    #     node_set.append(child.dep_ )
             else:
                 break
 
 
+        #adjust actual tree
         token = spacy_tree
         token_head = spacy_tree
-
-        # print(root, node_set, ", ".join([str(child) for child in spacy_tree.children]))
 
         while True:
 
@@ -56,16 +79,12 @@ class Growth(RuleApplier):
 
                 needs_loop = True
                 while needs_loop:
-                    # print("restart")
 
                     changed = False
                     children_list = token_head.children[:]
                     for i in range(0, len(children_list)):
 
-                        # print(i, len(children_list), len(token_head.children))
-
-                        if token_head.children[i].dep_ in subs:
-                            # token_head.children[i].dep_ in ['dobj','iobj','pobj']:
+                        if token_head.children[i].dep_ in self.subs:
                             token.children.append(token_head.children[i])
                             token_head.children.pop(i)
                             changed = True
@@ -73,12 +92,9 @@ class Growth(RuleApplier):
 
                     if not changed:
                         needs_loop = False
-                        # print("finish")
 
             else:
                 break
-
-        # print(root, node_set, ", ".join([str(child) for child in spacy_tree.children]))
 
         return root, node_set, spacy_tree
 

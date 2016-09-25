@@ -55,7 +55,12 @@ class TreeNode(object):
         return sentence
 
     def to_tree_string(self):
-        "\n" + self.orth_ + "/" + self.dep_ + "/" + self.pos_ + " [ ".join([str(child) for child in self.children]) + " ] "
+        self_representation = "  (" + self.orth_ + "/" + self.dep_ + "/" + self.pos_ + ")  "
+
+        if len(self.children) > 0:
+            return self_representation + " [ " + "".join([child.to_tree_string() for child in self.children]) + " ] "
+
+        return self_representation
 
     def to_comparable_value_as_child(self):
         result = []

@@ -29,6 +29,7 @@ from internallib.directories import *
 from internallib.dependency_helpers import *
 from internallib.mining_patterns import *
 from internallib.graph import *
+from internallib.possible_relations import *
 from internallib import dependency_patterns
 from internallib import mining_patterns
 from internallib import graph
@@ -57,10 +58,13 @@ def argparser():
                     help='uses spacy to try to mine candidate trees')
     ap.add_argument('-g', '--graph', action='store_true',
                     help='uses spacy to generate tree graphs')
+    ap.add_argument('-t', '--stats', action='store_true',
+                    help='shows verbs statistics')
     ap.add_argument('-format', help='format of the tree node accumulator')
     ap.add_argument('-behaviour', help='groupby|listing|simplified_groupby')
     ap.add_argument('-f', '--force_clean', action='store_true',
                     help='ignores any caching and forces reprocessing')
+
     return ap
 
 def lemma_search(args):
@@ -296,6 +300,9 @@ def regenerate(argv):
         spacy_parse(args)
     elif (args.mine):
         mine_candidate_trees(args)
+    elif (args.stats):
+        cmd = PossibleRelations(args)
+        cmd.run()
     elif (args.graph):
         if (args.behaviour == "accumulator"):
             cmd = CommandAccumulative(args)
