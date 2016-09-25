@@ -155,6 +155,12 @@ class CommandAccumulative(object):
 
         return 'images/main_image' + id
 
+    def sentence_to_graph_add_node(self, e, current_id, orth_):
+        if (orth_ == self.args.word):
+            e.node(str(current_id), orth_, fillcolor="dimgrey", fontcolor="white", style="filled")
+        else:
+            e.node(str(current_id), orth_)
+
     def sentence_to_graph(self, sentence):
         img_name = 'sentence-'+str(sentence.file_id)+"-"+str(sentence.id)
         img_dot_path = 'images/' + img_name
@@ -171,7 +177,7 @@ class CommandAccumulative(object):
             e.attr('node', shape='box')
 
             current_id = self.current_token_id
-            e.node(str(current_id), sentence.root.orth_)
+            self.sentence_to_graph_add_node(e, current_id, sentence.root.orth_)
             self.sentence_to_graph_recursive(sentence.root, current_id, e)
             e.render(self.output_path + img_dot_path)
         
@@ -190,7 +196,7 @@ class CommandAccumulative(object):
             current_global_id[str(self.current_token_id)] = child
 
         for child_id, child in current_global_id.items():
-            e.node(child_id, child.orth_)
+            self.sentence_to_graph_add_node(e, child_id, child.orth_)
             e.edge(str(parent_id), child_id, label=child.dep_)
 
         for child_id, child in current_global_id.items():
