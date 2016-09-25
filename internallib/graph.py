@@ -175,6 +175,7 @@ class CommandAccumulative(object):
         if (not found):
             e = Digraph(self.args.word, format=self.file_extension)
             e.attr('node', shape='box')
+            e.attr('graph', label=str(sentence))
 
             current_id = self.current_token_id
             self.sentence_to_graph_add_node(e, current_id, sentence.root.orth_)
