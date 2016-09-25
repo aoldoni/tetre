@@ -229,13 +229,16 @@ class CommandAccumulative(object):
         last_img = 0
         all_imgs_html = ""
         for i in range(0, len(self.sentence_accumulated_each_imgs)):
-            t = Template(each_img_accumulator)
-            c = Context({"accumulator_img": self.sentence_accumulated_each_imgs[i]})
-            all_imgs_html += t.render(c)
-
-            each_img_html = ""
 
             next_img = min(last_img + self.accumulated_print_each, len(self.sentence_imgs))
+
+            t = Template(each_img_accumulator)
+            c = Context({"accumulator_img": self.sentence_accumulated_each_imgs[i], \
+                            "total_group_sentences" : (next_img-last_img)})
+
+            all_imgs_html += t.render(c)
+            each_img_html = ""
+            
             for i in range(last_img, next_img):
                 t = Template(each_img)
                 c = Context({"s_id": i,
@@ -350,6 +353,23 @@ class CommandGroup(CommandAccumulative):
 
         return
 
+    def get_average_per_group(self):
+        total_sentences = 0
+
+        for group in self.groups.values():
+            total_sentences += len(group["sentences"])
+
+        return int(total_sentences / len(self.groups))
+
+    def get_max_params(self):
+        max_params = 0
+
+        for group in self.groups.values():
+            if (group["params"] > max_params):
+                max_params = group["params"]
+
+        return max_params
+
     def graph_gen_html(self):
         settings.configure()
         settings.TEMPLATES = [
@@ -375,16 +395,21 @@ class CommandGroup(CommandAccumulative):
         i = 0
 
         all_imgs_html = ""
+        max_sentences = 0
 
         # pprint.pprint(group_sorting(self.groups))
 
         for group in group_sorting(self.groups):
 
             t = Template(each_img_accumulator)
-            c = Context({"accumulator_img": group["img"]})
+            c = Context({   "accumulator_img": group["img"], \
+                            "total_group_sentences" : len(group["sentences"])})
             all_imgs_html += t.render(c)
 
             each_img_html = ""
+
+            if len(group["sentences"]) > max_sentences:
+                max_sentences = len(group["sentences"])
 
             for sentence in group["sentences"]:
                 t = Template(each_img)
@@ -397,9 +422,15 @@ class CommandGroup(CommandAccumulative):
 
             all_imgs_html += each_img_html
 
+        avg_per_group = self.get_average_per_group()
+        max_num_params = self.get_max_params()
+
         t = Template(index_group)
         c = Context({"groups_num": len(self.groups),
+                     "max_group_num" : max_sentences,
+                     "average_per_group" : avg_per_group,
                      "all_sentences": mark_safe(all_imgs_html),
+                     "max_num_params": max_num_params,
                      "word": self.args.word})
 
         with open(self.output_path + self.file_name, 'w') as output:
@@ -488,6 +519,7 @@ class CommandSimplifiedGroup(CommandGroup):
         else:
             self.groups[string] = {"representative" : tree, \
                 "sum" : 1, \
+                "params" : len(tree), \
                 "img" : self.gen_group_image(token, tree, self.depth), \
                 "sentences" : [ \
                     {"sentence" : sentence, "token" : token, "img_path" : img_path, "rules" : rules} \
@@ -563,16 +595,21 @@ class CommandSimplifiedGroup(CommandGroup):
         i = 0
 
         all_imgs_html = ""
+        max_sentences = 0
 
         # pprint.pprint(group_sorting(self.groups))
 
         for group in group_sorting(self.groups):
 
             t = Template(each_img_accumulator)
-            c = Context({"accumulator_img": group["img"]})
+            c = Context({   "accumulator_img": group["img"], \
+                            "total_group_sentences" : len(group["sentences"])})
             all_imgs_html += t.render(c)
 
             each_sentence_html = ""
+
+            if len(group["sentences"]) > max_sentences:
+                max_sentences = len(group["sentences"])
 
             for sentence in group["sentences"]:
                 each_sentence_html += self.graph_gen_html_sentence(sentence, i)
@@ -580,9 +617,15 @@ class CommandSimplifiedGroup(CommandGroup):
 
             all_imgs_html += each_sentence_html
 
+        avg_per_group = self.get_average_per_group()
+        max_num_params = self.get_max_params()
+
         t = Template(index_group)
         c = Context({"groups_num": len(self.groups),
+                     "max_group_num" : max_sentences,
+                     "average_per_group" : avg_per_group,
                      "all_sentences": mark_safe(all_imgs_html),
+                     "max_num_params": max_num_params,
                      "word": self.args.word})
 
         with open(self.output_path + self.file_name, 'w') as output:

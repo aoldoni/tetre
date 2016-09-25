@@ -12,7 +12,13 @@
 </head>
 <body>
 
-<p>All sentences in corpus with word "<strong>{{ word }}</strong>", organised in <strong>{{ groups_num }} groups</strong>: </p>
+<p>All sentences in corpus with word "<strong>{{ word }}</strong>":</p>
+<ul>
+  <li>Organised in <strong>{{ groups_num }} groups</strong></li>
+  <li>Group with most sentences has <strong>{{ max_group_num }} sentences</strong></li>
+  <li>Average sentences per group is <strong>{{ average_per_group }}</strong></li>
+  <li>Max number of parameters in a relation is <strong>{{ max_num_params }}</strong></li>
+</ul>
 
 {{ all_sentences }}
 
