@@ -355,12 +355,7 @@ class CommandGroup(CommandAccumulative):
         return
 
     def get_average_per_group(self):
-        total_sentences = 0
-
-        for group in self.groups.values():
-            total_sentences += len(group["sentences"])
-
-        return int(total_sentences / len(self.groups))
+        return int(len(self.sentence) / len(self.groups))
 
     def get_max_params(self):
         max_params = 0
@@ -427,7 +422,8 @@ class CommandGroup(CommandAccumulative):
         max_num_params = self.get_max_params()
 
         t = Template(index_group)
-        c = Context({"groups_num": len(self.groups),
+        c = Context({"sentences_num" : len(self.sentence),
+                     "groups_num": len(self.groups),
                      "max_group_num" : max_sentences,
                      "average_per_group" : avg_per_group,
                      "all_sentences": mark_safe(all_imgs_html),
@@ -622,7 +618,8 @@ class CommandSimplifiedGroup(CommandGroup):
         max_num_params = self.get_max_params()
 
         t = Template(index_group)
-        c = Context({"groups_num": len(self.groups),
+        c = Context({"sentences_num" : len(self.sentence),
+                     "groups_num": len(self.groups),
                      "max_group_num" : max_sentences,
                      "average_per_group" : avg_per_group,
                      "all_sentences": mark_safe(all_imgs_html),
