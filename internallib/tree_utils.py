@@ -43,8 +43,15 @@ class TreeNode(object):
     def set_root(self, root):
         self.root = root
 
-    def to_sentence_list(self):
-        sorted_sentence = sorted(list(flatten_list(self.to_sentence_list_internal())), key=lambda obj: obj.idx)
+    def sort(self, flat_list):
+        return sorted(list(flat_list), key=lambda obj: obj.idx)
+
+    def to_sentence_list(self, to_sort=True):
+        if (to_sort):
+            sorted_sentence = self.sort(flatten_list(self.to_sentence_list_internal()))
+        else:
+            sorted_sentence = flatten_list(self.to_sentence_list_internal())
+
         return sorted_sentence
 
     def to_sentence_string(self):
@@ -54,11 +61,11 @@ class TreeNode(object):
         sentence = [self] + [child.to_sentence_list_internal() for child in self.children]
         return sentence
 
-    def to_tree_string(self):
-        self_representation = "  (" + self.orth_ + "/" + self.dep_ + "/" + self.pos_ + ")  "
+    def to_tree_string(self, level = 1):
+        self_representation = "\n" + (level*"\t") + "  (" + self.orth_ + "/" + self.dep_ + "/" + self.pos_ + ")  "
 
         if len(self.children) > 0:
-            return self_representation + " [ " + "".join([child.to_tree_string() for child in self.children]) + " ] "
+            return self_representation + " [ " + "".join([child.to_tree_string(level+1) for child in self.children]) + " ] "
 
         return self_representation
 

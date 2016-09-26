@@ -17,30 +17,52 @@ class Growth(RuleApplier):
         downwards = "nsubj"
 
         #adjust representation
-        has_subj = False
+        # has_subj = False
+        # token = spacy_tree
+        # token_head = spacy_tree
 
-        for node in node_set:
-            if node in self.subs:
-                has_subj = True
+        # for node in node_set:
+        #     if node in self.subs:
+        #         has_subj = True
 
-        if not has_subj:
-            node_set.append(downwards)
+        # if (token_head.dep_ in upwards and token_head.head != token):
+        #     if not has_subj:
+        #         node_set.append(downwards)
 
         #adjust tree
         token = spacy_tree
         token_head = spacy_tree
+
+        # print("0", token.to_tree_string())
+        # print("0", token_head.to_tree_string())
+        # print("0", token_head.to_tree_string())
+
         if (token_head.dep_ in upwards and token_head.head != token):
             token_head = token_head.head
+
+            # print("1", token.to_tree_string())
+            # print("1", token_head.to_tree_string())
 
             children_list = token.children[:]
             for i in range(0, len(children_list)):
                 if (children_list[i].dep_ in self.subs):
                     token.children.pop(i)
 
+            # print("2", token.to_tree_string())
+            # print("2", token_head.to_tree_string())
+
             children_list = token_head.children[:]
             for i in range(0, len(children_list)):
-                if (children_list[i].orth_ == token.orth_):
+                if (children_list[i].idx == token.idx):
                     token_head.children.pop(i)
+
+                    #adjust representation
+                    node_set.append(downwards)
+
+            # print("3", token.to_tree_string())
+            # print("3", token_head.to_tree_string())
+
+            # print("---------------")
 
             token_head.dep_ = downwards
             token.children.append(token_head)
@@ -48,24 +70,26 @@ class Growth(RuleApplier):
         return root, node_set, spacy_tree
 
     @RuleApplier.register_function
-    def recurse_on_conj(self, root, node_set, spacy_tree):
+    def recurse_on_conj_if_no_subj(self, root, node_set, spacy_tree):
 
         upwards = ["conj"]
 
         #adjust representation
-        token = spacy_tree
-        token_head = spacy_tree
+        # token = spacy_tree
+        # token_head = spacy_tree
 
-        while True:
+        # while True:
 
-            if (token_head.dep_ in upwards and token_head.head != token):
-                token_head = token_head.head
+        #     if (token_head.dep_ in upwards        \
+        #         and token_head.head != token_head \
+        #         and len([child for child in token.children if child.dep_ in self.subs]) == 0):
+        #         token_head = token_head.head
 
-                for child in token_head.children:
-                    if child.dep_ in self.subs:
-                        node_set.append(child.dep_ )
-            else:
-                break
+        #         for child in token_head.children:
+        #             if child.dep_ in self.subs:
+        #                 node_set.append(child.dep_ )
+        #     else:
+        #         break
 
 
         #adjust actual tree
@@ -74,7 +98,9 @@ class Growth(RuleApplier):
 
         while True:
 
-            if (token_head.dep_ in upwards and token_head.head != token_head):
+            if (token_head.dep_ in upwards        \
+                and token_head.head != token_head \
+                and len([child for child in token.children if child.dep_ in self.subs]) == 0):
                 token_head = token_head.head
 
                 needs_loop = True
@@ -85,8 +111,25 @@ class Growth(RuleApplier):
                     for i in range(0, len(children_list)):
 
                         if token_head.children[i].dep_ in self.subs:
+
+                            # print("1", token.to_tree_string())
+                            # print("1", token_head.to_tree_string())
+                            # print("1", node_set)
+
+                            # adjust representation
+                            node_set.append(token_head.children[i].dep_ )
+
+                            #adjust actual tree
                             token.children.append(token_head.children[i])
                             token_head.children.pop(i)
+
+                            # print("2", token.to_tree_string())
+                            # print("2", token_head.to_tree_string())
+                            # print("2", node_set)
+
+                            # print("---------------")
+                            # print()
+
                             changed = True
                             break
 

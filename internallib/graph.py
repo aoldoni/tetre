@@ -6,6 +6,8 @@ import spacy.en
 import itertools
 import operator
 
+import copy
+
 import django
 from django.utils.safestring import mark_safe
 from django.template import Template, Context
@@ -53,6 +55,10 @@ class CommandAccumulative(object):
         accumulated_local_count = 0
 
         for token, sentence in get_tokens(self.args):
+
+            if token.pos_ != "VERB":
+                continue
+
             self.process_sentence(sentence)
             self.graph_gen_accumulate(token, self.accumulated_parents, self.accumulated_children)
             self.graph_gen_accumulate(token, self.accumulated_parents_local, self.accumulated_children_local)
@@ -278,6 +284,10 @@ class CommandGroup(CommandAccumulative):
         params = self.args.format.split(",")
 
         for token, sentence in get_tokens(self.args):
+
+            if token.pos_ != "VERB":
+                continue
+
             img_path = self.process_sentence(sentence)
 
             # print("--------------")
@@ -447,13 +457,13 @@ class CommandSimplifiedGroup(CommandGroup):
 
         params = self.args.format.split(",")
 
-        for token, sentence in get_tokens(self.args):
+        for token_original, sentence in get_tokens(self.args):
+            if token_original.pos_ != "VERB":
+                continue
+
             img_path = self.process_sentence(sentence)
 
-            # print("")
-            # print("")
-            # print("--------------")
-            # print(sentence)
+            token = copy.deepcopy(token_original)
 
             node_representation = token.pos_
             if token.n_lefts + token.n_rights > 0:
@@ -461,18 +471,15 @@ class CommandSimplifiedGroup(CommandGroup):
             else:
                 tree = Tree(node_representation, [])
 
-            # print("BEFORE: ",tree.label(), [node for node in tree])
-            # print("BEFORE: ",token.pos_, [node.dep_ for node in token.children])
+            # print()
+            # print("WILL PROCESS", str(sentence))
 
             tree = rule_applier.applyAll(tree, token)
 
-            # print("AFTER:  ",tree.label(), [node for node in tree])
-            # print("AFTER:  ",token.pos_, [node.dep_ for node in token.children])
-
             rules = rule_extraction.applyAll(tree, token, sentence)
 
-            # print("RULES:  ",rules)
-
+            # if ("For example, [15]" in str(sentence)):
+            #     sys.exit()
 
             self.group_accounting_add(tree, token, sentence, img_path, rules)
 

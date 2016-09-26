@@ -194,6 +194,9 @@ def get_uncached_tokens(args):
 def get_tokens(args):
     sentences = get_cached_tokens(args)
 
+    # print("\n\n".join([str(sentence) for token, sentence in sentences]))
+    # sys.exit()
+
     for token, sentence in sentences:
         yield token, sentence
 
