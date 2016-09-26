@@ -38,7 +38,7 @@ def get_cached_tokens(args):
         with open(cache_file, 'rb') as f:
             sentences = pickle.load(f)
     else:
-        senteces = get_tree(args)
+        sentences = get_tree(args)
 
         with open(cache_file, "wb") as f:
             pickle.dump(sentences, f, protocol=pickle.HIGHEST_PROTOCOL)
