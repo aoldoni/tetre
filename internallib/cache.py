@@ -8,6 +8,7 @@ from nltk import Tree
 import spacy
 import spacy.en
 
+from internallib.backends import get_tree
 from internallib.directories import *
 from internallib.tree_utils import TreeNode, spacysentence_to_fullsentence
 
@@ -37,39 +38,7 @@ def get_cached_tokens(args):
         with open(cache_file, 'rb') as f:
             sentences = pickle.load(f)
     else:
-        en_nlp = spacy.en.English()
-        # en_nlp = spacy.load('en')
-
-        file_id = 0
-
-        for fn in os.listdir(args.directory+raw_input):
-            file_id += 1
-
-            if (fn == ".DS_Store"):
-                continue
-
-            name = args.directory + raw_input + fn
-
-            raw_text = ''
-
-            with open(name, 'r') as input:
-                raw_text = input.read()
-
-            if (args.word not in raw_text):
-                continue
-
-            en_doc = en_nlp(raw_text)
-
-            sentence_id = 0
-
-            for sentence in en_doc.sents:
-                sentence_id +=1
-
-                sentence_tree = spacysentence_to_fullsentence(sentence, file_id, sentence_id)
-
-                for token in sentence_tree:
-                    if (token.orth_.lower() == args.word.lower()):
-                        sentences.append( (token, sentence_tree) )
+        senteces = get_tree(args)
 
         with open(cache_file, "wb") as f:
             pickle.dump(sentences, f, protocol=pickle.HIGHEST_PROTOCOL)
