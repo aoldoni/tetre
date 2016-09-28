@@ -281,8 +281,6 @@ class CommandGroup(CommandAccumulative):
         self.take_pos_into_consideration = len([params for params in self.args.format.split(",") if params == "pos_"])
 
     def run(self):
-        params = self.args.format.split(",")
-
         for token, sentence in get_tokens(self.args):
 
             if token.pos_ != "VERB":
@@ -290,17 +288,7 @@ class CommandGroup(CommandAccumulative):
 
             img_path = self.process_sentence(sentence)
 
-            # print("--------------")
-            # print("TOKEN - ", token.pos_, token.n_lefts, token.n_rights, list(token.children))
-
-            node_representation = token.pos_
-            if token.n_lefts + token.n_rights > 0:
-                tree = Tree(node_representation, [to_nltk_tree_general(child, attr_list=params, level=0) for child in token.children])
-            else:
-                tree = Tree(node_representation, [])
-
-            # print(tree, [node for node in tree])
-            # print(token, [node for node in token.children])
+            tree = self.get_node_representation(token)
 
             self.group_accounting_add(tree, token, sentence, img_path)
 
@@ -308,6 +296,18 @@ class CommandGroup(CommandAccumulative):
         self.graph_gen_html()
 
         return
+
+    def get_node_representation(self, token):
+
+        params = self.args.format.split(",")
+        
+        node_representation = token.pos_
+        if token.n_lefts + token.n_rights > 0:
+            tree = Tree(node_representation, [to_nltk_tree_general(child, attr_list=params, level=0) for child in token.children])
+        else:
+            tree = Tree(node_representation, [])
+
+        return tree
 
     def group_accounting_add(self, tree, token, sentence, img_path):
         found = False
@@ -455,8 +455,6 @@ class CommandSimplifiedGroup(CommandGroup):
         rule_applier = Process()
         rule_extraction = ProcessExtraction()
 
-        params = self.args.format.split(",")
-
         for token_original, sentence in get_tokens(self.args):
             if token_original.pos_ != "VERB":
                 continue
@@ -465,23 +463,20 @@ class CommandSimplifiedGroup(CommandGroup):
 
             token = copy.deepcopy(token_original)
 
-            node_representation = token.pos_
-            if token.n_lefts + token.n_rights > 0:
-                tree = Tree(node_representation, [to_nltk_tree_general(child, attr_list=params, level=0) for child in token.children])
-            else:
-                tree = Tree(node_representation, [])
-
-            # print()
-            # print("WILL PROCESS", str(sentence))
+            # behaviour_root
+            tree = self.get_node_representation(token)
 
             tree = rule_applier.applyAll(tree, token)
-
             rules = rule_extraction.applyAll(tree, token, sentence)
 
-            # if ("For example, [15]" in str(sentence)):
-            #     sys.exit()
+            tree_grouping = tree
+            if self.args.behaviour_root != "verb":
+                tree_grouping = ""
+                for child in token.children:
+                    if self.args.behaviour_root in child.dep_:
+                        tree_grouping = self.get_node_representation(child)
 
-            self.group_accounting_add(tree, token, sentence, img_path, rules)
+            self.group_accounting_add(tree_grouping, token, sentence, img_path, rules)
 
         self.main_image = self.graph_gen_generate(self.accumulated_parents, self.accumulated_children)
         self.graph_gen_html()
@@ -491,17 +486,24 @@ class CommandSimplifiedGroup(CommandGroup):
         e.attr('node', shape='box')
 
         current_id = self.current_token_id
-        e.node(str(current_id), tree.label())
+
+        try:
+            label = tree.label()
+        except AttributeError:
+            label = str(tree)
+
+        e.node(str(current_id), label)
 
         current_global_id = {}
 
-        for child in tree:
-            self.current_token_id = self.current_token_id + 1
-            current_global_id[str(self.current_token_id)] = child
+        if hasattr(tree, '__iter__'):
+            for child in tree:
+                self.current_token_id = self.current_token_id + 1
+                current_global_id[str(self.current_token_id)] = child
 
-        for child_id, child in current_global_id.items():
-            e.node(child_id, "???")
-            e.edge(str(current_id), child_id, label=child)
+            for child_id, child in current_global_id.items():
+                e.node(child_id, "???")
+                e.edge(str(current_id), child_id, label=child)
 
         img_name = 'command-simplified-group-'+self.args.word+"-"+str(self.current_group_id)
         e.render(self.output_path + 'images/' + img_name)
