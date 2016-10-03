@@ -14,10 +14,14 @@ class Extraction(RuleApplier):
         result = {}
 
         for child in spacy_tree.children:
+            # print(child, child.dep_, child.nofollow)
             if child.nofollow:
                 continue
 
-            result[child.dep_] = child.to_sentence_string()
+            if child.dep_ not in result:
+                result[child.dep_] = []
+
+            result[child.dep_].append(child.to_sentence_string())
 
         return result
 

@@ -21,6 +21,7 @@ from internallib.tree_utils import *
 from internallib.directories import *
 
 from internallib.graph_processing import Process, Reduction
+from internallib.graph_processing_children import ProcessChildren
 from internallib.graph_extraction import ProcessExtraction
 
 from internallib.cache import get_cached_sentence_image
@@ -302,6 +303,7 @@ class CommandGroup(CommandAccumulative):
         params = self.args.format.split(",")
         
         node_representation = token.pos_
+        # node_representation = token.dep_+"/"+token.pos_
         if token.n_lefts + token.n_rights > 0:
             tree = Tree(node_representation, [to_nltk_tree_general(child, attr_list=params, level=0) for child in token.children])
         else:
@@ -453,28 +455,47 @@ class CommandSimplifiedGroup(CommandGroup):
 
     def run(self):
         rule_applier = Process()
+        rule_applier_children = ProcessChildren()
         rule_extraction = ProcessExtraction()
 
         for token_original, sentence in get_tokens(self.args):
             if token_original.pos_ != "VERB":
                 continue
 
+            # print()
+            # print()
+            # print(sentence)
+
             img_path = self.process_sentence(sentence)
-
             token = copy.deepcopy(token_original)
-
-            # behaviour_root
             tree = self.get_node_representation(token)
 
             tree = rule_applier.applyAll(tree, token)
-            rules = rule_extraction.applyAll(tree, token, sentence)
 
-            tree_grouping = tree
+            tree_grouping       = tree
+            tree_subj_grouping  = ""
+            tree_obj_grouping   = ""
             if self.args.behaviour_root != "verb":
                 tree_grouping = ""
                 for child in token.children:
-                    if self.args.behaviour_root in child.dep_:
+                    if  self.args.behaviour_root in child.dep_:
                         tree_grouping = self.get_node_representation(child)
+                    if "subj" in child.dep_:
+                        tree_subj_grouping = self.get_node_representation(child)
+                    if "obj" in child.dep_:
+                        tree_obj_grouping = self.get_node_representation(child)
+
+            tree_obj_grouping, tree_subj_grouping = rule_applier_children.applyAll(tree_obj_grouping, tree_subj_grouping, token)
+
+            if ("subj" in self.args.behaviour_root):
+                tree_grouping = tree_subj_grouping
+            if ("obj" in self.args.behaviour_root):
+                tree_grouping = tree_obj_grouping
+
+            rules = rule_extraction.applyAll(tree, token, sentence)
+
+            # print()
+            # print()
 
             self.group_accounting_add(tree_grouping, token, sentence, img_path, rules)
 
@@ -554,18 +575,19 @@ class CommandSimplifiedGroup(CommandGroup):
         rule = Reduction()
 
         for results in sentence["rules"]:
-            for key, value in results.items():
+            for key, values in results.items():
                 dep = rule.rewrite_dp_tag(key)
 
-                if dep == 'subj' and not has_subj:
-                    subj = value
-                    has_subj = True
-                elif dep == 'obj' and not has_obj:
-                    obj = value
-                    has_obj = True
-                else:
-                    c = Context({"opt": dep, "result": value})
-                    others += to.render(c)
+                for value in values:
+                    if dep == 'subj' and not has_subj:
+                        subj = value
+                        has_subj = True
+                    elif dep == 'obj' and not has_obj:
+                        obj = value
+                        has_obj = True
+                    else:
+                        c = Context({"opt": dep, "result": value})
+                        others += to.render(c)
 
         ts = Template(each_sentence)
         c = Context({"s_id": i,

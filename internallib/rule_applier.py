@@ -4,8 +4,6 @@ class RuleApplier(object):
     deco_list = []
 
     def __init__(self):
-        self.tags_to_be_removed = set(['punct', 'cc', 'conj', 'mark', ' ', ''])
-
         ## c.f. the grouping at http://universaldependencies.org/u/dep/all.html#al-u-dep/nsubjpass
         ##
         # rule1: subject
@@ -15,7 +13,6 @@ class RuleApplier(object):
             (['dobj','iobj','pobj'], 'obj'),
             (['npadvmod', 'amod', 'advmod', 'nummod', 'quantmod', 'rcmod', 'tmod', 'vmod'], 'mod')
         ]
-
         return
 
     @staticmethod
@@ -24,16 +21,50 @@ class RuleApplier(object):
         return func
 
     def get_rules(self):
+        # print("----------------------------------")
+        # print(self.__class__.__name__)
+        # print(RuleApplier.deco_list)
+        # print("----------------------------------")
         return iter([rule for rule in RuleApplier.deco_list if self.__class__.__name__ in str(rule)])
 
-    def apply(self, nltk_tree, spacy_tree):
+    def rewrite_dp_tag(self, tag):
+        for rule in self.translation_rules:
+            source_tags = rule[0]
+            target_tag = rule[1]
 
-        root = nltk_tree.label()
-        node_set = [node for node in nltk_tree]
-        
-        for rule in self.get_rules():
-            root, node_set, spacy_tree = rule(self, root, node_set, spacy_tree)
-            # print(self.__class__.__name__, "during", [root, node_set])
+            if tag in source_tags:
+                return target_tag
+
+        # if nothing, return itself
+        return tag
+
+    def apply(self, nltk_tree, spacy_tree, tree_root = ""):
+
+        try:
+            root = nltk_tree.label()
+        except AttributeError:
+            root = str(nltk_tree)
+
+        node_set = []
+        if hasattr(nltk_tree, '__iter__'):
+            node_set = [node for node in nltk_tree]
+
+        root_spacy_tree = spacy_tree
+
+        # print("1 root", tree_root, root, node_set, root_spacy_tree, spacy_tree)
+
+        if tree_root != "":
+            root_spacy_tree = None
+            for child in spacy_tree.children:
+                if tree_root in child.dep_:
+                    root_spacy_tree = child
+
+        # print("2 root", tree_root, root, node_set, root_spacy_tree, spacy_tree)
+
+        if root_spacy_tree != None:
+            for rule in self.get_rules():
+                root, node_set, spacy_tree = rule(self, root, node_set, root_spacy_tree)
+                # print(self.__class__.__name__, "during", [root, node_set])
 
         t = Tree(root, list(sorted(node_set)))
 

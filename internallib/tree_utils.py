@@ -58,7 +58,10 @@ class TreeNode(object):
         return " ".join([t.orth_ for t in self.to_sentence_list()])
 
     def to_sentence_list_internal(self):
-        sentence = [self] + [child.to_sentence_list_internal() for child in self.children]
+        if self.nofollow == True:
+            return []
+
+        sentence = [self] + [child.to_sentence_list_internal() for child in self.children if not child.nofollow]
         return sentence
 
     def to_tree_string(self, level = 1):
@@ -216,3 +219,17 @@ def flatten_list(l):
             yield from flatten_list(el)
         else:
             yield el
+
+def find_in_spacynode(node, dep, orth):
+    if dep in node.dep_ and orth == node.orth_:
+        return node
+
+    if len(node.children) > 0:
+        results = []
+        for child in node.children:
+            results.append(find_in_spacynode(child, dep, orth))
+        for result in results:
+            if result != False:
+                return result
+
+    return False 
