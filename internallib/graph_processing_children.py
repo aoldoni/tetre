@@ -127,6 +127,28 @@ class Subj(RuleApplier):
 
         return root, node_set, spacy_tree
 
+    @RuleApplier.register_function
+    def no_follow_relcl(self, root, node_set, spacy_tree):
+        """1) TODO: Consider the following sentence:
+            "Two algorithms, BNL and DC are proposed in [4], while SFS [5], is based on the same principle as BNL, but improves performance by first sorting the data according to a monotone function."
+            
+            subj should only be "Two algorithms, BNL and DC", thus the relcl should not be followed.
+        """
+
+        return root, node_set, spacy_tree
+
+
+    @RuleApplier.register_function
+    def remove_after_comma(self, root, node_set, spacy_tree):
+        """1) TODO: Consider the following sentence:
+            "Harabagiu and Hickl (2006) recently demonstrated that textual entailment inference information, which in this system is a set of directional inference relations, improves the performance of a QA system significantly even without using any other form of semantic inference."
+            
+            One can stop printing the "obj" after ", which"
+        """
+
+        return root, node_set, spacy_tree
+
+
 class ProcessChildren(object):
     def __init__(self):
         self.obj = Obj()
