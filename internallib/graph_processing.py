@@ -245,8 +245,21 @@ class Growth(RuleApplier):
             One can see that "matrix co-factorization" and improves "predicting individual decisions". It could be rewriting as "improves prediction of individual decisions". Thus anything after a "prep in" could be considered an "obj".
         """
 
+        target = "obj"
+        replace = "prep"
 
+        is_obj = False
+        for child in spacy_tree.children:
+            if target in child.dep_:
+                is_obj = True
 
+        for child in spacy_tree.children:
+            if replace in child.dep_ and child.orth_ == "in":
+                if not is_obj:
+                    child.dep_ = target
+                    node_set = [target if node==replace else node for node in node_set]
+
+        node_set = set([self.rewrite_dp_tag(node) for node in node_set])
         return root, node_set, spacy_tree
 
     @RuleApplier.register_function
