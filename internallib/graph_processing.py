@@ -24,10 +24,10 @@ class Growth(RuleApplier):
             This method adjusts the tree, bringing the node above under "improves".
 
 
-            2) TODO - this doesn't work well in the following sentence:
+            2) Consider the following sentence:
             "The best known recovery algorithm for dirty mapping entries, proposed in LazyFTL, exhibits two shortcomings that GeckoFTL improves upon."
 
-            In this case, GeckoFTL is the correct answer but replaced with "two  shortcomings" up in the tree.
+            In this case, GeckoFTL is is a proper noun, so it shouldn't be replaced.
         """
 
         upwards = ["relcl"]
@@ -59,30 +59,35 @@ class Growth(RuleApplier):
             # print("1", token.to_tree_string())
             # print("1", token_head.to_tree_string())
 
+            isChanging = False
+
             children_list = token.children[:]
             for i in range(0, len(children_list)):
                 if (children_list[i].dep_ in self.subs):
-                    token.children.pop(i)
+                    if not (token.children[i].pos_ in ["NOUN","PROPN"]):
+                        token.children.pop(i)
+                        isChanging = True
 
             # print("2", token.to_tree_string())
             # print("2", token_head.to_tree_string())
 
-            children_list = token_head.children[:]
-            for i in range(0, len(children_list)):
-                if (children_list[i].idx == token.idx):
-                    token_head.children.pop(i)
+            if (isChanging):
+                children_list = token_head.children[:]
+                for i in range(0, len(children_list)):
+                    if (children_list[i].idx == token.idx):
+                        token_head.children.pop(i)
 
-                    #adjust representation
-                    node_set.append(self.downwards_subj)
+                        #adjust representation
+                        node_set.append(self.downwards_subj)
 
-            # print("3", token.to_tree_string())
-            # print("3", token_head.to_tree_string())
+                # print("3", token.to_tree_string())
+                # print("3", token_head.to_tree_string())
 
-            # print("---------------")
+                # print("---------------")
 
-            token_head.dep_ = self.downwards_subj
-            token.children.append(token_head)
-            token_head.head = token
+                token_head.dep_ = self.downwards_subj
+                token.children.append(token_head)
+                token_head.head = token
 
         return root, node_set, spacy_tree
 
