@@ -239,7 +239,7 @@ class Growth(RuleApplier):
     @RuleApplier.register_function
     def bring_prep_in_up(self, root, node_set, spacy_tree):
         """
-            1) TODO - Consider the following sentence:
+            1) Consider the following sentence:
             "While matrix factorization is widely used in recommender systems, matrix co-factorization helps to handle multiple aspects of the data and improves in predicting individual decisions (Hong et al. "
 
             One can see that "matrix co-factorization" and improves "predicting individual decisions". It could be rewriting as "improves prediction of individual decisions". Thus anything after a "prep in" could be considered an "obj".
