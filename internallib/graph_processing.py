@@ -12,6 +12,7 @@ class Growth(RuleApplier):
         RuleApplier.__init__(self)
         self.subs = ['nsubj', 'csubj', 'nsubjpass', 'csubjpass']
         self.move_if = [("xcomp", "obj"), ("ccomp", "obj")]
+        self.downwards_subj = "nsubj"
 
     @RuleApplier.register_function
     def replace_on_relcl(self, root, node_set, spacy_tree):
@@ -29,9 +30,7 @@ class Growth(RuleApplier):
             In this case, GeckoFTL is the correct answer but replaced with "two  shortcomings" up in the tree.
         """
 
-
         upwards = ["relcl"]
-        downwards = "nsubj"
 
         #adjust representation
         # has_subj = False
@@ -74,14 +73,14 @@ class Growth(RuleApplier):
                     token_head.children.pop(i)
 
                     #adjust representation
-                    node_set.append(downwards)
+                    node_set.append(self.downwards_subj)
 
             # print("3", token.to_tree_string())
             # print("3", token_head.to_tree_string())
 
             # print("---------------")
 
-            token_head.dep_ = downwards
+            token_head.dep_ = self.downwards_subj
             token.children.append(token_head)
             token_head.head = token
 
@@ -97,7 +96,7 @@ class Growth(RuleApplier):
             This method adjusts the tree, bringing the node above under "improves".
 
             
-            2) TODO - now consider the following sentence:
+            2) Now consider the following sentence:
             "Both identify product features from reviews, but OPINE significantly improves on both."
 
             Note how, although improves is a conj, "Both" is the subj up the tree. However, there is a "but" as the "cc", and beucase of this we need to pick the "conj" below instead of the "subj".
@@ -105,25 +104,6 @@ class Growth(RuleApplier):
 
         upwards = ["conj"]
 
-        #adjust representation
-        # token = spacy_tree
-        # token_head = spacy_tree
-
-        # while True:
-
-        #     if (token_head.dep_ in upwards        \
-        #         and token_head.head != token_head \
-        #         and len([child for child in token.children if child.dep_ in self.subs]) == 0):
-        #         token_head = token_head.head
-
-        #         for child in token_head.children:
-        #             if child.dep_ in self.subs:
-        #                 node_set.append(child.dep_ )
-        #     else:
-        #         break
-
-
-        #adjust actual tree
         token = spacy_tree
         token_head = spacy_tree
 
@@ -139,13 +119,24 @@ class Growth(RuleApplier):
 
                     changed = False
                     children_list = token_head.children[:]
-                    for i in range(0, len(children_list)):
 
-                        if token_head.children[i].dep_ in self.subs:
+                    isBut = False
+                    for j in range(0, len(children_list)):
+                        if token_head.children[j].dep_ in "cc" \
+                            and token_head.children[j].orth_ == "but":
+                            isBut = True
+
+                    for i in range(0, len(children_list)):
+                        if  (not isBut and token_head.children[i].dep_ in self.subs) or \
+                            (isBut and token_head.children[i].dep_ in "conj" and token_head.children[i] != token):
 
                             # print("1", token.to_tree_string())
                             # print("1", token_head.to_tree_string())
                             # print("1", node_set)
+                            # print("1", isBut)
+
+                            if isBut:
+                                token_head.children[i].dep_ = self.downwards_subj
 
                             # adjust representation
                             node_set.append(token_head.children[i].dep_ )
@@ -158,6 +149,7 @@ class Growth(RuleApplier):
                             # print("2", token.to_tree_string())
                             # print("2", token_head.to_tree_string())
                             # print("2", node_set)
+                            # print("2", isBut)
 
                             # print("---------------")
                             # print()
@@ -247,6 +239,8 @@ class Growth(RuleApplier):
 
             One can see that "matrix co-factorization" and improves "predicting individual decisions". It could be rewriting as "improves prediction of individual decisions". Thus anything after a "prep in" could be considered an "obj".
         """
+
+
 
         return root, node_set, spacy_tree
 
