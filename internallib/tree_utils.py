@@ -221,8 +221,12 @@ def flatten_list(l):
             yield el
 
 def find_in_spacynode(node, dep, orth):
-    if dep in node.dep_ and orth == node.orth_:
-        return node
+    if dep != "":
+        if dep in node.dep_ and orth == node.orth_:
+            return node
+    else:
+        if orth == node.orth_:
+            return node
 
     if len(node.children) > 0:
         results = []

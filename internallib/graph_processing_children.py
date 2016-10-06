@@ -2,6 +2,7 @@ from nltk import Tree
 from types import FunctionType
 from internallib.dependency_helpers import *
 from internallib.rule_applier import *
+from internallib.tree_utils import find_in_spacynode
 import inspect
 from functools import wraps
 
@@ -41,12 +42,24 @@ class Obj(RuleApplier):
 
     @RuleApplier.register_function
     def remove_after_comma(self, root, node_set, spacy_tree):
-        """1) TODO: Consider the following sentence:
+        """1) Consider the following sentence:
             "DoppelÃ¢Â€Â™s optimization is orthogonal to BCC: Doppel improves performance when ww dependencies happen, while BCC avoids false aborts caused by rw dependencies."
             "Their results show that the feature improves the parsing performance, which coincides with our analysis in Section 1.1."
 
             One can stop printing the "obj" after ", which" or ", while".
         """
+
+        while_ = find_in_spacynode(spacy_tree, "", "while")
+        which_ = find_in_spacynode(spacy_tree, "", "which")
+        comma_ = find_in_spacynode(spacy_tree, "", ",")
+
+        if (which_ != False and comma_ != False and (which_.idx - comma_.idx) == 2):
+            comma_.nofollow = True
+            which_.head.nofollow = True
+
+        if (while_ != False and comma_ != False and (while_.idx - comma_.idx) == 2):
+            comma_.nofollow = True
+            while_.head.nofollow = True
 
         return root, node_set, spacy_tree
 
