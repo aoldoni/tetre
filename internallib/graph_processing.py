@@ -105,6 +105,11 @@ class Growth(RuleApplier):
             "Both identify product features from reviews, but OPINE significantly improves on both."
 
             Note how, although improves is a conj, "Both" is the subj up the tree. However, there is a "but" as the "cc", and beucase of this we need to pick the "conj" below instead of the "subj".
+
+            3) Now consider:
+            "SFS [6] (sort-filter-skyline) is based on the same rationale as BNL , but improves performance by first sorting the data according to a monotone function."
+
+            This has a "but", however no other conj, in this case we should use the nsubj again.
         """
 
         upwards = ["conj"]
@@ -126,21 +131,39 @@ class Growth(RuleApplier):
                     children_list = token_head.children[:]
 
                     isBut = False
+                    otherConjExists = False
                     for j in range(0, len(children_list)):
                         if token_head.children[j].dep_ in "cc" \
                             and token_head.children[j].orth_ == "but":
                             isBut = True
+                        if token_head.children[j].dep_ in "conj" \
+                            and token_head.children[j] != token:
+                            otherConjExists = True
 
                     for i in range(0, len(children_list)):
-                        if  (not isBut and token_head.children[i].dep_ in self.subs) or \
-                            (isBut and token_head.children[i].dep_ in "conj" and token_head.children[i] != token):
+
+                        # print()
+                        # print("0", isBut)
+                        # print("0", token_head.children[i].dep_)
+                        # print("0", token_head.children[i].orth_)
+                        # print("0", token.orth_)
+
+                        isOtherConj = token_head.children[i].dep_ in "conj" and token_head.children[i] != token
+
+                        cond_subj = not isBut and token_head.children[i].dep_ in self.subs
+                        cond_conj_other = isBut and otherConjExists and isOtherConj
+                        cond_conj_same  = isBut and not otherConjExists and token_head.children[i].dep_ in self.subs 
+
+                        if  (cond_subj) or \
+                            (cond_conj_other) or \
+                            (cond_conj_same):
 
                             # print("1", token.to_tree_string())
                             # print("1", token_head.to_tree_string())
                             # print("1", node_set)
                             # print("1", isBut)
 
-                            if isBut:
+                            if cond_conj_other:
                                 token_head.children[i].dep_ = self.downwards_subj
 
                             # adjust representation

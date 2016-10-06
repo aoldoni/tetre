@@ -13,6 +13,13 @@ class Obj(RuleApplier):
         return
 
     @RuleApplier.register_function
+    def remove_duplicates(self, root, node_set, spacy_tree):
+        """
+            1) This groups sentence with e.g.: multiple "punct" into the same group for easier analysis.
+        """
+        return root, set(node_set), spacy_tree
+
+    @RuleApplier.register_function
     def remove_tags(self, root, node_set, spacy_tree):
         """1) Consider the following sentence:
             "2 Related work Learning to rank has been a promising research area which continuously improves web search relevance (Burges et al."
@@ -89,14 +96,11 @@ class Subj(RuleApplier):
         return
 
     @RuleApplier.register_function
-    def yield_two_subjs(self, root, node_set, spacy_tree):
-        """1) TODO: Consider the following sentence:
-            "Using textual entailment output (Stern and Dagan, 2011) and embedding-based representations (Iyyer et al., 2014) further improves the result."
-
-            Should yield 2 subjs such as "Using textual entailment output (Stern and Dagan, 2011)" AND "embedding-based representations (Iyyer et al., 2014)"
+    def remove_duplicates(self, root, node_set, spacy_tree):
         """
-
-        return root, node_set, spacy_tree
+            1) This groups sentence with e.g.: multiple "punct" into the same group for easier analysis.
+        """
+        return root, set(node_set), spacy_tree
 
     @RuleApplier.register_function
     def remove_tags(self, root, node_set, spacy_tree):
@@ -166,6 +170,16 @@ class Subj(RuleApplier):
         if (while_ != False and comma_ != False and (while_.idx - comma_.idx) == 2):
             comma_.nofollow = True
             while_.head.nofollow = True
+
+        return root, node_set, spacy_tree
+
+    @RuleApplier.register_function
+    def yield_two_subjs(self, root, node_set, spacy_tree):
+        """1) TODO: Consider the following sentence:
+            "Using textual entailment output (Stern and Dagan, 2011) and embedding-based representations (Iyyer et al., 2014) further improves the result."
+
+            Should yield 2 subjs such as "Using textual entailment output (Stern and Dagan, 2011)" AND "embedding-based representations (Iyyer et al., 2014)"
+        """
 
         return root, node_set, spacy_tree
 
