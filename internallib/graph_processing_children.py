@@ -44,6 +44,7 @@ class Obj(RuleApplier):
             1) This transform tags from several variations into a more general version. The mappings are contained
             in the self.translation_rules variables.
         """
+
         node_set = set([self.rewrite_dp_tag(node) for node in node_set])
         return root, node_set, spacy_tree
 
@@ -84,7 +85,7 @@ class Obj(RuleApplier):
 class Subj(RuleApplier):
     def __init__(self):
         RuleApplier.__init__(self)
-        self.tags_to_be_removed = set(['punct', 'det', ' ', ''])
+        self.tags_to_be_removed = set(['punct', 'appos', 'det', ' ', ''])
         return
 
     @RuleApplier.register_function
@@ -103,6 +104,12 @@ class Subj(RuleApplier):
             "In this way, we can show that the bidirectional model improves alignment quality and enables the extraction of more correct phrase pairs."
 
             It is clear that the rule could simply yield "bidirectional model" instead of "the bidirectional model".
+
+            2) Consider the following sentence:
+            "LSB [19] is the first LSH method that is designed for disk-resident data, followed by C2LSH [4], which improves the efficiency and accuracy and reduces the space requirement."
+            
+            The "appos" relation prints further information on the noun that is part of the "obj" node. http://universaldependencies.org/u/dep/appos.html
+            One can remove it as in all observed cases the extra information wasn't really relevant "[4]".
         """
 
         node_set = set(node_set) - self.tags_to_be_removed
@@ -125,34 +132,40 @@ class Subj(RuleApplier):
         return root, node_set, spacy_tree
 
     @RuleApplier.register_function
-    def no_follow_appos(self, root, node_set, spacy_tree):
-        """1) TODO: Consider the following sentence:
-            "LSB [19] is the first LSH method that is designed for disk-resident data, followed by C2LSH [4], which improves the efficiency and accuracy and reduces the space requirement."
-            
-            The "appos" relation prints further information on the noun that is part of the "obj" node. http://universaldependencies.org/u/dep/appos.html
-            One can remove it as in all observed cases the extra information wasn't really relevant "[4]".
-        """
-
-        return root, node_set, spacy_tree
-
-    @RuleApplier.register_function
-    def no_follow_relcl(self, root, node_set, spacy_tree):
-        """1) TODO: Consider the following sentence:
+    def no_follow_advcl(self, root, node_set, spacy_tree):
+        """1) Consider the following sentence:
+            "Approaches that do not explicitly involve resource adaptation include Wan (2009), which uses co-training (Blum and Mitchell, 1998) with English vs. Chinese features comprising the two independent Ã¢Â€Â•viewsÃ¢Â€Â– to exploit unlabeled Chinese data and a labeled English corpus and thereby improves Chinese sentiment classification."
             "Two algorithms, BNL and DC are proposed in [4], while SFS [5], is based on the same principle as BNL, but improves performance by first sorting the data according to a monotone function."
             
             subj should only be "Two algorithms, BNL and DC", thus the relcl should not be followed.
         """
 
-        return root, node_set, spacy_tree
+        advcl_ = find_in_spacynode(spacy_tree, "advcl", "")
 
+        if advcl_ != False:
+            advcl_.nofollow = True
+
+        return root, node_set, spacy_tree
 
     @RuleApplier.register_function
     def remove_after_comma(self, root, node_set, spacy_tree):
-        """1) TODO: Consider the following sentence:
+        """1) Consider the following sentence:
             "Harabagiu and Hickl (2006) recently demonstrated that textual entailment inference information, which in this system is a set of directional inference relations, improves the performance of a QA system significantly even without using any other form of semantic inference."
             
             One can stop printing the "obj" after ", which"
         """
+
+        while_ = find_in_spacynode(spacy_tree, "", "while")
+        which_ = find_in_spacynode(spacy_tree, "", "which")
+        comma_ = find_in_spacynode(spacy_tree, "", ",")
+
+        if (which_ != False and comma_ != False and (which_.idx - comma_.idx) == 2):
+            comma_.nofollow = True
+            which_.head.nofollow = True
+
+        if (while_ != False and comma_ != False and (while_.idx - comma_.idx) == 2):
+            comma_.nofollow = True
+            while_.head.nofollow = True
 
         return root, node_set, spacy_tree
 
