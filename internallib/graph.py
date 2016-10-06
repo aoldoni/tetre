@@ -462,9 +462,9 @@ class CommandSimplifiedGroup(CommandGroup):
             if token_original.pos_ != "VERB":
                 continue
 
-            print()
-            print()
-            print(sentence)
+            # print()
+            # print()
+            # print(sentence)
 
             img_path = self.process_sentence(sentence)
             token = copy.deepcopy(token_original)
@@ -494,8 +494,8 @@ class CommandSimplifiedGroup(CommandGroup):
 
             rules = rule_extraction.applyAll(tree, token, sentence)
 
-            print()
-            print()
+            # print()
+            # print()
 
             self.group_accounting_add(tree_grouping, token, sentence, img_path, rules)
 
