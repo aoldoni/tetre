@@ -61,11 +61,18 @@ class RuleApplier(object):
 
         # print("2 root", tree_root, root, node_set, root_spacy_tree, spacy_tree)
 
+        applied = []
+
         if root_spacy_tree != None:
             for rule in self.get_rules():
-                root, node_set, spacy_tree = rule(self, root, node_set, root_spacy_tree)
-                # print(self.__class__.__name__, "during", [root, node_set])
+                # print(self.__class__.__name__, rule, "during", [root, node_set])
+                root, node_set, spacy_tree, is_applied = rule(self, root, node_set, root_spacy_tree)
+
+                if is_applied:
+                    rule_representation = str(rule).replace("<function ","")
+                    rule_representation = rule_representation[:rule_representation.find(" at")]
+                    applied.append(rule_representation)
 
         t = Tree(root, list(sorted(node_set)))
 
-        return t
+        return t, applied

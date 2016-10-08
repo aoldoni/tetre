@@ -2,16 +2,17 @@ from nltk import Tree
 from types import FunctionType
 from internallib.dependency_helpers import *
 from internallib.rule_applier import *
-from internallib.tree_utils import find_in_spacynode
+from internallib.tree_utils import find_in_spacynode, merge_nodes
 import inspect
-from functools import wraps
+from functools import wraps, reduce
 import sys
 
 class Growth(RuleApplier):
     def __init__(self):
         RuleApplier.__init__(self)
         self.subs = ['nsubj', 'csubj', 'nsubjpass', 'csubjpass']
-        self.move_if = [("xcomp", "obj"), ("ccomp", "obj")]
+        self.objs = ['dobj', 'iobj', 'pobj']
+        self.move_if = [("xcomp", "obj"), ("ccomp", "obj"), ("xcomp", "subj"), ("ccomp", "subj")]
         self.downwards_subj = "nsubj"
 
     @RuleApplier.register_function
@@ -30,20 +31,9 @@ class Growth(RuleApplier):
             In this case, GeckoFTL is is a proper noun, so it shouldn't be replaced.
         """
 
-        upwards = ["relcl"]
+        isApplied = False
 
-        #adjust representation
-        # has_subj = False
-        # token = spacy_tree
-        # token_head = spacy_tree
-
-        # for node in node_set:
-        #     if node in self.subs:
-        #         has_subj = True
-
-        # if (token_head.dep_ in upwards and token_head.head != token):
-        #     if not has_subj:
-        #         node_set.append(downwards)
+        upwards = ["relcl", "ccomp"]
 
         #adjust tree
         token = spacy_tree
@@ -60,18 +50,29 @@ class Growth(RuleApplier):
             # print("1", token_head.to_tree_string())
 
             isChanging = False
+            hasSubj = False
 
             children_list = token.children[:]
             for i in range(0, len(children_list)):
                 if (children_list[i].dep_ in self.subs):
-                    if not (token.children[i].pos_ in ["NOUN","PROPN"]):
+                    hasSubj = True
+
+                    # print(token.children[i].orth_, token.children[i].pos_)
+                    
+                    if not (token.children[i].pos_ in ["NOUN", "PROPN", "VERB"]):
                         token.children.pop(i)
                         isChanging = True
 
+            if not hasSubj:
+                isChanging = True
+
+            # print("2", hasSubj)
+            # print("2", isChanging)
             # print("2", token.to_tree_string())
             # print("2", token_head.to_tree_string())
 
             if (isChanging):
+                isApplied = True
                 children_list = token_head.children[:]
                 for i in range(0, len(children_list)):
                     if (children_list[i].idx == token.idx):
@@ -89,7 +90,7 @@ class Growth(RuleApplier):
                 token.children.append(token_head)
                 token_head.head = token
 
-        return root, node_set, spacy_tree
+        return root, node_set, spacy_tree, isApplied
 
     @RuleApplier.register_function
     def recurse_on_conj_if_no_subj(self, root, node_set, spacy_tree):
@@ -110,7 +111,14 @@ class Growth(RuleApplier):
             "SFS [6] (sort-filter-skyline) is based on the same rationale as BNL , but improves performance by first sorting the data according to a monotone function."
 
             This has a "but", however no other conj, in this case we should use the nsubj again.
+
+            4) Now consider:
+            "[16] studies the usage of grammars and LZ77 parsing for compression of similar sequence collections and improves complexity bounds with respect to space as well as time."
+
+            The subj is actually the dobj of the head
         """
+
+        isApplied = False
 
         upwards = ["conj"]
 
@@ -130,8 +138,11 @@ class Growth(RuleApplier):
                     changed = False
                     children_list = token_head.children[:]
 
-                    isBut = False
+                    isBut           = False
                     otherConjExists = False
+                    hasSubj         = False
+                    hasObj          = False
+
                     for j in range(0, len(children_list)):
                         if token_head.children[j].dep_ in "cc" \
                             and token_head.children[j].orth_ == "but":
@@ -139,6 +150,10 @@ class Growth(RuleApplier):
                         if token_head.children[j].dep_ in "conj" \
                             and token_head.children[j] != token:
                             otherConjExists = True
+                        if "subj" in token_head.children[j].dep_:
+                            hasSubj = True
+                        if "obj" in token_head.children[j].dep_:
+                            hasObj = True
 
                     for i in range(0, len(children_list)):
 
@@ -149,21 +164,33 @@ class Growth(RuleApplier):
                         # print("0", token.orth_)
 
                         isOtherConj = token_head.children[i].dep_ in "conj" and token_head.children[i] != token
+                        isSubj = token_head.children[i].dep_ in self.subs
+                        isObj = token_head.children[i].dep_ in self.objs
 
-                        cond_subj = not isBut and token_head.children[i].dep_ in self.subs
-                        cond_conj_other = isBut and otherConjExists and isOtherConj
-                        cond_conj_same  = isBut and not otherConjExists and token_head.children[i].dep_ in self.subs 
+                        cond_subj = not isBut and isSubj
+                        cond_dobj = not isBut and not hasSubj and isObj
+                        cond_conj_other = isBut and not isSubj and otherConjExists and isOtherConj
+                        cond_conj_same  = isBut and not otherConjExists and isSubj
+
+                        # print("1", isOtherConj)
+                        # print("1", cond_subj)
+                        # print("1", cond_conj_other)
+                        # print("1", cond_conj_same)
+                        # print("1", isBut)
 
                         if  (cond_subj) or \
                             (cond_conj_other) or \
+                            (cond_dobj) or \
                             (cond_conj_same):
 
-                            # print("1", token.to_tree_string())
-                            # print("1", token_head.to_tree_string())
-                            # print("1", node_set)
-                            # print("1", isBut)
+                            isApplied = True
 
-                            if cond_conj_other:
+                            # print("2", token.to_tree_string())
+                            # print("2", token_head.to_tree_string())
+                            # print("2", node_set)
+                            # print("2", isBut)
+
+                            if cond_dobj or cond_conj_other:
                                 token_head.children[i].dep_ = self.downwards_subj
 
                             # adjust representation
@@ -174,10 +201,10 @@ class Growth(RuleApplier):
                             token_head.children[i].head = token
                             token_head.children.pop(i)
 
-                            # print("2", token.to_tree_string())
-                            # print("2", token_head.to_tree_string())
-                            # print("2", node_set)
-                            # print("2", isBut)
+                            # print("3", token.to_tree_string())
+                            # print("3", token_head.to_tree_string())
+                            # print("3", node_set)
+                            # print("3", isBut)
 
                             # print("---------------")
                             # print()
@@ -191,7 +218,7 @@ class Growth(RuleApplier):
             else:
                 break
 
-        return root, node_set, spacy_tree
+        return root, node_set, spacy_tree, isApplied
 
     @RuleApplier.register_function
     def bring_prep_by_up(self, root, node_set, spacy_tree):
@@ -201,6 +228,8 @@ class Growth(RuleApplier):
 
             The dependency parser relates the "prep by" relationship to "performance" instead of "improves", causing the dobj part to be too large.
         """
+
+        isApplied = False
 
         obj = next((child for child in spacy_tree.children if "obj" in child.dep_), None)
 
@@ -220,6 +249,8 @@ class Growth(RuleApplier):
                     if "prep" in prep_head[i].dep_ and \
                         "by" == prep_head[i].orth_:
 
+                        isApplied = True
+
                         #adjust actual tree
                         prep.head.children.pop(i)
                         spacy_tree.children.append(prep)
@@ -231,10 +262,10 @@ class Growth(RuleApplier):
                         changed = True
                         break
 
-        return root, node_set, spacy_tree
+        return root, node_set, spacy_tree, isApplied
 
     @RuleApplier.register_function
-    def transform_xcomp_if_no_dobj_tag(self, root, node_set, spacy_tree):
+    def transform_comp_if_no_tag(self, root, node_set, spacy_tree):
         """
             1) Consider the sentence:
             xcomp > "Recent work has showed that structured retrieval improves answer ranking for factoid questions: Bilotti et al."
@@ -243,21 +274,38 @@ class Growth(RuleApplier):
             Although it is possible to understand that "structured retrieval" "improves" "answer ranking..." the "answer ranking..." part is
             not presented as a dobj dependency, but a xcomp dependency instead. This rule transforms xcomp into "obj" as both contain the same
             purpose for information extraction.
+
+            2) Consider this sentence:
+            ccomp > "2 Related Work Caching frequently accessed data at the client side not only improves the userÃ¢Â€Â™s experience of the distributed system, but also alleviates the serverÃ¢Â€Â™s workload and enhances its scalability."
+
+            Although in this sentence the dobj was detected, the ccomp is the nsubj. Thus, after replacing the items for dobj, if there is no nsubj in the sentence we try to tranform then in nsubj.
         """
+
+        isApplied = False
+
+        should_return = False
+
         for replace, target in self.move_if:
             is_obj = False
+
             for child in spacy_tree.children:
                 if target in child.dep_:
                     is_obj = True
+                    break
+
+            if is_obj:
+                continue
 
             for child in spacy_tree.children:
                 if replace in child.dep_:
-                    if not is_obj:
-                        child.dep_ = target
-                        node_set = [target if node==replace else node for node in node_set]
+                    isApplied = True
+
+                    child.dep_ = target
+                    node_set = [target if node==replace else node for node in node_set]
+                    break
 
         node_set = set([self.rewrite_dp_tag(node) for node in node_set])
-        return root, node_set, spacy_tree
+        return root, node_set, spacy_tree, isApplied
 
     @RuleApplier.register_function
     def bring_prep_in_up(self, root, node_set, spacy_tree):
@@ -267,6 +315,7 @@ class Growth(RuleApplier):
 
             One can see that "matrix co-factorization" and improves "predicting individual decisions". It could be rewriting as "improves prediction of individual decisions". Thus anything after a "prep in" could be considered an "obj".
         """
+        isApplied = False
 
         target = "obj"
         replace = "prep"
@@ -279,38 +328,26 @@ class Growth(RuleApplier):
         for child in spacy_tree.children:
             if replace in child.dep_ and child.orth_ == "in":
                 if not is_obj:
+                    isApplied = True
+
                     child.dep_ = target
                     node_set = [target if node==replace else node for node in node_set]
 
         node_set = set([self.rewrite_dp_tag(node) for node in node_set])
-        return root, node_set, spacy_tree
-
-    @RuleApplier.register_function
-    def yield_multiple(self, root, node_set, spacy_tree):
-        """
-            1) TODO - Consider the following sentence:
-            "ED-Join improves AllPairs-Ed using location-based and content-based mismatch filter by decreasing the number of grams."
-
-            Ideally we would yield:
-                "ED-Join"   "improves"  "AllPairs-Ed using location-based mismatch filter"
-                "ED-Join"   "improves"  "AllPairs-Ed using content-based mismatch filter"
-            Both with "prep" "by decreasing the number of grams"
-        """
-
-        return root, node_set, spacy_tree
+        return root, node_set, spacy_tree, isApplied
 
 
 class Reduction(RuleApplier):
     def __init__(self):
         RuleApplier.__init__(self)
-        self.tags_to_be_removed = set(['punct', 'mark', ' ', ''])
+        self.tags_to_be_removed = set(['punct', 'mark', ' ', '', 'meta'])
 
     @RuleApplier.register_function
     def remove_duplicates(self, root, node_set, spacy_tree):
         """
             1) This groups sentence with e.g.: multiple "punct" into the same group for easier analysis.
         """
-        return root, set(node_set), spacy_tree
+        return root, set(node_set), spacy_tree, False
 
     @RuleApplier.register_function
     def remove_tags(self, root, node_set, spacy_tree):
@@ -318,14 +355,16 @@ class Reduction(RuleApplier):
             1) This removes dependency paths of the types contained in self.tags_to_be_removed as they are not considered
             relevant. This reduces the number of different groups.
         """
+        isApplied = False
 
         node_set = set(node_set) - self.tags_to_be_removed
 
         for child in spacy_tree.children:
             if child.dep_ in self.tags_to_be_removed:
+                isApplied = True
                 child.nofollow = True
 
-        return root, node_set, spacy_tree
+        return root, node_set, spacy_tree, isApplied
 
     @RuleApplier.register_function
     def tranform_tags(self, root, node_set, spacy_tree):
@@ -334,19 +373,50 @@ class Reduction(RuleApplier):
             in the self.translation_rules variables.
         """
         node_set = set([self.rewrite_dp_tag(node) for node in node_set])
-        return root, node_set, spacy_tree
+        return root, node_set, spacy_tree, False
 
     @RuleApplier.register_function
-    def yield_multiple(self, root, node_set, spacy_tree):
+    def merge_representation(self, root, node_set, spacy_tree):
         """
-            1) TODO - Unify multiple subj and fix representation:
+            1) Unify multiple subj and fix representation:
             "Another partitional method ORCLUS [2] improves PROCLUS by selecting principal components so that clusters not parallel to the original dimensions can also be detected."
 
             It has 2 nsubj: "Another partitional method" and "ORCLUS [2]". They should be in the same sentence.
             Because it has 2 subj, the representation ends up being the one from the last nsubj.
         """
 
-        return root, node_set, spacy_tree
+        isApplied = False
+
+        groups = ["subj", "obj"]
+        
+        for group in groups:
+            this_group = []
+
+            count = reduce(lambda x, y: x + 1 if group in y.dep_ else x, spacy_tree.children, 0)
+
+            if count < 2:
+                continue;
+
+            changed = True
+            while changed:
+                changed = False
+                children_list = spacy_tree.children[:]
+
+                for i in range(0, len(children_list)):
+                    if group in children_list[i].dep_:
+                        this_group.append(children_list[i])
+                        spacy_tree.children.pop(i)
+
+                        isApplied = True
+
+                        changed = True
+                        break
+
+            child = merge_nodes(this_group)
+            spacy_tree.children.append(child)
+            child.head = spacy_tree
+
+        return root, node_set, spacy_tree, isApplied
 
 class Process(object):
     def __init__(self):
@@ -358,6 +428,6 @@ class Process(object):
 
         # print("will process")
 
-        nltk_tree = self.growth.apply(nltk_tree, spacy_tree)
-        nltk_tree = self.reduction.apply(nltk_tree, spacy_tree)
-        return nltk_tree
+        nltk_tree, applied_growth = self.growth.apply(nltk_tree, spacy_tree)
+        nltk_tree, applied_reduction = self.reduction.apply(nltk_tree, spacy_tree)
+        return nltk_tree, (applied_growth + applied_reduction)

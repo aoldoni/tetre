@@ -17,7 +17,7 @@ class Obj(RuleApplier):
         """
             1) This groups sentence with e.g.: multiple "punct" into the same group for easier analysis.
         """
-        return root, set(node_set), spacy_tree
+        return root, set(node_set), spacy_tree, False
 
     @RuleApplier.register_function
     def remove_tags(self, root, node_set, spacy_tree):
@@ -35,15 +35,18 @@ class Obj(RuleApplier):
             One can remove it as in all observed cases the extra information wasn't really relevant (wither it were citations, or long subsequent clauses)
         """
 
+        isApplied = False
+
         node_set = set(node_set) - self.tags_to_be_removed
 
         for child in spacy_tree.children:
             if child.dep_ in self.tags_to_be_removed:
+                isApplied = True
                 child.nofollow = True
 
         # print("END   Obj", self.tags_to_be_removed, root, node_set, spacy_tree)
 
-        return root, node_set, spacy_tree
+        return root, node_set, spacy_tree, isApplied
 
     @RuleApplier.register_function
     def tranform_tags(self, root, node_set, spacy_tree):
@@ -53,7 +56,7 @@ class Obj(RuleApplier):
         """
 
         node_set = set([self.rewrite_dp_tag(node) for node in node_set])
-        return root, node_set, spacy_tree
+        return root, node_set, spacy_tree, False
 
     @RuleApplier.register_function
     def remove_after_comma(self, root, node_set, spacy_tree):
@@ -64,29 +67,33 @@ class Obj(RuleApplier):
             One can stop printing the "obj" after ", which" or ", while".
         """
 
+        isApplied = False
+
         while_ = find_in_spacynode(spacy_tree, "", "while")
         which_ = find_in_spacynode(spacy_tree, "", "which")
         comma_ = find_in_spacynode(spacy_tree, "", ",")
 
         if (which_ != False and comma_ != False and (which_.idx - comma_.idx) == 2):
+            isApplied = True
             comma_.nofollow = True
             which_.head.nofollow = True
 
         if (while_ != False and comma_ != False and (while_.idx - comma_.idx) == 2):
+            isApplied = True
             comma_.nofollow = True
             while_.head.nofollow = True
 
-        return root, node_set, spacy_tree
+        return root, node_set, spacy_tree, isApplied
 
     @RuleApplier.register_function
     def break_into_multiple_relations(self, root, node_set, spacy_tree):
-        """1) Consider the following sentence:
+        """1) TODO - Consider the following sentence:
             "The spirit of this work more closely resembles that of Finkel and Manning (2009) , which improves both parsing and named entity recognition by combining the two tasks."
 
             It should yield 2 relations as it improves "parsing" AND "named entity recognition"
         """
 
-        return root, node_set, spacy_tree
+        return root, node_set, spacy_tree, False
 
 
 class Subj(RuleApplier):
@@ -100,7 +107,7 @@ class Subj(RuleApplier):
         """
             1) This groups sentence with e.g.: multiple "punct" into the same group for easier analysis.
         """
-        return root, set(node_set), spacy_tree
+        return root, set(node_set), spacy_tree, False
 
     @RuleApplier.register_function
     def remove_tags(self, root, node_set, spacy_tree):
@@ -116,15 +123,18 @@ class Subj(RuleApplier):
             One can remove it as in all observed cases the extra information wasn't really relevant "[4]".
         """
 
+        isApplied = False
+
         node_set = set(node_set) - self.tags_to_be_removed
 
         for child in spacy_tree.children:
             if child.dep_ in self.tags_to_be_removed:
+                isApplied = True
                 child.nofollow = True
 
         # print("END   Obj", self.tags_to_be_removed, root, node_set, spacy_tree)
 
-        return root, node_set, spacy_tree
+        return root, node_set, spacy_tree, isApplied
 
     @RuleApplier.register_function
     def tranform_tags(self, root, node_set, spacy_tree):
@@ -133,7 +143,7 @@ class Subj(RuleApplier):
             in the self.translation_rules variables.
         """
         node_set = set([self.rewrite_dp_tag(node) for node in node_set])
-        return root, node_set, spacy_tree
+        return root, node_set, spacy_tree, False
 
     @RuleApplier.register_function
     def no_follow_advcl(self, root, node_set, spacy_tree):
@@ -144,12 +154,15 @@ class Subj(RuleApplier):
             subj should only be "Two algorithms, BNL and DC", thus the relcl should not be followed.
         """
 
+        isApplied = False
+
         advcl_ = find_in_spacynode(spacy_tree, "advcl", "")
 
         if advcl_ != False:
+            isApplied = True
             advcl_.nofollow = True
 
-        return root, node_set, spacy_tree
+        return root, node_set, spacy_tree, isApplied
 
     @RuleApplier.register_function
     def remove_after_comma(self, root, node_set, spacy_tree):
@@ -159,29 +172,33 @@ class Subj(RuleApplier):
             One can stop printing the "obj" after ", which"
         """
 
+        isApplied = False
+
         while_ = find_in_spacynode(spacy_tree, "", "while")
         which_ = find_in_spacynode(spacy_tree, "", "which")
         comma_ = find_in_spacynode(spacy_tree, "", ",")
 
         if (which_ != False and comma_ != False and (which_.idx - comma_.idx) == 2):
+            isApplied = True
             comma_.nofollow = True
             which_.head.nofollow = True
 
         if (while_ != False and comma_ != False and (while_.idx - comma_.idx) == 2):
+            isApplied = True
             comma_.nofollow = True
             while_.head.nofollow = True
 
-        return root, node_set, spacy_tree
+        return root, node_set, spacy_tree, isApplied
 
     @RuleApplier.register_function
-    def yield_two_subjs(self, root, node_set, spacy_tree):
+    def break_into_multiple_relations(self, root, node_set, spacy_tree):
         """1) TODO: Consider the following sentence:
             "Using textual entailment output (Stern and Dagan, 2011) and embedding-based representations (Iyyer et al., 2014) further improves the result."
 
             Should yield 2 subjs such as "Using textual entailment output (Stern and Dagan, 2011)" AND "embedding-based representations (Iyyer et al., 2014)"
         """
 
-        return root, node_set, spacy_tree
+        return root, node_set, spacy_tree, False
 
 
 class ProcessChildren(object):
@@ -191,6 +208,6 @@ class ProcessChildren(object):
         return
 
     def applyAll(self, nltk_tree_obj, nltk_tree_subj, spacy_tree):
-        nltk_tree_obj = self.obj.apply(nltk_tree_obj, spacy_tree, tree_root="obj")
-        nltk_tree_subj = self.subj.apply(nltk_tree_subj, spacy_tree, tree_root="subj")
-        return nltk_tree_obj, nltk_tree_subj
+        nltk_tree_obj, applied_obj = self.obj.apply(nltk_tree_obj, spacy_tree, tree_root="obj")
+        nltk_tree_subj, applied_subj = self.subj.apply(nltk_tree_subj, spacy_tree, tree_root="subj")
+        return nltk_tree_obj, nltk_tree_subj, (applied_obj + applied_subj)

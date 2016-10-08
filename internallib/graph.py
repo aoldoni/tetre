@@ -470,7 +470,7 @@ class CommandSimplifiedGroup(CommandGroup):
             token = copy.deepcopy(token_original)
             tree = self.get_node_representation(token)
 
-            tree = rule_applier.applyAll(tree, token)
+            tree, applied_verb = rule_applier.applyAll(tree, token)
 
             tree_grouping       = tree
             tree_subj_grouping  = ""
@@ -485,7 +485,7 @@ class CommandSimplifiedGroup(CommandGroup):
                     if "obj" in child.dep_:
                         tree_obj_grouping = self.get_node_representation(child)
 
-            tree_obj_grouping, tree_subj_grouping = rule_applier_children.applyAll(tree_obj_grouping, tree_subj_grouping, token)
+            tree_obj_grouping, tree_subj_grouping, applied_obj_subj = rule_applier_children.applyAll(tree_obj_grouping, tree_subj_grouping, token)
 
             if ("subj" in self.args.behaviour_root):
                 tree_grouping = tree_subj_grouping
@@ -497,7 +497,9 @@ class CommandSimplifiedGroup(CommandGroup):
             # print()
             # print()
 
-            self.group_accounting_add(tree_grouping, token, sentence, img_path, rules)
+            applied = applied_verb + applied_obj_subj
+
+            self.group_accounting_add(tree_grouping, token, sentence, img_path, rules, applied)
 
         self.main_image = self.graph_gen_generate(self.accumulated_parents, self.accumulated_children)
         self.graph_gen_html()
@@ -532,7 +534,7 @@ class CommandSimplifiedGroup(CommandGroup):
 
         return 'images/' + img_name + "." + self.file_extension
 
-    def group_accounting_add(self, tree, token, sentence, img_path, rules):
+    def group_accounting_add(self, tree, token, sentence, img_path, rules, applied):
         found = False
 
         string = nltk_tree_to_qtree(tree)
@@ -542,14 +544,21 @@ class CommandSimplifiedGroup(CommandGroup):
             group = self.groups[string]
 
             group["sum"] = group["sum"] + 1
-            group["sentences"].append({"sentence" : sentence, "token" : token, "img_path" : img_path, "rules" : rules})
+            group["sentences"].append({ \
+                "sentence" : sentence, \
+                "token" : token, \
+                "img_path" : img_path, \
+                "rules" : rules, \
+                "applied" : applied
+            })
+
         else:
             self.groups[string] = {"representative" : tree, \
                 "sum" : 1, \
                 "params" : len(tree), \
                 "img" : self.gen_group_image(token, tree, self.depth), \
                 "sentences" : [ \
-                    {"sentence" : sentence, "token" : token, "img_path" : img_path, "rules" : rules} \
+                    {"sentence" : sentence, "token" : token, "img_path" : img_path, "rules" : rules, "applied" : applied} \
                 ]}
 
     def graph_gen_html_sentence(self, sentence, i):
@@ -596,7 +605,8 @@ class CommandSimplifiedGroup(CommandGroup):
                      "subj" : subj,
                      "obj" : obj,
                      "rel" : self.args.word,
-                     "others" : mark_safe(others)})
+                     "others" : mark_safe(others),
+                     "rules_applied" : mark_safe(", ".join(sentence["applied"]))})
 
         return ts.render(c)
 

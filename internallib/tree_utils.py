@@ -240,3 +240,25 @@ def find_in_spacynode(node, dep, orth):
                 return result
 
     return False 
+
+def merge_nodes(nodes, under = False):
+    idx = 0
+    n_lefts = 0
+    n_rights = 0
+
+    for node in nodes:
+        idx += node.idx
+        n_lefts += node.n_lefts
+        n_rights += node.n_rights
+
+    if under == False:
+        under = TreeNode(nodes[0].dep_, "", "", \
+                    idx // len(nodes), \
+                    n_lefts, \
+                    n_rights)
+
+    for node in nodes:
+        under.children.append(node)
+        node.head = under
+
+    return under

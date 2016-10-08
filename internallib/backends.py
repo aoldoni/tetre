@@ -8,6 +8,10 @@ import spacy.en
 from internallib.directories import *
 from internallib.tree_utils import TreeNode, spacysentence_to_fullsentence
 
+def raw_parsing(text):
+    return text.replace("et al.", "et al")
+
+
 def get_tree_from_spacy(args):
     en_nlp = spacy.en.English()
     # en_nlp = spacy.load('en')
@@ -32,12 +36,14 @@ def get_tree_from_spacy(args):
         if (args.word not in raw_text):
             continue
 
+        raw_text = raw_parsing(raw_text)
+
         en_doc = en_nlp(raw_text)
 
         sentence_id = 0
 
         for sentence in en_doc.sents:
-            sentence_id +=1
+            sentence_id += 1
 
             sentence_tree = spacysentence_to_fullsentence(sentence, file_id, sentence_id)
 
@@ -65,7 +71,7 @@ def get_tree_from_stanford(args):
         with open(name, 'r') as input:
             raw_text = input.read()
 
-    # dep_parser=StanfordDependencyParser(model_path="edu/stanford/nlp/models/lexparser/englishPCFG.ser.gz")
+    # dep_parser=StanfordNeuralDependencyParser(model_path="edu/stanford/nlp/models/lexparser/englishPCFG.ser.gz")
     # print [parse.tree() for parse in dep_parser.raw_parse("The quick brown fox jumps over the lazy dog.")]
 
     return sentences
