@@ -123,10 +123,13 @@ The script behaviour is to simply replace the content of the output folder (norm
 
 The word `improves` can also be changed to any word.  
 
-6. Other examples:
+## OTHER USAGES
 
 Simplified command using default parameters:
     `./corpus_analysis.py data improves -g -output html`
+
+Force reprocessing:
+    `./corpus_analysis.py data improves -g -output html -f`
 
 Different output:
     `./corpus_analysis.py data improves -g -output json`
