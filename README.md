@@ -125,17 +125,17 @@ The word `improves` can also be changed to any word.
 
 ## OTHER USAGES
 
-Simplified command using default parameters:
-    `./corpus_analysis.py data improves -g -output html`
+Simplified command using default parameters:  
+- `./corpus_analysis.py data improves -g -output html`
 
-Force reprocessing:
-    `./corpus_analysis.py data improves -g -output html -f`
+Force reprocessing:  
+- `./corpus_analysis.py data improves -g -output html -f`
 
-Different output:
-    `./corpus_analysis.py data improves -g -output json`
+Different output:  
+- `./corpus_analysis.py data improves -g -output json`
 
-Different output, JSON pretty output:
-    `./corpus_analysis.py data improves -g -output json | python -m json.tool`
+Different output, JSON pretty output:  
+- `./corpus_analysis.py data improves -g -output json | python -m json.tool`
 
 # NOTES
 
