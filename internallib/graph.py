@@ -5,6 +5,7 @@ import spacy.en
 
 import itertools
 import operator
+import json
 
 import copy
 
@@ -96,7 +97,10 @@ class CommandAccumulative(object):
 
     def process_sentence(self, sentence):
         self.sentence.append(str(sentence).replace("\r","").replace("\n","").strip())
-        return self.sentence_to_graph(sentence)
+        if self.args.output == "html":
+            return self.sentence_to_graph(sentence)
+        else:
+            return ""
 
     def graph_gen_accumulate(self, token, accumulator_parents, accumulator_children):
         if token.dep_.strip() != "":
@@ -502,7 +506,11 @@ class CommandSimplifiedGroup(CommandGroup):
             self.group_accounting_add(tree_grouping, token, sentence, img_path, rules, applied)
 
         self.main_image = self.graph_gen_generate(self.accumulated_parents, self.accumulated_children)
-        self.graph_gen_html()
+
+        if self.args.output == "json":
+            self.graph_gen_json()
+        elif self.args.output == "json":
+            self.graph_gen_html()
 
     def gen_group_image(self, token, tree, depth):
         e = Digraph(self.args.word, format=self.file_extension)
@@ -553,35 +561,29 @@ class CommandSimplifiedGroup(CommandGroup):
             })
 
         else:
+
+            img = ""
+            if self.args.output == "html":
+                img = self.gen_group_image(token, tree, self.depth)
+
             self.groups[string] = {"representative" : tree, \
                 "sum" : 1, \
                 "params" : len(tree), \
-                "img" : self.gen_group_image(token, tree, self.depth), \
+                "img" : img, \
                 "sentences" : [ \
                     {"sentence" : sentence, "token" : token, "img_path" : img_path, "rules" : rules, "applied" : applied} \
                 ]}
 
-    def graph_gen_html_sentence(self, sentence, i):
-        each_sentence = ""
-        each_sentence_opt = ""
-
-        with open(html_templates + 'each_sentence.html', 'r') as each_sentence:
-            each_sentence = each_sentence.read()
-
-        with open(html_templates + 'each_sentence_opt.html', 'r') as each_sentence_opt:
-            each_sentence_opt = each_sentence_opt.read()
-        
-        each_img_html_others = ""
-
-        subj = ""
-        obj = ""
-        others = ""
-
-        has_subj = False
-        has_obj = False
-
-        to = Template(each_sentence_opt)
+    def get_results(self, sentence, to = False):
         rule = Reduction()
+
+        has_subj    = False
+        has_obj     = False
+
+        subj        = ""
+        obj         = ""
+        others_html = ""
+        others_json = []
 
         for results in sentence["rules"]:
             for key, values in results.items():
@@ -595,8 +597,30 @@ class CommandSimplifiedGroup(CommandGroup):
                         obj = value
                         has_obj = True
                     else:
-                        c = Context({"opt": dep, "result": value})
-                        others += to.render(c)
+                        if self.args.output == "json":
+                            others_json.append({"relation": dep, "target": value})
+                        elif self.args.output == "html":
+                            c = Context({"opt": dep, "result": value})
+                            others_html += to.render(c)
+
+        if self.args.output == "json":
+            return subj, obj, others_json
+        elif self.args.output == "html":
+            return subj, obj, others_html
+
+    def graph_gen_html_sentence(self, sentence, i):
+        each_sentence = ""
+        each_sentence_opt = ""
+
+        with open(html_templates + 'each_sentence.html', 'r') as each_sentence:
+            each_sentence = each_sentence.read()
+
+        with open(html_templates + 'each_sentence_opt.html', 'r') as each_sentence_opt:
+            each_sentence_opt = each_sentence_opt.read()
+
+        to = Template(each_sentence_opt)
+        
+        subj, obj, others = self.get_results(sentence, to)
 
         ts = Template(each_sentence)
         c = Context({"s_id": i,
@@ -671,3 +695,17 @@ class CommandSimplifiedGroup(CommandGroup):
             output.write(t.render(c))
 
         return
+
+    def graph_gen_json(self):
+        json_result = []
+        for group in group_sorting(self.groups):
+            for sentence in group["sentences"]:
+                subj, obj, others = self.get_results(sentence)
+
+                json_result.append(
+                    {"sentence": str(sentence["sentence"]),
+                     "relation" : {"rel": self.args.word, "subj" : subj, "obj" : obj},
+                     "other_relations" : others,
+                     "rules_applied" : ",".join(sentence["applied"])})
+
+        print(json.dumps(json_result, sort_keys=True))

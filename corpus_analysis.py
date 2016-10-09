@@ -60,8 +60,8 @@ def argparser():
                     help='uses spacy to generate tree graphs')
     ap.add_argument('-t', '--stats', action='store_true',
                     help='shows verbs statistics')
-    ap.add_argument('-format', help='format of the tree node accumulator')
-    ap.add_argument('-behaviour', help='groupby|listing|simplified_groupby')
+    ap.add_argument('-format', help='format of the tree node accumulator', default='dep_')
+    ap.add_argument('-behaviour', help='groupby|listing|simplified_groupby', default='simplified_groupby')
     ap.add_argument('-behaviour_root', help='verb|subj|obj - or accept any other simplified dependency tree tag', default='verb')
     ap.add_argument('-backend', help='spacy|stanford', default='spacy')
     ap.add_argument('-output', help='html(output folder) | json(stdout)', default='html')

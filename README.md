@@ -121,8 +121,18 @@ Notes:
 
 The script behaviour is to simply replace the content of the output folder (normally `data/output/html`) with newly generated, so please backup the outputs as you go. Please leave the `assets` folder inside `data/output/html`.
 
-The word `improves` can also be changed to any word.
+The word `improves` can also be changed to any word.  
 
+6. Other examples:
+
+Simplified command using default parameters:
+    `./corpus_analysis.py data improves -g -output html`
+
+Different output:
+    `./corpus_analysis.py data improves -g -output json`
+
+Different output, JSON pretty output:
+    `./corpus_analysis.py data improves -g -output json | python -m json.tool`
 
 # NOTES
 
