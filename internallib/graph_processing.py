@@ -227,6 +227,33 @@ class Growth(RuleApplier):
             "Experiments show that the proposed method improves the performance by 2.9 and 1.6 to 67.3 and 67.2 in F1-measure on the MUC-6 and MUC-7 corpora, respectively, due to much more gain in precision compared with the loss in recall."
 
             The dependency parser relates the "prep by" relationship to "performance" instead of "improves", causing the dobj part to be too large.
+
+            2) TODO - Now consider:
+            "(Taskar et al., 2004) suggested a method for maximal margin parsing which employs the dynamic programming approach to decoding and parameter estimation problems."
+
+            This would also bring up prep "to".
+
+            3) TODO - Now consider:
+            "One method considers the phrases as bag-ofwords and employs a convolution model to transform the word embeddings to phrase embeddings (Collobert et al."
+            "(Kobayashi et al., 2004) employs an iterative semi-automatic approach which requires human input at every iteration."
+            "The formerÃ¢Â€Â™s precision on the explicit feature extraction task is 22% lower than OPINE Ã¢Â€Â™s while the latter employs an iterative semi-automatic approach which requires significant human input; neither handles implicit features."
+
+            This would also bring up "relcl".
+
+            4) TODO - Now consider:
+            "It employs a single coherence model based on semantic signatures similar to our coherence objective."
+
+            This would also bring up "acl".
+
+            5) TODO - Now consider:
+            "The algorithm employs a max-heap H for managing combinations of feature entries in descending order of their combination scores."
+
+            This would also bring up prep "for".
+
+            6) TODO - Now consider:
+            "SemTag uses the TAP knowledge base5 , and employs the cosine similarity with TF-IDF weighting scheme to compute the match degree between a mention and an entity, achieving an accuracy of around 82%."
+
+            This would also bring up prep "with".
         """
 
         isApplied = False

@@ -48,7 +48,7 @@ def argparser():
     import argparse
     ap = argparse.ArgumentParser(description='Analyse corpus scripts',
                                  usage='%(prog)s [OPTIONS] WORD DIRECTORY_DATA')
-    ap.add_argument('directory')
+    ap.add_argument('directory', default='data/')
     ap.add_argument('word')
     ap.add_argument('-l', '--lemma_search', action='store_true',
                     help='search for a given lemma and its variations in a parsed corpus')

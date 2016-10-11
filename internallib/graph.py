@@ -509,7 +509,7 @@ class CommandSimplifiedGroup(CommandGroup):
 
         if self.args.output == "json":
             self.graph_gen_json()
-        elif self.args.output == "json":
+        elif self.args.output == "html":
             self.graph_gen_html()
 
     def gen_group_image(self, token, tree, depth):

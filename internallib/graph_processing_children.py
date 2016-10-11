@@ -147,8 +147,14 @@ class Subj(RuleApplier):
 
     @RuleApplier.register_function
     def no_follow_advcl(self, root, node_set, spacy_tree):
-        """1) Consider the following sentence:
+        """
+            1) Consider the following sentence:
             "Approaches that do not explicitly involve resource adaptation include Wan (2009), which uses co-training (Blum and Mitchell, 1998) with English vs. Chinese features comprising the two independent Ã¢Â€Â•viewsÃ¢Â€Â– to exploit unlabeled Chinese data and a labeled English corpus and thereby improves Chinese sentiment classification."
+            
+            Shouldn't follow advcl.
+            
+
+            2) TODO - now consider:
             "Two algorithms, BNL and DC are proposed in [4], while SFS [5], is based on the same principle as BNL, but improves performance by first sorting the data according to a monotone function."
             
             subj should only be "Two algorithms, BNL and DC", thus the relcl should not be followed.
