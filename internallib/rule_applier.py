@@ -65,8 +65,10 @@ class RuleApplier(object):
 
         if root_spacy_tree != None:
             for rule in self.get_rules():
-                # print(self.__class__.__name__, rule, "during", [root, node_set])
+
                 root, node_set, spacy_tree, is_applied = rule(self, root, node_set, root_spacy_tree)
+
+                # print(self.__class__.__name__, rule, "during", [root, node_set], is_applied)
 
                 if is_applied:
                     rule_representation = str(rule).replace("<function ","")

@@ -466,6 +466,7 @@ class CommandSimplifiedGroup(CommandGroup):
             if token_original.pos_ != "VERB":
                 continue
 
+            # print("------------------------------------------------------------------")
             # print()
             # print()
             # print(sentence)

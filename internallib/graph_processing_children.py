@@ -37,6 +37,8 @@ class Obj(RuleApplier):
 
         isApplied = False
 
+        # print("END   Obj", self.tags_to_be_removed, root, node_set, spacy_tree)
+
         node_set = set(node_set) - self.tags_to_be_removed
 
         for child in spacy_tree.children:
@@ -59,7 +61,7 @@ class Obj(RuleApplier):
         return root, node_set, spacy_tree, False
 
     @RuleApplier.register_function
-    def remove_after_comma(self, root, node_set, spacy_tree):
+    def remove_after_comma_prep(self, root, node_set, spacy_tree):
         """1) Consider the following sentence:
             "DoppelÃ¢Â€Â™s optimization is orthogonal to BCC: Doppel improves performance when ww dependencies happen, while BCC avoids false aborts caused by rw dependencies."
             "Their results show that the feature improves the parsing performance, which coincides with our analysis in Section 1.1."
@@ -146,13 +148,13 @@ class Subj(RuleApplier):
         return root, node_set, spacy_tree, False
 
     @RuleApplier.register_function
-    def no_follow_advcl(self, root, node_set, spacy_tree):
+    def remove_advcl(self, root, node_set, spacy_tree):
         """
             1) Consider the following sentence:
             "Approaches that do not explicitly involve resource adaptation include Wan (2009), which uses co-training (Blum and Mitchell, 1998) with English vs. Chinese features comprising the two independent Ã¢Â€Â•viewsÃ¢Â€Â– to exploit unlabeled Chinese data and a labeled English corpus and thereby improves Chinese sentiment classification."
             
             Shouldn't follow advcl.
-            
+
 
             2) TODO - now consider:
             "Two algorithms, BNL and DC are proposed in [4], while SFS [5], is based on the same principle as BNL, but improves performance by first sorting the data according to a monotone function."
@@ -171,7 +173,7 @@ class Subj(RuleApplier):
         return root, node_set, spacy_tree, isApplied
 
     @RuleApplier.register_function
-    def remove_after_comma(self, root, node_set, spacy_tree):
+    def remove_after_comma_prep(self, root, node_set, spacy_tree):
         """1) Consider the following sentence:
             "Harabagiu and Hickl (2006) recently demonstrated that textual entailment inference information, which in this system is a set of directional inference relations, improves the performance of a QA system significantly even without using any other form of semantic inference."
             
