@@ -2,6 +2,8 @@
 
 from nltk.parse.stanford import StanfordDependencyParser
 import os
+import re
+
 import spacy
 import spacy.en
 
@@ -9,7 +11,10 @@ from internallib.directories import *
 from internallib.tree_utils import TreeNode, spacysentence_to_fullsentence
 
 def raw_parsing(text):
-    return text.replace("et al.", "et al")
+    text = text.replace("et al.", "et al")
+    # text = text.replace("et al.", "")
+    # text = re.sub(r"[Ã¢Â€ÂœÃ¢Â€Â•Ã¢ÂˆÂˆÃŽÂ²ÃŽÂ²ÃÂ†Ã¢Â€Â™]","")
+    return text
 
 
 def get_tree_from_spacy(args):
