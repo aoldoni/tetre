@@ -11,9 +11,15 @@ from internallib.directories import *
 from internallib.tree_utils import TreeNode, spacysentence_to_fullsentence
 
 def raw_parsing(text):
-    text = text.replace("et al.", "et al")
-    # text = text.replace("et al.", "")
-    # text = re.sub(r"[Ã¢Â€ÂœÃ¢Â€Â•Ã¢ÂˆÂˆÃŽÂ²ÃŽÂ²ÃÂ†Ã¢Â€Â™]","")
+
+    text = re.sub(r"et al\.?", "", text, flags=re.IGNORECASE)
+
+    text = re.sub(r"\([^)^(]*?\d{4}[^)^(]*?\)", "", text)
+    # text = re.sub(r"\(.*?\d{4}.*?\)", "EXTERNAL-REFERENCE", text)
+
+    text = bytes.decode(str.encode(text).decode('unicode_escape').encode('ascii','ignore'))
+    # text = re.sub(r"[Ã¢Â€ÂœÃ¢Â€Â•Ã¢ÂˆÂÃŽÂ²ÃŽÂ²ÃÂ†Ã¢Â€Â™Ã¢Â€Âœ]", "", text)
+
     return text
 
 
@@ -25,7 +31,10 @@ def get_tree_from_spacy(args):
 
     file_id = 0
 
-    for fn in os.listdir(args.directory+raw_input):
+    lst = os.listdir(args.directory+raw_input)
+    lst.sort()
+
+    for fn in lst:
         file_id += 1
 
         if (fn == ".DS_Store"):
@@ -63,7 +72,10 @@ def get_tree_from_stanford(args):
 
     file_id = 0
 
-    for fn in os.listdir(args.directory+raw_input):
+    lst = os.listdir(args.directory+raw_input)
+    lst.sort()
+
+    for fn in lst:
         file_id += 1
 
         if (fn == ".DS_Store"):

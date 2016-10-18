@@ -75,3 +75,21 @@ a.sentences_group {
 a.sentences_group strong {
     color:red;
 }
+
+input.save-button {
+    position:absolute;
+    top: 5px;
+    right: 5px;
+}
+input.load-button {
+    position:absolute;
+    top: 25px;
+    right: 5px;
+}
+
+textarea.comments {
+    width: 700px;
+    height: 75px;
+    margin-bottom: 10px;
+    margin-left: 1px;
+}

@@ -1,10 +1,10 @@
 <table cellspacing="0" cellpadding="0" width="100%">
     <tr>
         <td style="width:150px;border-top: 1px solid #cdd0d4;border-right: 1px solid #cdd0d4;padding-top: 10px;" valign="top">
-            <strong>Sentence: {{ s_id }}</strong>
+            <strong>ID: {{ gf_id }}-{{ gs_id }}</strong>
         </td>
         <td style="width:80px; border-top: 1px solid #cdd0d4; padding-top: 10px;" valign="top">
-            {{ rel }}
+            <strong>{{ rel }}</strong>
         </td>
         <td valign="top" style="border-top: 1px solid #cdd0d4; padding-top: 10px;">
             <strong>(</strong> <strong>subj:</strong> {{ subj }} <strong>;</strong> <strong>obj:</strong> {{ obj }} <strong>)</strong>
@@ -15,19 +15,26 @@
     <tr>
         <td style="width:150px;border-right: 1px solid #cdd0d4" valign="top"></td>
         <td style="padding-top: 10px;" colspan="2" valign="top">
-                <a class="sentences_group" href="{{ path }}" title="{{ sentence }}">{{ sentence }}</a>
+            <strong>Sentence:</strong> <a class="sentences_group" href="{{ path }}" title="{{ sentence }}">{{ sentence }}</a>
         </td>
     </tr>
     <tr>
         <td style="width:150px;border-right: 1px solid #cdd0d4" valign="top"></td>
         <td style="padding-top: 10px;" colspan="2" valign="top">
-                Rules appplied were: {{ rules_applied }}
+            <strong>Rules appplied were:</strong> {{ rules_applied }}
         </td>
     </tr>
     <tr>
         <td style="width:150px;border-right: 1px solid #cdd0d4;padding-top: 10px;" valign="top">
         </td>
         <td style="padding-top: 10px;" colspan="2" valign="top">
+        </td>
+    </tr>
+    <tr>
+        <td style="width:150px;border-right: 1px solid #cdd0d4;padding-top: 10px;" valign="top">
+        </td>
+        <td style="padding-top: 10px;" colspan="2" valign="top">
+            <textarea id="input{{ gf_id }}-{{ gs_id }}" class="comments"></textarea>
         </td>
     </tr>
 </table>

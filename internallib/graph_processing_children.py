@@ -9,7 +9,7 @@ from functools import wraps
 class Children(RuleApplier):
     def __init__(self):
         RuleApplier.__init__(self)
-        self.tags_to_be_removed = set(['punct', 'appos', 'det', ' ', ''])
+        self.tags_to_be_removed = set(['det', ' ', ''])
         return
 
     def bring_grandchild_prep_or_relcl_up_as_child(self, root, node_set, spacy_tree):

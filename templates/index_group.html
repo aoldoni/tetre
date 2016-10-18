@@ -9,6 +9,7 @@
                 $(".sentences_group").colorbox({current:' ', title:' ', rel:'sentences_group', transition:"none", width:"95%", height:"95%"});
             });
         </script>
+    <script type="text/javascript" src="assets/io.js"></script>
 </head>
 <body>
 
@@ -20,6 +21,9 @@
   <li>Average sentences per group is <strong>{{ average_per_group }}</strong></li>
   <li>Max number of parameters in a relation is <strong>{{ max_num_params }}</strong></li>
 </ul>
+
+<input id="file-saver" type="button" class="save-button" onclick="javascript:saveTextAsFile();" value="SAVE" />
+<input id="file-loader" type="file" class="load-button" onchange="javascript:readText(this);" value="LOAD" />
 
 {{ all_sentences }}
 

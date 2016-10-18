@@ -253,7 +253,8 @@ class CommandAccumulative(object):
             
             for i in range(last_img, next_img):
                 t = Template(each_img)
-                c = Context({"s_id": i,
+                c = Context({"gf_id": sentence["sentence"].file_id,
+                             "gs_id": sentence["sentence"].id,
                              "path": self.sentence_imgs[i],
                              "sentence": self.sentence[i]})
                 each_img_html += t.render(c)
@@ -425,7 +426,8 @@ class CommandGroup(CommandAccumulative):
 
             for sentence in group["sentences"]:
                 t = Template(each_img)
-                c = Context({"s_id": i,
+                c = Context({"gf_id": sentence["sentence"].file_id,
+                             "gs_id": sentence["sentence"].id,
                              "path": sentence["img_path"],
                              "sentence": mark_safe(highlight_word(sentence["sentence"], self.args.word))})
                 each_img_html += t.render(c)
@@ -624,7 +626,8 @@ class CommandSimplifiedGroup(CommandGroup):
         subj, obj, others = self.get_results(sentence, to)
 
         ts = Template(each_sentence)
-        c = Context({"s_id": i,
+        c = Context({"gf_id": sentence["sentence"].file_id,
+                     "gs_id": sentence["sentence"].id,
                      "path": sentence["img_path"],
                      "sentence": mark_safe(highlight_word(sentence["sentence"], self.args.word)),
                      "subj" : subj,
@@ -710,3 +713,10 @@ class CommandSimplifiedGroup(CommandGroup):
                      "rules_applied" : ",".join(sentence["applied"])})
 
         print(json.dumps(json_result, sort_keys=True))
+
+class ExternalTools():
+    def __init__(self, args):
+        self.args = args
+
+    def run(self):
+        return

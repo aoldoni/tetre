@@ -3,6 +3,8 @@ data/
 models/
 parsey/
 stanford/
+allenai_openie/
+clausie/
 temp/
 training/
 output/html/*
