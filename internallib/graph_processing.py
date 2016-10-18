@@ -14,6 +14,7 @@ class Growth(RuleApplier):
         self.objs = ['dobj', 'iobj', 'pobj']
         self.move_if = [("xcomp", "obj"), ("ccomp", "obj"), ("xcomp", "subj"), ("ccomp", "subj")]
         self.downwards_subj = "nsubj"
+        self.downwards_obj = "dobj"
 
     @RuleApplier.register_function
     def replace_subj_if_dep_is_relcl_or_ccomp(self, root, node_set, spacy_tree):
@@ -313,6 +314,49 @@ class Growth(RuleApplier):
                     node_set = [target if node==replace else node for node in node_set]
 
         node_set = list(set([self.rewrite_dp_tag(node) for node in node_set]))
+        return root, node_set, spacy_tree, isApplied
+
+    @RuleApplier.register_function
+    def add_dobj_if_dep_is_subj(self, root, node_set, spacy_tree):
+        """
+            1) Consider the following sentence:
+            "Turney (2005) extends the above approach by introducing the latent relational analysis (LRA), which uses automatically generated synonyms, learns suitable patterns, and performs singular value decomposition in order to smooth the frequencies."
+            "This work uses materialized views to further benefit from commonalities across queries."
+
+            In the first sentence, the relation uses(which; automatically generated synonyms) could have been extracted by getting the nsubj dependency and transforming it to be the child's dobj. The same is valid for the second example.
+        """
+        isApplied       = False
+
+        token = spacy_tree
+        token_head = token.head
+
+        hasSubj         = False
+        hasObj          = False
+
+        for j in range(0, len(token.children)):
+            if "subj" in token.children[j].dep_:
+                hasSubj = True
+            if "obj" in token.children[j].dep_:
+                hasObj = True
+
+        # print(0, hasObj, hasSubj, "subj" in token.dep_ and hasSubj and not hasObj)
+
+        if ("subj" in token.dep_ and hasSubj and not hasObj):
+            isApplied = True
+            
+            children_list = token_head.children[:]
+
+            for i in range(0, len(children_list)):
+                if (children_list[i].idx == token.idx):
+                    token_head.children.pop(i)
+
+                    #adjust representation
+                    node_set.append(self.downwards_obj)
+
+            token_head.dep_ = self.downwards_obj
+            token.children.append(token_head)
+            token_head.head = token
+
         return root, node_set, spacy_tree, isApplied
 
     @RuleApplier.register_function

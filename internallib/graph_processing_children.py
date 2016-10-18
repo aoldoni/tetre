@@ -87,16 +87,6 @@ class Obj(RuleApplier):
 
         return root, node_set, spacy_tree, isApplied
 
-    @RuleApplier.register_function
-    def break_into_multiple_relations(self, root, node_set, spacy_tree):
-        """1) TODO - Consider the following sentence:
-            "The spirit of this work more closely resembles that of Finkel and Manning (2009) , which improves both parsing and named entity recognition by combining the two tasks."
-
-            It should yield 2 relations as it improves "parsing" AND "named entity recognition"
-        """
-
-        return root, node_set, spacy_tree, False
-
 
 class Subj(RuleApplier):
     def __init__(self):
@@ -197,16 +187,6 @@ class Subj(RuleApplier):
             while_.head.nofollow = True
 
         return root, node_set, spacy_tree, isApplied
-
-    @RuleApplier.register_function
-    def break_into_multiple_relations(self, root, node_set, spacy_tree):
-        """1) TODO: Consider the following sentence:
-            "Using textual entailment output (Stern and Dagan, 2011) and embedding-based representations (Iyyer et al., 2014) further improves the result."
-
-            Should yield 2 subjs such as "Using textual entailment output (Stern and Dagan, 2011)" AND "embedding-based representations (Iyyer et al., 2014)"
-        """
-
-        return root, node_set, spacy_tree, False
 
 
 class ProcessChildren(object):
