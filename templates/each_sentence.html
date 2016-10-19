@@ -1,7 +1,7 @@
 <table cellspacing="0" cellpadding="0" width="100%">
     <tr>
         <td style="width:150px;border-top: 1px solid #cdd0d4;border-right: 1px solid #cdd0d4;padding-top: 10px;" valign="top">
-            <strong>ID: {{ gf_id }}-{{ gs_id }}</strong>
+            <strong>ID: {{ gf_id }}-{{ gs_id }}-{{ gt_id }}</strong>
         </td>
         <td style="width:80px; border-top: 1px solid #cdd0d4; padding-top: 10px;" valign="top">
             <strong>{{ rel }}</strong>
@@ -31,10 +31,46 @@
         </td>
     </tr>
     <tr>
+        <td style="width:150px;border-top: 1px solid #cdd0d4;border-right: 1px solid #cdd0d4;padding-top: 10px;" valign="top">
+        </td>
+        <td style="width:80px; border-top: 1px solid #cdd0d4; padding-top: 10px;" valign="top">
+            <strong>Stanford OpenIT</strong>
+        </td>
+        <td valign="top" style="border-top: 1px solid #cdd0d4; padding-top: 10px;">
+            {{ text_stanford_openie }}
+        </td>
+    </tr>
+    <tr>
+        <td style="width:150px;border-top: 1px solid #cdd0d4;border-right: 1px solid #cdd0d4;padding-top: 10px;" valign="top">
+        </td>
+        <td style="width:80px; border-top: 1px solid #cdd0d4; padding-top: 10px;" valign="top">
+            <strong>AllenAI OpenIE</strong>
+        </td>
+        <td valign="top" style="border-top: 1px solid #cdd0d4; padding-top: 10px;">
+            {{ text_allenai_openie }}
+        </td>
+    </tr>
+    <tr>
+        <td style="width:150px;border-top: 1px solid #cdd0d4;border-right: 1px solid #cdd0d4;padding-top: 10px;" valign="top">
+        </td>
+        <td style="width:80px; border-top: 1px solid #cdd0d4; padding-top: 10px;" valign="top">
+            <strong>MPI ClauseIE</strong>
+        </td>
+        <td valign="top" style="border-top: 1px solid #cdd0d4; padding-top: 10px;">
+            {{ text_mpi_clauseie }}
+        </td>
+    </tr>
+    <tr>
         <td style="width:150px;border-right: 1px solid #cdd0d4;padding-top: 10px;" valign="top">
         </td>
         <td style="padding-top: 10px;" colspan="2" valign="top">
-            <textarea id="input{{ gf_id }}-{{ gs_id }}" class="comments"></textarea>
+            <textarea id="input{{ gf_id }}-{{ gs_id }}-{{ gt_id }}" class="comments"></textarea>
+        </td>
+    </tr>
+    <tr>
+        <td style="width:150px;border-right: 1px solid #cdd0d4;padding-top: 10px;" valign="top">
+        </td>
+        <td style="padding-top: 10px;" colspan="2" valign="top">
         </td>
     </tr>
 </table>

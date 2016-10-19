@@ -60,6 +60,12 @@ def argparser():
                     help='uses spacy to generate tree graphs')
     ap.add_argument('-t', '--stats', action='store_true',
                     help='shows verbs statistics')
+    ap.add_argument('-p', '--prepare_sentences', action='store_true',
+                    help='prepare sentences for the other programs')
+    ap.add_argument('-r', '--run_others', action='store_true',
+                    help='run other programs on prepared sentences')
+    ap.add_argument('-rw', '--run_with_others', default='StanfordOpenIE',
+                    help='StanfordOpenIE|AllenAIOpenIE|MPICluaseIE')
     ap.add_argument('-format', help='format of the tree node accumulator', default='dep_')
     ap.add_argument('-behaviour', help='groupby|listing|simplified_groupby', default='simplified_groupby')
     ap.add_argument('-behaviour_root', help='verb|subj|obj - or accept any other simplified dependency tree tag', default='verb')
@@ -313,6 +319,12 @@ def regenerate(argv):
             cmd = CommandGroup(args)
         elif (args.behaviour == "simplified_groupby"):
             cmd = CommandSimplifiedGroup(args)
+        cmd.run()
+    elif (args.prepare_sentences):
+        cmd = ExternalToolsPrepare(args)
+        cmd.run()
+    elif (args.run_others):
+        cmd = ExternalToolsRun(args)
         cmd.run()
 
 if __name__ == '__main__':

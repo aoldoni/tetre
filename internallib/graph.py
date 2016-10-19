@@ -24,6 +24,7 @@ from internallib.directories import *
 from internallib.graph_processing import Process, Reduction
 from internallib.graph_processing_children import ProcessChildren
 from internallib.graph_extraction import ProcessExtraction
+from internallib.interfaces import ExternalInterface
 
 from internallib.cache import get_cached_sentence_image
 
@@ -57,9 +58,6 @@ class CommandAccumulative(object):
         accumulated_local_count = 0
 
         for token, sentence in get_tokens(self.args):
-
-            if token.pos_ != "VERB":
-                continue
 
             self.process_sentence(sentence)
             self.graph_gen_accumulate(token, self.accumulated_parents, self.accumulated_children)
@@ -255,6 +253,7 @@ class CommandAccumulative(object):
                 t = Template(each_img)
                 c = Context({"gf_id": sentence["sentence"].file_id,
                              "gs_id": sentence["sentence"].id,
+                             "gt_id": sentence["token"].idx,
                              "path": self.sentence_imgs[i],
                              "sentence": self.sentence[i]})
                 each_img_html += t.render(c)
@@ -288,9 +287,6 @@ class CommandGroup(CommandAccumulative):
 
     def run(self):
         for token, sentence in get_tokens(self.args):
-
-            if token.pos_ != "VERB":
-                continue
 
             img_path = self.process_sentence(sentence)
 
@@ -428,6 +424,7 @@ class CommandGroup(CommandAccumulative):
                 t = Template(each_img)
                 c = Context({"gf_id": sentence["sentence"].file_id,
                              "gs_id": sentence["sentence"].id,
+                             "gt_id": sentence["token"].idx,
                              "path": sentence["img_path"],
                              "sentence": mark_safe(highlight_word(sentence["sentence"], self.args.word))})
                 each_img_html += t.render(c)
@@ -465,8 +462,6 @@ class CommandSimplifiedGroup(CommandGroup):
         rule_extraction = ProcessExtraction()
 
         for token_original, sentence in get_tokens(self.args):
-            if token_original.pos_ != "VERB":
-                continue
 
             # print("------------------------------------------------------------------")
             # print()
@@ -611,6 +606,40 @@ class CommandSimplifiedGroup(CommandGroup):
         elif self.args.output == "html":
             return subj, obj, others_html
 
+    def get_external_results(self, sentence):
+        filename = self.args.word+"-"+str(sentence["sentence"].file_id) \
+                    +"-"+str(sentence["sentence"].id)+"-"+str(sentence["token"].idx)
+
+        allenai_openie  = self.args.directory+output_allenai_openie+filename
+        stanford_openie = self.args.directory+output_stanford_openie+filename
+        mpi_clauseie    = self.args.directory+output_mpi_clauseie+filename
+
+        text_allenai_openie  = ""
+        text_stanford_openie = ""
+        text_mpi_clauseie    = ""
+
+        try:
+            with open(allenai_openie, 'r') as text_allenai_openie:
+                text_allenai_openie = text_allenai_openie.read()
+        except:
+            pass
+
+        try:
+            with open(stanford_openie, 'r') as text_stanford_openie:
+                text_stanford_openie = text_stanford_openie.read()
+        except:
+            pass
+
+        try:
+            with open(mpi_clauseie, 'r') as text_mpi_clauseie:
+                text_mpi_clauseie = text_mpi_clauseie.read()
+        except:
+            pass
+
+        return  text_allenai_openie.replace('\n', '<br />'), \
+                text_stanford_openie.replace('\n', '<br />'), \
+                text_mpi_clauseie.replace('\n', '<br />')
+
     def graph_gen_html_sentence(self, sentence, i):
         each_sentence = ""
         each_sentence_opt = ""
@@ -624,17 +653,24 @@ class CommandSimplifiedGroup(CommandGroup):
         to = Template(each_sentence_opt)
         
         subj, obj, others = self.get_results(sentence, to)
+        text_allenai_openie, text_stanford_openie, text_mpi_clauseie = self.get_external_results(sentence)
 
         ts = Template(each_sentence)
-        c = Context({"gf_id": sentence["sentence"].file_id,
+        c = Context({
+                     "gf_id": sentence["sentence"].file_id,
                      "gs_id": sentence["sentence"].id,
+                     "gt_id": sentence["token"].idx,
                      "path": sentence["img_path"],
                      "sentence": mark_safe(highlight_word(sentence["sentence"], self.args.word)),
                      "subj" : subj,
                      "obj" : obj,
                      "rel" : self.args.word,
                      "others" : mark_safe(others),
-                     "rules_applied" : mark_safe(", ".join(sentence["applied"]))})
+                     "rules_applied" : mark_safe(", ".join(sentence["applied"])),
+                     "text_allenai_openie" : mark_safe(text_allenai_openie),
+                     "text_stanford_openie" : mark_safe(text_stanford_openie),
+                     "text_mpi_clauseie" : mark_safe(text_mpi_clauseie)
+                })
 
         return ts.render(c)
 
@@ -714,9 +750,41 @@ class CommandSimplifiedGroup(CommandGroup):
 
         print(json.dumps(json_result, sort_keys=True))
 
-class ExternalTools():
+class ExternalToolsPrepare():
     def __init__(self, args):
         self.args = args
 
     def run(self):
+        for token_original, sentence in get_tokens(self.args):
+            filename = self.args.word+"-"+str(sentence.file_id)+"-"+str(sentence.id)+"-"+str(token_original.idx)
+            output_path = self.args.directory+output_comparison
+
+            with open(output_path + filename, 'w') as output:
+                output.write(str(sentence))
+
+        return
+
+class ExternalToolsRun():
+    def __init__(self, args):
+        self.args = args
+
+    def run(self):
+        interface = ExternalInterface(self.args)
+
+        lst = os.listdir(self.args.directory+output_comparison)
+        lst.sort()
+
+        for fn in lst:
+
+            if (fn == ".DS_Store"):
+                continue
+
+            if (not self.args.word in fn):
+                continue
+
+            file = self.args.directory + output_comparison + fn
+            out = self.args.directory + interface.get_interface().dir + fn
+            interface.run(file, out)
+
+
         return

@@ -198,6 +198,9 @@ def get_tokens(args):
     # sys.exit()
 
     for token, sentence in sentences:
+        if token.pos_ != "VERB":
+            continue
+            
         yield token, sentence
 
 def highlight_word(sentence, word):
