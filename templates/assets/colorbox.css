@@ -76,6 +76,10 @@ a.sentences_group strong {
     color:red;
 }
 
+span.sentences_group strong {
+    color:red;
+}
+
 input.save-button {
     position:absolute;
     top: 5px;

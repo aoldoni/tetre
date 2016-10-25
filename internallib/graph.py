@@ -667,9 +667,9 @@ class CommandSimplifiedGroup(CommandGroup):
                      "rel" : self.args.word,
                      "others" : mark_safe(others),
                      "rules_applied" : mark_safe(", ".join(sentence["applied"])),
-                     "text_allenai_openie" : mark_safe(text_allenai_openie),
-                     "text_stanford_openie" : mark_safe(text_stanford_openie),
-                     "text_mpi_clauseie" : mark_safe(text_mpi_clauseie)
+                     "text_allenai_openie" : mark_safe(highlight_word(text_allenai_openie, self.args.word)),
+                     "text_stanford_openie" : mark_safe(highlight_word(text_stanford_openie, self.args.word)),
+                     "text_mpi_clauseie" : mark_safe(highlight_word(text_mpi_clauseie, self.args.word))
                 })
 
         return ts.render(c)
