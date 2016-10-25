@@ -9,7 +9,7 @@ These scripts help utilising existing tools in the task of information extractin
     `git clone https://github.com/aoldoni/comp9596.git .`
 
 - Create directories and prepare assets data:  
-    `mkdir data models parsey stanford training data/input data/output data/downloaded data/output/html data/output/ngram data/output/openie data/output/rel data/output/cache`  
+    `mkdir data models allenai_openie clausie parsey stanford training data/input data/output data/downloaded data/output/html data/output/ngram data/output/openie data/output/rel data/output/cache data/output/comparison data/output/comparison/sentences data/output/comparison/allenai_openie data/output/comparison/mpi_clauseie data/output/comparisonstanford_openie`  
     `cd data/output/html/assets`  
     `ln -s ../../../templates/assets/ assets`  
     `cd ../../..`  
@@ -90,6 +90,23 @@ E.g.:
 - Install Google Syntaxnet: https://github.com/tensorflow/models/tree/master/syntaxnet#installation
 
 
+## INSTALLATION CLAUSEIE
+
+- Move into created directory:  
+    `cd clausie`
+
+- Download ClauseIE from http://resources.mpi-inf.mpg.de/d5/clausie/clausie-0-0-1.zip and extract into this folder.
+
+
+
+## INSTALLATION ALLENAI OPENIE
+
+- Move into created directory:  
+    `cd allenai_openie`
+
+- Run installation process found in https://github.com/allenai/openie-standalone#command-line-interface
+
+
 # SCRIPTS AND PURPOSE
 
 Scripts entry points are listed below with the intentions in a somewhat useful order:
@@ -122,6 +139,19 @@ Notes:
 The script behaviour is to simply replace the content of the output folder (normally `data/output/html`) with newly generated, so please backup the outputs as you go. Please leave the `assets` folder inside `data/output/html`.
 
 The word `improves` can also be changed to any word.  
+
+## INCORPORATE RESULTS FROM OTHER TOOLS
+
+1. Run the below to prepare the segmented sentences for the relation being searched for:  
+    `./corpus_analysis.py data improves -p`
+
+2. Run the below to execute the external tool:  
+    `./corpus_analysis.py data improves -r -rw AllenAIOpenIE`
+
+Notes:
+- Other options are MPICluaseIE or StanfordOpenIE.
+- Once all systems are executed with the -r and -rw parameters, once you run the system with -g parameter again, the external results will be incorporated in the HTML.
+
 
 ## OTHER USAGES
 
