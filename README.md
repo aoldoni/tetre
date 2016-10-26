@@ -9,7 +9,7 @@ These scripts help utilising existing tools in the task of information extractin
     `git clone https://github.com/aoldoni/comp9596.git .`
 
 - Create directories (one single big command):  
-    `mkdir data models allenai_openie clausie parsey stanford training data/input data/output data/downloaded data/output/html data/output/ngram data/output/openie data/output/rel data/output/cache data/output/comparison data/output/comparison/sentences data/output/comparison/allenai_openie data/output/comparison/mpi_clauseie data/output/comparisonstanford_openie`  
+    `mkdir data models allenai_openie clausie parsey stanford training data/input data/output data/downloaded data/output/html data/output/ngram data/output/openie data/output/rel data/output/cache data/output/comparison data/output/comparison/sentences data/output/comparison/allenai_openie data/output/comparison/mpi_clauseie data/output/comparison/stanford_openie`  
 
 - Prepare static assets link:  
     `cd data/output/html/`  
