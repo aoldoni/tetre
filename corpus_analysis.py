@@ -66,11 +66,22 @@ def argparser():
                     help='run other programs on prepared sentences')
     ap.add_argument('-rw', '--run_with_others', default='StanfordOpenIE',
                     help='StanfordOpenIE|AllenAIOpenIE|MPICluaseIE')
+
     ap.add_argument('-format', help='format of the tree node accumulator', default='dep_')
     ap.add_argument('-behaviour', help='groupby|listing|simplified_groupby', default='simplified_groupby')
+
+    ap.add_argument('-sampling', help='a percentage number: 6.5 would give 6.5%')
+    ap.add_argument('-seed', help='a seed: 9389383 would seed the random generator with 9389383')
+
     ap.add_argument('-behaviour_root', help='verb|subj|obj - or accept any other simplified dependency tree tag', default='verb')
     ap.add_argument('-backend', help='spacy|stanford', default='spacy')
-    ap.add_argument('-output', help='html(output folder) | json(stdout)', default='html')
+
+    ap.add_argument('-output', help='html(output folder) | json(stdout) | html_csv(stdout)', default='html')
+    ap.add_argument('-i', '--include_external', action='store_true',
+                    help='include external results')
+    ap.add_argument('-c', '--output_csv', action='store_true',
+                    help='also output sentences ID as CVSs')
+
     ap.add_argument('-f', '--force_clean', action='store_true',
                     help='ignores any caching and forces reprocessing')
 
@@ -300,6 +311,10 @@ def regenerate(argv):
     if (not args.directory.endswith("/")):
         args.directory = args.directory + "/"
 
+    if args.output == "html_csv":
+        args.output = "html"
+        args.output_csv = True
+
     if args.word != False:
         word_being_analysed = args.word
 
@@ -326,6 +341,8 @@ def regenerate(argv):
     elif (args.run_others):
         cmd = ExternalToolsRun(args)
         cmd.run()
+    else:
+        print("No command!")
 
 if __name__ == '__main__':
     sys.exit(regenerate(sys.argv))

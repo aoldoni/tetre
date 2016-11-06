@@ -16,6 +16,8 @@ from django.conf import settings
 
 from functools import reduce
 import pprint
+import random
+import csv
 
 from internallib.dependency_helpers import *
 from internallib.tree_utils import *
@@ -321,11 +323,11 @@ class CommandGroup(CommandAccumulative):
         if (string in self.groups):
             group = self.groups[string]
 
-            group["sum"] = group["sum"] + 1
+            # group["sum"] = group["sum"] + 1
             group["sentences"].append({"sentence" : sentence, "token" : token, "img_path" : img_path})
         else:
             self.groups[string] = {"representative" : tree, \
-                "sum" : 1, \
+                # "sum" : 1, \
                 "img" : self.gen_group_image(token, tree, self.depth), \
                 "sentences" : [ \
                     {"sentence" : sentence, "token" : token, "img_path" : img_path} \
@@ -368,7 +370,7 @@ class CommandGroup(CommandAccumulative):
         return
 
     def get_average_per_group(self):
-        return int(len(self.sentence) / len(self.groups))
+        return int(self.get_sentence_totals() / len(self.groups))
 
     def get_max_params(self):
         max_params = 0
@@ -378,6 +380,17 @@ class CommandGroup(CommandAccumulative):
                 max_params = group["params"]
 
         return max_params
+
+    def get_sentence_totals(self):
+        total = 0
+
+        for key, group in self.groups.items():
+            total += len(group["sentences"])
+
+        return total
+
+    def percentage(self, percent, whole):
+      return (percent * whole) / 100.0
 
     def graph_gen_html(self):
         settings.configure()
@@ -505,6 +518,8 @@ class CommandSimplifiedGroup(CommandGroup):
 
         self.main_image = self.graph_gen_generate(self.accumulated_parents, self.accumulated_children)
 
+        self.groups = self.filter(self.groups)
+
         if self.args.output == "json":
             self.graph_gen_json()
         elif self.args.output == "html":
@@ -549,7 +564,7 @@ class CommandSimplifiedGroup(CommandGroup):
         if (string in self.groups):
             group = self.groups[string]
 
-            group["sum"] = group["sum"] + 1
+            # group["sum"] = group["sum"] + 1
             group["sentences"].append({ \
                 "sentence" : sentence, \
                 "token" : token, \
@@ -565,7 +580,7 @@ class CommandSimplifiedGroup(CommandGroup):
                 img = self.gen_group_image(token, tree, self.depth)
 
             self.groups[string] = {"representative" : tree, \
-                "sum" : 1, \
+                # "sum" : 1, \
                 "params" : len(tree), \
                 "img" : img, \
                 "sentences" : [ \
@@ -653,10 +668,15 @@ class CommandSimplifiedGroup(CommandGroup):
         to = Template(each_sentence_opt)
         
         subj, obj, others = self.get_results(sentence, to)
-        text_allenai_openie, text_stanford_openie, text_mpi_clauseie = self.get_external_results(sentence)
+
+        text_allenai_openie = text_stanford_openie = text_mpi_clauseie = ""
+
+        if self.args.include_external:
+            text_allenai_openie, text_stanford_openie, text_mpi_clauseie = self.get_external_results(sentence)
 
         ts = Template(each_sentence)
         c = Context({
+                     "add_external": self.args.include_external,
                      "gf_id": sentence["sentence"].file_id,
                      "gs_id": sentence["sentence"].id,
                      "gt_id": sentence["token"].idx,
@@ -700,8 +720,9 @@ class CommandSimplifiedGroup(CommandGroup):
         max_sentences = 0
 
         # pprint.pprint(group_sorting(self.groups))
-
+        
         for group in group_sorting(self.groups):
+            # group = self.groups[key]
 
             t = Template(each_img_accumulator)
             c = Context({   "accumulator_img": group["img"], \
@@ -714,6 +735,14 @@ class CommandSimplifiedGroup(CommandGroup):
                 max_sentences = len(group["sentences"])
 
             for sentence in group["sentences"]:
+
+                if (self.args.output_csv):
+                    csv_row = [self.args.word,
+                    str(sentence["sentence"].file_id)+"-"+str(sentence["sentence"].id)+"-"+str(sentence["token"].idx)]
+
+                    wr = csv.writer(sys.stdout, quoting=csv.QUOTE_ALL)
+                    wr.writerow(csv_row)
+
                 each_sentence_html += self.graph_gen_html_sentence(sentence, i)
                 i += 1
 
@@ -723,7 +752,7 @@ class CommandSimplifiedGroup(CommandGroup):
         max_num_params = self.get_max_params()
 
         t = Template(index_group)
-        c = Context({"sentences_num" : len(self.sentence),
+        c = Context({"sentences_num" : self.get_sentence_totals(),
                      "groups_num": len(self.groups),
                      "max_group_num" : max_sentences,
                      "average_per_group" : avg_per_group,
@@ -738,6 +767,7 @@ class CommandSimplifiedGroup(CommandGroup):
 
     def graph_gen_json(self):
         json_result = []
+
         for group in group_sorting(self.groups):
             for sentence in group["sentences"]:
                 subj, obj, others = self.get_results(sentence)
@@ -749,6 +779,40 @@ class CommandSimplifiedGroup(CommandGroup):
                      "rules_applied" : ",".join(sentence["applied"])})
 
         print(json.dumps(json_result, sort_keys=True))
+
+    def filter(self, groups):
+
+        if (self.args.sampling == None):
+            return groups
+
+        sampling = float(self.args.sampling)
+        seed = int(self.args.seed)
+
+        simplified_groups = {}
+
+        random.seed(seed)
+
+        for key, group in self.groups.items():
+
+            qty = int(self.percentage(sampling, len(group["sentences"])))
+
+            if qty < 1:
+                qty = 1
+
+            simplified_groups[key] = {}
+            for inner_key, inner_values in group.items():
+                simplified_groups[key][inner_key] = inner_values
+            
+            simplified_groups[key].pop('sentences', None)
+            simplified_groups[key]["sentences"] = []
+
+            for i in range(0, qty):
+                simplified_groups[key]["sentences"].append(
+                    group["sentences"][i]
+                )
+        
+        return simplified_groups
+
 
 class ExternalToolsPrepare():
     def __init__(self, args):

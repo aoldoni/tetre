@@ -160,8 +160,15 @@ def prune_duplicates(results):
 def group_sorting(groups):
     if isinstance(groups, dict):
         groups = list(groups.values())
-    newlist = sorted(groups, key=lambda x: x["sum"], reverse=True)
+    newlist = sorted(groups, key=lambda x: len(x["sentences"]), reverse=True)
     return newlist
+
+def group_sorting_sampling(groups):
+    if isinstance(groups, dict):
+        groups = list(groups.values())
+    newlist = sorted(groups, key=lambda x: len(x["sentences"]), reverse=True)
+    return newlist
+
 
 def get_uncached_tokens(args):
     en_nlp = spacy.load('en')

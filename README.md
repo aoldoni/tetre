@@ -100,7 +100,6 @@ E.g.:
 - Download ClauseIE from http://resources.mpi-inf.mpg.de/d5/clausie/clausie-0-0-1.zip and extract into this folder.
 
 
-
 ## INSTALLATION ALLENAI OPENIE
 
 - Move into created directory:  
@@ -133,6 +132,8 @@ Paths and dependencies are maintained inside `internalib/directories.py`.
 4. Make sure you are inside the proper Virtualenv from Spacy (e.g.: `source .env/bin/activate`).
 5. Run:  
     `./corpus_analysis.py data improves -g -format dep_,pos_ -behaviour groupby`
+6. To analyse the subj relation instead run:  
+    `./corpus_analysis.py data improves -g -behaviour_root subj` 
 
 Notes:
 - Change the behaviour to `-behaviour accumulator` as to show the accumlated tree with the occurrencies of the dependency tree and part-of-speech tags.
@@ -150,8 +151,14 @@ The word `improves` can also be changed to any word.
 2. Run the below to execute the external tool:  
     `./corpus_analysis.py data improves -r -rw AllenAIOpenIE`
 
+3. Re-run the below to incorporate results from external tools:  
+    `./corpus_analysis.py data improves -g -i`
+
+4. Or generate a sample HTML with CSV document for marking:  
+    `./corpus_analysis.py data improves -g -i -sampling 6.5 -seed 99879 -output html_csv`
+
 Notes:
-- Other options are MPICluaseIE or StanfordOpenIE.
+- Other options are AllenAIOpenIE, MPICluaseIE or StanfordOpenIE.
 - Once all systems are executed with the -r and -rw parameters, once you run the system with -g parameter again, the external results will be incorporated in the HTML.
 
 

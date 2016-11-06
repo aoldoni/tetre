@@ -30,36 +30,38 @@
         <td style="padding-top: 10px;" colspan="2" valign="top">
         </td>
     </tr>
-    <tr>
-        <td style="width:150px;border-top: 1px solid #cdd0d4;border-right: 1px solid #cdd0d4;padding-top: 10px;" valign="top">
-        </td>
-        <td style="width:80px; border-top: 1px solid #cdd0d4; padding-top: 10px;" valign="top">
-            <strong>Stanford OpenIT</strong>
-        </td>
-        <td valign="top" style="border-top: 1px solid #cdd0d4; padding-top: 10px;">
-            <span class="sentences_group">{{ text_stanford_openie }}</span>
-        </td>
-    </tr>
-    <tr>
-        <td style="width:150px;border-top: 1px solid #cdd0d4;border-right: 1px solid #cdd0d4;padding-top: 10px;" valign="top">
-        </td>
-        <td style="width:80px; border-top: 1px solid #cdd0d4; padding-top: 10px;" valign="top">
-            <strong>AllenAI OpenIE</strong>
-        </td>
-        <td valign="top" style="border-top: 1px solid #cdd0d4; padding-top: 10px;">
-            <span class="sentences_group">{{ text_allenai_openie }}</span>
-        </td>
-    </tr>
-    <tr>
-        <td style="width:150px;border-top: 1px solid #cdd0d4;border-right: 1px solid #cdd0d4;padding-top: 10px;" valign="top">
-        </td>
-        <td style="width:80px; border-top: 1px solid #cdd0d4; padding-top: 10px;" valign="top">
-            <strong>MPI ClauseIE</strong>
-        </td>
-        <td valign="top" style="border-top: 1px solid #cdd0d4; padding-top: 10px;">
-            <span class="sentences_group">{{ text_mpi_clauseie }}</span>
-        </td>
-    </tr>
+    {% if add_external %}
+        <tr>
+            <td style="width:150px;border-top: 1px solid #cdd0d4;border-right: 1px solid #cdd0d4;padding-top: 10px;" valign="top">
+            </td>
+            <td style="width:80px; border-top: 1px solid #cdd0d4; padding-top: 10px;" valign="top">
+                <strong>Stanford OpenIT</strong>
+            </td>
+            <td valign="top" style="border-top: 1px solid #cdd0d4; padding-top: 10px;">
+                <span class="sentences_group">{{ text_stanford_openie }}</span>
+            </td>
+        </tr>
+        <tr>
+            <td style="width:150px;border-top: 1px solid #cdd0d4;border-right: 1px solid #cdd0d4;padding-top: 10px;" valign="top">
+            </td>
+            <td style="width:80px; border-top: 1px solid #cdd0d4; padding-top: 10px;" valign="top">
+                <strong>AllenAI OpenIE</strong>
+            </td>
+            <td valign="top" style="border-top: 1px solid #cdd0d4; padding-top: 10px;">
+                <span class="sentences_group">{{ text_allenai_openie }}</span>
+            </td>
+        </tr>
+        <tr>
+            <td style="width:150px;border-top: 1px solid #cdd0d4;border-right: 1px solid #cdd0d4;padding-top: 10px;" valign="top">
+            </td>
+            <td style="width:80px; border-top: 1px solid #cdd0d4; padding-top: 10px;" valign="top">
+                <strong>MPI ClauseIE</strong>
+            </td>
+            <td valign="top" style="border-top: 1px solid #cdd0d4; padding-top: 10px;">
+                <span class="sentences_group">{{ text_mpi_clauseie }}</span>
+            </td>
+        </tr>
+    {% endif %}
     <tr>
         <td style="width:150px;border-right: 1px solid #cdd0d4;padding-top: 10px;" valign="top">
         </td>
