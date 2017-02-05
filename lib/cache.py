@@ -8,9 +8,9 @@ from nltk import Tree
 import spacy
 import spacy.en
 
-from internallib.backends import get_tree
-from internallib.directories import *
-from internallib.tree_utils import TreeNode, spacysentence_to_fullsentence
+from lib.backends import get_tree
+from lib.directories import *
+from lib.tree_utils import TreeNode, spacysentence_to_fullsentence
 
 def get_cached_sentence_image(args, output_path, sentence, file_extension):
     updated_at_date = os.path.getmtime(args.directory + raw_input)

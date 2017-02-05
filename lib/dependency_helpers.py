@@ -8,8 +8,8 @@ from nltk import Tree
 import spacy
 import spacy.en
 
-from internallib.directories import *
-from internallib.cache import get_cached_tokens
+from lib.directories import *
+from lib.cache import get_cached_tokens
 
 import logging, sys
 logger = logging.getLogger('root')

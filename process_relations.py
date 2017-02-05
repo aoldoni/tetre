@@ -10,8 +10,8 @@ import math
 import os
 import xml.etree.ElementTree
 
-from internallib.directories import *
-from internallib.openie import openie_to_pretty
+from lib.directories import *
+from lib.openie import openie_to_pretty
 
 normalized_tags = ['CONCEPT', 'ENTITY']
 ner_tag_other = 'O'

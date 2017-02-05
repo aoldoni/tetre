@@ -1,0 +1,65 @@
+#!/usr/bin/env python3
+
+import sys
+import argparse
+import os
+
+
+def argparser(argv):
+    """The command line options for TETRE.
+
+    Subcommands are used for the different tasks.
+
+    Args:
+        args (:obj:`list`): The command line params from default Python argv.
+
+    Returns:
+        :obj:`ArgumentParser`: The command line parameters.
+
+    """
+
+    args = argv[1:]
+
+    ap = argparse.ArgumentParser(description='TETRE, a humble Toolit for Exploring Text for Relation Extraction')
+    subap = ap.add_subparsers(dest='subap')
+
+    ap_setup = subap.add_parser('setup', help='Generate needed setup folders')
+    ap_setup.add_argument('--reset', action='store_true', help='Clean all working data. (Not recommended).')
+
+    ap_download = subap.add_parser('download', help='Download content from a given server (originally developed for ' +
+                                                    'internal UNSW server only)')
+    ap_download_required = ap_download.add_argument_group('required arguments')
+    ap_download_required.add_argument('--url', help='Where to download from.', required=True)
+
+    ap_extract = subap.add_parser('extract', help='Extract relations using SpaCy')
+
+    return ap.parse_args(args)
+
+
+def tetre(argv):
+    """Entry point for the TETRE program.
+
+    Args:
+        argv (:obj:`list`): The command line params from default Python argv.
+
+    """
+
+    # add ability to import package from sibling folder without causing the project to become a whole package
+    # or adding the pachage to PYTHONPATH
+    parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    sys.path.insert(0, parentdir)
+
+    # parse command line
+    ap = argparser(argv[1:])
+
+    if ap.subap == 'setup':
+        from lib import setup
+        setup.start(ap)
+
+    if ap.subap == 'download':
+        from lib import download
+        download.start(ap)
+
+
+if __name__ == '__main__':
+    sys.exit(tetre(sys.argv))

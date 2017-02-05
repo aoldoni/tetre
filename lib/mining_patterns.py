@@ -3,7 +3,7 @@ import pprint
 
 from functools import reduce
 
-from internallib.dependency_helpers import *
+from lib.dependency_helpers import *
 
 logger = logging.getLogger('root')
 FORMAT = "[%(filename)s:%(lineno)s - %(funcName)30s()] %(message)s"

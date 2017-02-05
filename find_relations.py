@@ -5,8 +5,8 @@ import os
 import csv
 import itertools
 
-from internallib.directories import *
-from internallib.openie import openie_to_pretty
+from lib.directories import *
+from lib.openie import openie_to_pretty
 
 def argparser():
     import argparse

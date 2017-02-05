@@ -1,7 +1,7 @@
 from nltk import Tree
 from types import FunctionType
-from internallib.dependency_helpers import *
-from internallib.rule_applier import *
+from lib.dependency_helpers import *
+from lib.rule_applier import *
 import inspect
 from functools import wraps
 

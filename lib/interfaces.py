@@ -1,4 +1,4 @@
-from internallib.directories import *
+from lib.directories import *
 from pydoc import locate
 
 import os

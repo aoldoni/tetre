@@ -1,4 +1,4 @@
-from internallib.dependency_helpers import *
+from lib.dependency_helpers import *
 
 import logging, sys
 logger = logging.getLogger('root')

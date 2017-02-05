@@ -2,7 +2,7 @@
 
 import sys
 import os
-from internallib.directories import *
+from lib.directories import *
 
 def recompile_stanford():
     script_dir = os.path.dirname(os.path.abspath(__file__))

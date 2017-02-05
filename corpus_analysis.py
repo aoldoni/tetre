@@ -23,16 +23,16 @@ import spacy.en
 from nltk import Tree
 from inspect import getmembers, isfunction, isgeneratorfunction
 
-from internallib.openie import *
+from lib.openie import *
 
-from internallib.directories import *
-from internallib.dependency_helpers import *
-from internallib.mining_patterns import *
-from internallib.graph import *
-from internallib.possible_relations import *
-from internallib import dependency_patterns
-from internallib import mining_patterns
-from internallib import graph
+from lib.directories import *
+from lib.dependency_helpers import *
+from lib.mining_patterns import *
+from lib.graph import *
+from lib.possible_relations import *
+from lib import dependency_patterns
+from lib import mining_patterns
+from lib import graph
 
 logger = logging.getLogger('root')
 FORMAT = "[%(filename)s:%(lineno)s - %(funcName)30s()] %(message)s"

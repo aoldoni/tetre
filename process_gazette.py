@@ -5,7 +5,7 @@ import os
 import csv
 import itertools
 
-from internallib.directories import *
+from lib.directories import *
 
 topics = ['Natural language', 'Database', 'Algorithm', 'Data Stru', 'Machine Learning', \
             'Data warehous', 'Indexing', 'Big Data', 'Data Mi', 'Search Engine', \

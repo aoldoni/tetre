@@ -19,16 +19,16 @@ import pprint
 import random
 import csv
 
-from internallib.dependency_helpers import *
-from internallib.tree_utils import *
-from internallib.directories import *
+from lib.dependency_helpers import *
+from lib.tree_utils import *
+from lib.directories import *
 
-from internallib.graph_processing import Process, Reduction
-from internallib.graph_processing_children import ProcessChildren
-from internallib.graph_extraction import ProcessExtraction
-from internallib.interfaces import ExternalInterface
+from lib.graph_processing import Process, Reduction
+from lib.graph_processing_children import ProcessChildren
+from lib.graph_extraction import ProcessExtraction
+from lib.interfaces import ExternalInterface
 
-from internallib.cache import get_cached_sentence_image
+from lib.cache import get_cached_sentence_image
 
 class CommandAccumulative(object):
     def __init__(self, args):

@@ -1,8 +1,8 @@
 from nltk import Tree
 from types import FunctionType
-from internallib.dependency_helpers import *
-from internallib.rule_applier import *
-from internallib.tree_utils import find_in_spacynode, merge_nodes
+from lib.dependency_helpers import *
+from lib.rule_applier import *
+from lib.tree_utils import find_in_spacynode, merge_nodes
 import inspect
 from functools import wraps, reduce
 import sys

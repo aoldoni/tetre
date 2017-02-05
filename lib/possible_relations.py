@@ -1,7 +1,7 @@
 import spacy
 import spacy.en
 
-from internallib.dependency_helpers import get_uncached_tokens
+from lib.dependency_helpers import get_uncached_tokens
 
 class PossibleRelations(object):
     def __init__(self, args):

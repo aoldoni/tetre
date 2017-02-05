@@ -8,7 +8,7 @@ import itertools
 from standoff2others.postag import merge_pos
 from standoff2others.standoff2conll import conversion_entry, OUTPUT_TYPES
 from standoff2others.standoff import load_postags_into_document
-from internallib.directories import *
+from lib.directories import *
 
 def clean_intermeadiate_data():
     os.system('rm '+transformed+'dblp*')
