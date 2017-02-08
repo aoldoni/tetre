@@ -1,6 +1,6 @@
 import requests
-from bs4 import BeautifulSoup
-from lib import directories
+import BeautifulSoup
+from directories import dirs
 
 
 def get_all_related(base_url):
@@ -64,7 +64,7 @@ def download_relate(relate_url):
     contents = requests.get(relate_url[0]).text
     output_name = "_".join(relate_url[1]).replace("/", "")
 
-    with open(directories.dirs['downloaded']['path'] + output_name, 'w') as output_file:
+    with open(dirs['downloaded']['path'] + output_name, 'w') as output_file:
         output_file.write(contents)
 
 

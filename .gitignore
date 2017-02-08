@@ -4,6 +4,8 @@ data/
 models/
 parsey/
 stanford/
+external/lib/
+external/bin/
 allenai_openie/
 clausie/
 temp/

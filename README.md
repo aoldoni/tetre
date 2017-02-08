@@ -91,6 +91,8 @@ E.g.:
 
 - Install Google Syntaxnet: https://github.com/tensorflow/models/tree/master/syntaxnet#installation
 
+- Copy file from:   
+    `cp external/extra/google-parsey/google.sh external/bin/parsey/models/syntaxnet/syntaxnet/google.sh`
 
 ## INSTALLATION CLAUSEIE
 

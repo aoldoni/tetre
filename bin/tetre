@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 import sys
 import argparse
@@ -31,9 +31,14 @@ def argparser(argv):
     ap_download_required = ap_download.add_argument_group('required arguments')
     ap_download_required.add_argument('--url', help='Where to download from.', required=True)
 
-    ap_extract = subap.add_parser('extract', help='Extract relations using SpaCy')
+    ap_train = subap.add_parser('train', help='Train models for supported workflows.')
+    ap_train.add_argument('--workflow', choices=['brat_to_stanford'],
+                          default='brat_to_stanford', help='Supported workflows.')
 
-    return ap.parse_args(args)
+    parsed = ap.parse_args(args)
+    parsed.root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+    return parsed
 
 
 def tetre(argv):
@@ -44,21 +49,30 @@ def tetre(argv):
 
     """
 
-    # add ability to import package from sibling folder without causing the project to become a whole package
-    # or adding the pachage to PYTHONPATH
-    parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    sys.path.insert(0, parentdir)
-
     # parse command line
-    ap = argparser(argv[1:])
+    ap = argparser(argv)
+
+    # add ability to import packages from re-organised folders without
+    # adding them to PYTHONPATH
+    bin_dir = ap.root_dir + '/bin/'
+    lib_dir = ap.root_dir + '/lib/'
+    external_lib_dir = ap.root_dir + '/external/lib/'
+
+    sys.path.insert(0, bin_dir)
+    sys.path.insert(0, lib_dir)
+    sys.path.insert(0, external_lib_dir)
 
     if ap.subap == 'setup':
-        from lib import setup
+        import setup
         setup.start(ap)
 
     if ap.subap == 'download':
-        from lib import download
+        import download
         download.start(ap)
+
+    if ap.subap == 'train':
+        import train
+        train.start(ap)
 
 
 if __name__ == '__main__':

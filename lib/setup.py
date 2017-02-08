@@ -1,5 +1,5 @@
 import os
-from lib import directories
+from directories import dirs
 
 
 def remove_dirs():
@@ -21,7 +21,7 @@ def setup_dirs():
     Generate all folders contained in the lib/directories.py file in case they don't exist.
 
     """
-    for directory in directories.dirs.values():
+    for directory in dirs.values():
         current_path = directory['path']
 
         if not os.path.exists(current_path):
