@@ -7,9 +7,9 @@ def start(argv):
         argv: The command line parameters.
 
     """
-    if ap.workflow == 'brat_to_stanford':
+    if argv.workflow == 'brat_to_stanford':
         import brat_to_stanford.train as train
         train.regenerate(argv)
 
-    if ap.workflow != 'brat_to_stanford':
+    if argv.workflow != 'brat_to_stanford':
         print("Not implemented.")

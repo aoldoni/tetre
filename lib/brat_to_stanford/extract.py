@@ -1,12 +1,8 @@
-#!/usr/bin/env python
-
-import sys
 import os
-import csv
-import itertools
 
 from lib.directories import *
 from lib.openie import openie_to_pretty
+
 
 def argparser():
     import argparse
@@ -19,6 +15,7 @@ def argparser():
                     help='tries Bulk processing')
 
     return ap
+
 
 def run_relations_separate_output(args):
 
@@ -53,6 +50,7 @@ def run_relations_separate_output(args):
 
     return
 
+
 def run_relations(args):
     names = []
     filename = 'filelist.txt'
@@ -78,7 +76,8 @@ def run_relations(args):
 
     return
 
-def regenerate(argv):
+
+def run(argv):
     args = argparser().parse_args(argv[1:])
 
     if (not args.directory.endswith("/")):
@@ -88,6 +87,3 @@ def regenerate(argv):
         run_relations(args)
     else:
         run_relations_separate_output(args)
-
-if __name__ == '__main__':
-    sys.exit(regenerate(sys.argv))

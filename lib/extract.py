@@ -8,8 +8,12 @@ def start(argv):
 
     """
     if argv.workflow == 'brat_to_stanford':
-        import brat_to_stanford.compile as compile
-        compile.regenerate(argv)
+        import brat_to_stanford.extract as extract
+        extract.run(argv)
 
-    if argv.workflow != 'brat_to_stanford':
+    elif argv.workflow == 'spacy':
+        import spacy.extract as extract
+        extract.run(argv)
+
+    else:
         print("Not implemented.")

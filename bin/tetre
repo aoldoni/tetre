@@ -39,6 +39,18 @@ def argparser(argv):
     ap_compile.add_argument('--workflow', choices=['brat_to_stanford'],
                           default='brat_to_stanford', help='Supported workflows.')
 
+    ap_extract = subap.add_parser('extract', help='Extract relations for supported workflows.')
+    ap_extract.add_argument('--workflow', choices=['spacy', 'brat_to_stanford'],
+                          default='spacy', help='Supported workflows.')
+
+    ap_extract.add_argument('--brat_to_stanford-use_model', action='store_true',
+                            help='Defines the attempted run mode: uses Relation Extractor with ' +
+                            'the trained model or tries OpenIE.')
+    ap_extract.add_argument('--brat_to_stanford-bulk_processing', action='store_true',
+                            help='Attempts bulk processing with the list of files as input, or ' +
+                            're-runs the program for each file.')
+
+
     parsed = ap.parse_args(args)
     parsed.root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
