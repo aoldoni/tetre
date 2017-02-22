@@ -28,14 +28,14 @@ def setup_dirs():
             os.makedirs(current_path)
 
 
-def start(ap):
+def start(argv):
     """Module entry point for the command line.
 
     Args:
-        ap (:obj:`ArgumentParser`): The command line parameters.
+        argv: The command line parameters.
 
     """
-    if ap.reset:
+    if argv.reset:
         remove_dirs()
     else:
         setup_dirs()

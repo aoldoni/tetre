@@ -17,7 +17,7 @@ def get_all_related(base_url):
         base_url: The server in question that will be scraped.
 
     Yields:
-         :obj:`list`: An array containing the URL to be downloaded in position 0, and
+         obj: An array containing the URL to be downloaded in position 0, and
             a positino 1 in which another array containing info about this file which
             will be concatenated to form the filename in disk.
 
@@ -56,8 +56,8 @@ def download_relate(relate_url):
     """Downloads a file given by a URL into a folder.
 
     Args:
-        relate_url (:obj:`list`): An array containing the URL to be downloaded in position 0, and
-            a positino 1 in which another array containing info about this file which
+        relate_url: An array containing the URL to be downloaded in position 0, and
+            a position 1 in which another array containing info about this file which
             will be concatenated to form the filename in disk.
 
     """
@@ -68,12 +68,12 @@ def download_relate(relate_url):
         output_file.write(contents)
 
 
-def start(ap):
+def start(argv):
     """Module entry point for the command line.
 
     Args:
-        ap (:obj:`ArgumentParser`): The command line parameters.
+        argv: The command line parameters.
 
     """
-    for relate_url in get_all_related(ap.url):
+    for relate_url in get_all_related(argv.url):
         download_relate(relate_url)
