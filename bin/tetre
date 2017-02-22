@@ -11,10 +11,10 @@ def argparser(argv):
     Subcommands are used for the different tasks.
 
     Args:
-        args (:obj:`list`): The command line params from default Python argv.
+        args: The command line params from default Python argv.
 
     Returns:
-        :obj:`ArgumentParser`: The command line parameters.
+        obj: The command line parameters.
 
     """
 
@@ -35,6 +35,10 @@ def argparser(argv):
     ap_train.add_argument('--workflow', choices=['brat_to_stanford'],
                           default='brat_to_stanford', help='Supported workflows.')
 
+    ap_compile = subap.add_parser('compile', help='Re-compile code for supported workflows.')
+    ap_compile.add_argument('--workflow', choices=['brat_to_stanford'],
+                          default='brat_to_stanford', help='Supported workflows.')
+
     parsed = ap.parse_args(args)
     parsed.root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -45,7 +49,7 @@ def tetre(argv):
     """Entry point for the TETRE program.
 
     Args:
-        argv (:obj:`list`): The command line params from default Python argv.
+        argv: The command line params from default Python argv.
 
     """
 
@@ -73,6 +77,10 @@ def tetre(argv):
     if ap.subap == 'train':
         import train
         train.start(ap)
+
+    if ap.subap == 'compile':
+        import compile
+        compile.start(ap)
 
 
 if __name__ == '__main__':

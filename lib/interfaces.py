@@ -9,7 +9,7 @@ class StanfordOpenIE():
         self.dir = output_stanford_openie
 
     def run(self, i, o):
-        os.system('java -cp stanford/stanford-corenlp-full-2015-12-09/*:stanford/stanford-ner-2015-12-09/lib/* -Xmx8g edu.stanford.nlp.naturalli.OpenIE -props '+config+'dblp-pipeline-openie.properties ' + i + ' 1>' + o)
+        os.system('java -cp stanford/stanford-corenlp-full-2015-12-09/*:stanford/stanford-ner-2015-12-09/lib/* -Xmx8g edu.stanford.nlp.naturalli.OpenIE -props '+config+'pipeline-openie.properties ' + i + ' 1>' + o)
 
 class AllenAIOpenIE():
     def __init__(self, args):

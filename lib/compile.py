@@ -8,8 +8,8 @@ def start(argv):
 
     """
     if ap.workflow == 'brat_to_stanford':
-        import brat_to_stanford.train as train
-        train.regenerate(argv)
+        import brat_to_stanford.compile as compile
+        compile.regenerate(argv)
 
     if ap.workflow != 'brat_to_stanford':
         print("Not implemented.")

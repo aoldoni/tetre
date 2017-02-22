@@ -83,6 +83,7 @@ E.g.:
 
 9. The file `stanford/stanford-corenlp-full-2015-12-09/stanford-corenlp-dblp.jar` should now exist.
 
+10. Install `ant` if you need to recompile Stanford's CoreNLP.
 
 ## INSTALLATION GOOGLE'S PARSEY
 
@@ -181,3 +182,5 @@ Different output, JSON pretty output:
 # NOTES
 
 - This toolkit already contains an enhanced version of Sampo Pyysalo's library https://github.com/spyysalo/standoff2conll which generates files in the Stanford's Relation Extractor training formar, based on the Brat's annotation standoff format.
+- Add a note regarding the customizations needed for the Relation Extractor. https://github.com/stanfordnlp/CoreNLP/issues/359
+- Add a note in here on how to use my custom stanford src code as to re-compile stanford corenlp, and specify the older 2016 versino.

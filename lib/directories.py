@@ -12,10 +12,12 @@ dirs = {
     'config':                   {'path': 'config/'},
     'annotated':                {'path': 'data/input/training/annotated/'},
     'transformed':              {'path': 'data/input/training/transformed/'},
-    'microsoft_data':           {'path': 'training/gazette/microsoft_academic_data/'},
+    'microsoft_data':           {'path': 'data/input/training/gazette/microsoft_academic_data/'},
     'downloaded':               {'path': 'data/input/downloaded/text/'},
+    'raw_input':                {'path': 'data/input/raw/'},
     'google_parsey_path':       {'path': 'external/bin/parsey/models/syntaxnet', 'root_distance': '../../../../../'},
-    'stanford_path':            {'path': 'stanford/stanford-corenlp-full-2015-12-09/'},
+    'stanford_ner_path':        {'path': 'external/bin/stanford/ner/'},
+    'stanford_corenlp_path':    {'path': 'external/bin/stanford/corenlp/'},
     'output_openie':            {'path': 'output/openie/'},
     'output_rel':               {'path': 'output/rel/'},
     'output_ngram':             {'path': 'output/ngram/'},
@@ -25,7 +27,6 @@ dirs = {
     'output_allenai_openie':    {'path': 'output/comparison/allenai_openie/'},
     'output_stanford_openie':   {'path': 'output/comparison/stanford_openie/'},
     'output_mpi_clauseie':      {'path': 'output/comparison/mpi_clauseie/'},
-    'raw_input':                {'path': 'input/'},
     'html_templates':           {'path': 'templates/'}
 }
 
