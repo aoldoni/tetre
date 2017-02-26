@@ -3,6 +3,7 @@
 import sys
 import argparse
 import os
+import importlib
 
 
 def argparser(argv):
@@ -50,7 +51,6 @@ def argparser(argv):
                             help='Attempts bulk processing with the list of files as input, or ' +
                             're-runs the program for each file.')
 
-
     parsed = ap.parse_args(args)
     parsed.root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -78,21 +78,9 @@ def tetre(argv):
     sys.path.insert(0, lib_dir)
     sys.path.insert(0, external_lib_dir)
 
-    if ap.subap == 'setup':
-        import setup
-        setup.start(ap)
-
-    if ap.subap == 'download':
-        import download
-        download.start(ap)
-
-    if ap.subap == 'train':
-        import train
-        train.start(ap)
-
-    if ap.subap == 'compile':
-        import compile
-        compile.start(ap)
+    # routing the commands to each submodule..
+    module = importlib.import_module(ap.subap)
+    module.start(ap)
 
 
 if __name__ == '__main__':
