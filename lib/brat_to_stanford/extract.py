@@ -5,6 +5,13 @@ from openie import openie_to_pretty
 
 
 def run_relations_separate_output(argv):
+    """Decides between running the model based Relation Extractor or OpenIE
+    in separate output mode.
+
+    Args:
+        argv: An object with the command line arguments.
+
+    """
 
     for fn in os.listdir(dirs['raw_input']['path']):
         if fn == ".DS_Store":
@@ -51,10 +58,18 @@ def run_relations_separate_output(argv):
 
 
 def run_relations(argv):
+    """Decides between running the model based Relation Extractor or OpenIE
+    in bulk processing mode.
+
+    Args:
+        argv: An object with the command line arguments.
+
+    """
+
     names = []
     filename = 'filelist.txt'
 
-    for fn in os.listdir(argv.directory + dirs['raw_input']['path']):
+    for fn in os.listdir(dirs['raw_input']['path']):
         if fn == ".DS_Store":
             continue
 
@@ -72,7 +87,7 @@ def run_relations(argv):
                            '-Xmx8g ',
                            'edu.stanford.nlp.naturalli.OpenIE ',
                            '-props ' + dirs['config']['path'] + 'pipeline-openie.properties ',
-                           '-filelist ' + filename + ' 1>' + dirs['output_openie']['path'] + '/output.tsv']))
+                           '-filelist ' + filename + ' 1>' + dirs['output_openie']['path'] + '/bulk_output.tsv']))
 
     else:
         print("Running Stanford's Relation Extractor... (Bulk mode)")
@@ -90,7 +105,16 @@ def run_relations(argv):
 
 
 def run(argv):
+    """Decides between running the bullk_processing mode or per file mode:
+        - Per file mode generates per file outputs in OpenIE, so better to match
+        output to input.
+        - Model based and OpenIE both can hang in the middle of processing if, e.g.:
+        processing thousands of files.
 
+    Args:
+        argv: An object with the command line arguments.
+
+    """
     if argv.brat_to_stanford_bulk_processing:
         run_relations(argv)
     else:
