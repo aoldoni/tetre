@@ -1,11 +1,11 @@
-from nltk import Tree
-from types import FunctionType
-from lib.dependency_helpers import *
-from lib.rule_applier import *
-from lib.tree_utils import find_in_spacynode, merge_nodes
-import inspect
-from functools import wraps, reduce
-import sys
+# -*- coding: utf-8 -*-
+
+from tetre.dependency_helpers import *
+from tetre.rule_applier import *
+from tree_utils import find_in_spacynode, merge_nodes
+
+from functools import reduce
+
 
 class Growth(RuleApplier):
     def __init__(self):

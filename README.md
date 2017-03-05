@@ -43,6 +43,8 @@ E.g.:
 ## INSTALLATION MAIN PACKAGES
 
 - Install Spacy, Virtualenv, and Spacy's English model: https://spacy.io/docs/#getting-started
+    `pip install spacy==0.101.0`  
+    
 - Install NLTK (as a python3 module): http://www.nltk.org/install.html
 - Install Brat 1.3 Crunchy Frog: http://brat.nlplab.org/installation.html
 - Install the following Python/Python3 modules:

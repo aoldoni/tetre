@@ -1,44 +1,30 @@
-import sys
-import itertools
 import os
 import pickle
 
-from nltk import Tree
+from backends import get_tree
+from directories import dirs
 
-import spacy
-import spacy.en
 
-from lib.backends import get_tree
-from lib.directories import *
-from lib.tree_utils import TreeNode, spacysentence_to_fullsentence
-
-def get_cached_sentence_image(args, output_path, sentence, file_extension):
-    updated_at_date = os.path.getmtime(args.directory + raw_input)
-    cache_key = args.word.lower() + str(int(updated_at_date))
-    cache_file = args.directory + output_cache + cache_key
-
+def get_cached_sentence_image(argv, output_path, sentence, file_extension):
     img_name = 'sentence-'+str(sentence.file_id)+"-"+str(sentence.id)
-    img_path = 'images/' + img_name + "." + file_extension
-
     cache_file_final = output_path + 'images/' + img_name + "." + file_extension
 
-    if args.force_clean:
+    if argv.tetre_force_clean:
         return False
     else:
         return os.path.isfile(cache_file_final)
 
-def get_cached_tokens(args):
-    sentences = []
 
-    updated_at_date = os.path.getmtime(args.directory + raw_input)
-    cache_key = args.word.lower() + str(int(updated_at_date))
-    cache_file = args.directory + output_cache + cache_key + ".spacy"
+def get_cached_tokens(argv):
+    updated_at_date = os.path.getmtime(dirs['raw_input']['path'])
+    cache_key = argv.tetre_word.lower() + str(int(updated_at_date))
+    cache_file = dirs['output_cache']['path'] + cache_key + ".spacy"
 
-    if (os.path.isfile(cache_file) and not args.force_clean):
+    if os.path.isfile(cache_file) and not argv.tetre_force_clean:
         with open(cache_file, 'rb') as f:
             sentences = pickle.load(f)
     else:
-        sentences = get_tree(args)
+        sentences = get_tree(argv)
 
         with open(cache_file, "wb") as f:
             pickle.dump(sentences, f, protocol=pickle.HIGHEST_PROTOCOL)

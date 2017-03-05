@@ -130,6 +130,7 @@ class FullSentence(object):
         self.iterable = self.root.to_sentence_list()
         return self
 
+    # Declared in Python3 style
     def __next__(self):
         if self.pointer >= len(self.iterable):
             raise StopIteration
@@ -138,6 +139,9 @@ class FullSentence(object):
         self.pointer += 1
 
         return next_value
+
+    # Python2 compatibility
+    next = __next__
 
     def __str__(self):
         return self.string_representation
@@ -216,7 +220,10 @@ def nltk_tree_to_qtree(tree):
 def flatten_list(l):
     for el in l:
         if isinstance(el, list) and not isinstance(el, (str, bytes)):
-            yield from flatten_list(el)
+            # python3 version converted back to python2 version:
+            # yield from flatten_list(el)
+            for sublist in flatten_list(el):
+                yield sublist
         else:
             yield el
 

@@ -1,4 +1,5 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
 import sys
 import argparse
@@ -91,6 +92,8 @@ def argparser(argv):
                                  'This facilitates cross-checking, e.g.: results evaluation.')
     ap_extract.add_argument('--tetre_force_clean', action='store_true',
                             help='Ignores any caching and forces reprocessing. Cache is then regenerated.')
+    ap_extract.add_argument('--tetre_word',
+                            help='The word being looked for.')
 
     parsed = ap.parse_args(args)
     parsed.root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

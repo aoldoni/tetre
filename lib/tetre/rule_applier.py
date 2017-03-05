@@ -21,10 +21,6 @@ class RuleApplier(object):
         return func
 
     def get_rules(self):
-        # print("----------------------------------")
-        # print(self.__class__.__name__)
-        # print(RuleApplier.deco_list)
-        # print("----------------------------------")
         return iter([rule for rule in RuleApplier.deco_list if self.__class__.__name__ in str(rule)])
 
     def rewrite_dp_tag(self, tag):
@@ -64,7 +60,9 @@ class RuleApplier(object):
         applied = []
 
         if root_spacy_tree != None:
+            # print("will apply 2!")
             for rule in self.get_rules():
+                # print("will apply 3!")
 
                 root, node_set, spacy_tree, is_applied = rule(self, root, node_set, root_spacy_tree)
 

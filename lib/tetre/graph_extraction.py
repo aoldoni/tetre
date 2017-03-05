@@ -1,9 +1,6 @@
-from nltk import Tree
-from types import FunctionType
-from lib.dependency_helpers import *
-from lib.rule_applier import *
-import inspect
-from functools import wraps
+from tetre.dependency_helpers import *
+from tetre.rule_applier import *
+
 
 class Extraction(RuleApplier):
     def __init__(self):
@@ -14,7 +11,6 @@ class Extraction(RuleApplier):
         result = {}
 
         for child in spacy_tree.children:
-            # print(child, child.dep_, child.nofollow)
             if child.nofollow:
                 continue
 
@@ -33,7 +29,6 @@ class Extraction(RuleApplier):
         
         for rule in self.get_rules():
             relations.append(rule(self, root, node_set, spacy_tree))
-            # print(self.__class__.__name__, "during", [root, node_set])
 
         return relations
 

@@ -1,7 +1,4 @@
-import spacy
-import spacy.en
-
-from lib.dependency_helpers import get_uncached_tokens
+from tetre.dependency_helpers import get_uncached_tokens
 
 class PossibleRelations(object):
     def __init__(self, args):

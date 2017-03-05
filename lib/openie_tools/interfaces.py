@@ -1,4 +1,4 @@
-from lib.directories import *
+from directories import *
 from pydoc import locate
 
 import os

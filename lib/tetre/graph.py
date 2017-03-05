@@ -1,38 +1,31 @@
 from graphviz import Digraph
 
-import spacy
-import spacy.en
-
-import itertools
 import operator
 import json
-
 import copy
+from functools import reduce
+import random
+import csv
 
 import django
 from django.utils.safestring import mark_safe
 from django.template import Template, Context
 from django.conf import settings
 
-from functools import reduce
-import pprint
-import random
-import csv
+from tree_utils import *
 
-from lib.dependency_helpers import *
-from lib.tree_utils import *
-from lib.directories import *
+from directories import dirs
+from cache import get_cached_sentence_image
 
-from lib.graph_processing import Process, Reduction
-from lib.graph_processing_children import ProcessChildren
-from lib.graph_extraction import ProcessExtraction
-from lib.interfaces import ExternalInterface
+from tetre.graph_processing import Process, Reduction
+from tetre.graph_processing_children import ProcessChildren
+from tetre.graph_extraction import ProcessExtraction
+from tetre.dependency_helpers import *
 
-from lib.cache import get_cached_sentence_image
 
 class CommandAccumulative(object):
-    def __init__(self, args):
-        self.args = args
+    def __init__(self, argv):
+        self.argv = argv
 
         self.accumulated_children = {}
         self.accumulated_parents = {}
@@ -51,15 +44,15 @@ class CommandAccumulative(object):
         self.accumulated_print_each = 10
         self.file_extension = "png"
 
-        self.output_path = self.args.directory+output_html
+        self.output_path = dirs['output_html']['path']
 
-        self.file_name = "results-" + args.word + ".html"
+        self.file_name = "results-" + argv.tetre_word + ".html"
 
     def run(self):
         accumulated_global_count = 0
         accumulated_local_count = 0
 
-        for token, sentence in get_tokens(self.args):
+        for token, sentence in get_tokens(self.argv):
 
             self.process_sentence(sentence)
             self.graph_gen_accumulate(token, self.accumulated_parents, self.accumulated_children)
@@ -88,7 +81,7 @@ class CommandAccumulative(object):
 
     def get_token_representation(self, token):
         string_representation = []
-        params = self.args.format.split(",")
+        params = self.argv.tetre_format.split(",")
         for param in params:
             string_representation.append(getattr(token, param))
 
@@ -97,7 +90,7 @@ class CommandAccumulative(object):
 
     def process_sentence(self, sentence):
         self.sentence.append(str(sentence).replace("\r","").replace("\n","").strip())
-        if self.args.output == "html":
+        if self.argv.tetre_output == "html":
             return self.sentence_to_graph(sentence)
         else:
             return ""
@@ -134,12 +127,12 @@ class CommandAccumulative(object):
         return
 
     def graph_gen_generate(self, accumulator_parents, accumulator_children, id = ""):
-        e = Digraph(self.args.word, format=self.file_extension)
+        e = Digraph(self.argv.tetre_word, format=self.file_extension)
         e.attr('node', shape='box')
 
         main_node = "A"
 
-        e.node(main_node, self.args.word)
+        e.node(main_node, self.argv.tetre_word)
 
         total_len_accumulator_children = reduce(lambda a,b: a+b, (len(value) for key, value in accumulator_children.items()), 0)
 
@@ -167,7 +160,7 @@ class CommandAccumulative(object):
         return 'images/main_image' + id
 
     def sentence_to_graph_add_node(self, e, current_id, orth_):
-        if (orth_ == self.args.word):
+        if (orth_ == self.argv.tetre_word):
             e.node(str(current_id), orth_, fillcolor="dimgrey", fontcolor="white", style="filled")
         else:
             e.node(str(current_id), orth_)
@@ -178,13 +171,13 @@ class CommandAccumulative(object):
         img_path = img_dot_path + "." + self.file_extension
         self.sentence_imgs.append(img_path)
 
-        found = get_cached_sentence_image(self.args, \
+        found = get_cached_sentence_image(self.argv, \
                                             self.output_path, \
                                             sentence, \
                                             self.file_extension)
 
         if (not found):
-            e = Digraph(self.args.word, format=self.file_extension)
+            e = Digraph(self.argv.tetre_word, format=self.file_extension)
             e.attr('node', shape='box')
             e.attr('graph', label=str(sentence))
 
@@ -267,7 +260,7 @@ class CommandAccumulative(object):
         t = Template(index)
         c = Context({"main_img": "images/main_image." + self.file_extension,
                      "all_sentences": mark_safe(all_imgs_html),
-                     "word": self.args.word})
+                     "word": self.argv.tetre_word})
 
         with open(self.output_path + self.file_name, 'w') as output:
             output.write(t.render(c))
@@ -277,18 +270,18 @@ class CommandAccumulative(object):
 
 
 class CommandGroup(CommandAccumulative):
-    def __init__(self, args):
-        CommandAccumulative.__init__(self, args)
-        self.args = args
+    def __init__(self, argv):
+        CommandAccumulative.__init__(self, argv)
+        self.argv = argv
         self.groups = {}
 
         self.depth = 1
         self.current_group_id = 0
 
-        self.take_pos_into_consideration = len([params for params in self.args.format.split(",") if params == "pos_"])
+        self.take_pos_into_consideration = len([params for params in self.argv.tetre_format.split(",") if params == "pos_"])
 
     def run(self):
-        for token, sentence in get_tokens(self.args):
+        for token, sentence in get_tokens(self.argv):
 
             img_path = self.process_sentence(sentence)
 
@@ -303,7 +296,7 @@ class CommandGroup(CommandAccumulative):
 
     def get_node_representation(self, token):
 
-        params = self.args.format.split(",")
+        params = self.argv.tetre_format.split(",")
         
         node_representation = token.pos_
         # node_representation = token.dep_+"/"+token.pos_
@@ -334,7 +327,7 @@ class CommandGroup(CommandAccumulative):
                 ]}
 
     def gen_group_image(self, token, tree, depth):
-        e = Digraph(self.args.word, format=self.file_extension)
+        e = Digraph(self.argv.tetre_word, format=self.file_extension)
         e.attr('node', shape='box')
 
         current_id = self.current_token_id
@@ -342,7 +335,7 @@ class CommandGroup(CommandAccumulative):
 
         self.group_to_graph_recursive_with_depth(token, current_id, e, depth)
 
-        img_name = 'command-group-'+self.args.word+"-"+str(self.current_group_id)
+        img_name = 'command-group-'+self.argv.tetre_word+"-"+str(self.current_group_id)
         e.render(self.output_path + 'images/' + img_name)
         self.current_group_id += 1
         return 'images/' + img_name + "." + self.file_extension
@@ -439,7 +432,7 @@ class CommandGroup(CommandAccumulative):
                              "gs_id": sentence["sentence"].id,
                              "gt_id": sentence["token"].idx,
                              "path": sentence["img_path"],
-                             "sentence": mark_safe(highlight_word(sentence["sentence"], self.args.word))})
+                             "sentence": mark_safe(highlight_word(sentence["sentence"], self.argv.tetre_word))})
                 each_img_html += t.render(c)
 
                 i += 1
@@ -456,7 +449,7 @@ class CommandGroup(CommandAccumulative):
                      "average_per_group" : avg_per_group,
                      "all_sentences": mark_safe(all_imgs_html),
                      "max_num_params": max_num_params,
-                     "word": self.args.word})
+                     "word": self.argv.tetre_word})
 
         with open(self.output_path + self.file_name, 'w') as output:
             output.write(t.render(c))
@@ -466,15 +459,15 @@ class CommandGroup(CommandAccumulative):
 
 
 class CommandSimplifiedGroup(CommandGroup):
-    def __init__(self, args):
-        CommandGroup.__init__(self, args)
+    def __init__(self, argv):
+        CommandGroup.__init__(self, argv)
 
     def run(self):
         rule_applier = Process()
         rule_applier_children = ProcessChildren()
         rule_extraction = ProcessExtraction()
 
-        for token_original, sentence in get_tokens(self.args):
+        for token_original, sentence in get_tokens(self.argv):
 
             # print("------------------------------------------------------------------")
             # print()
@@ -487,13 +480,16 @@ class CommandSimplifiedGroup(CommandGroup):
 
             tree, applied_verb = rule_applier.applyAll(tree, token)
 
+            # print([tree, applied_verb])
+
             tree_grouping       = tree
             tree_subj_grouping  = ""
             tree_obj_grouping   = ""
-            if self.args.behaviour_root != "verb":
+
+            if self.argv.tetre_behaviour_root != "verb":
                 tree_grouping = ""
                 for child in token.children:
-                    if  self.args.behaviour_root in child.dep_:
+                    if self.argv.tetre_behaviour_root in child.dep_:
                         tree_grouping = self.get_node_representation(child)
                     if "subj" in child.dep_:
                         tree_subj_grouping = self.get_node_representation(child)
@@ -502,9 +498,9 @@ class CommandSimplifiedGroup(CommandGroup):
 
             tree_obj_grouping, tree_subj_grouping, applied_obj_subj = rule_applier_children.applyAll(tree_obj_grouping, tree_subj_grouping, token)
 
-            if ("subj" in self.args.behaviour_root):
+            if ("subj" in self.argv.tetre_behaviour_root):
                 tree_grouping = tree_subj_grouping
-            if ("obj" in self.args.behaviour_root):
+            if ("obj" in self.argv.tetre_behaviour_root):
                 tree_grouping = tree_obj_grouping
 
             rules = rule_extraction.applyAll(tree, token, sentence)
@@ -520,13 +516,13 @@ class CommandSimplifiedGroup(CommandGroup):
 
         self.groups = self.filter(self.groups)
 
-        if self.args.output == "json":
+        if self.argv.tetre_output == "json":
             self.graph_gen_json()
-        elif self.args.output == "html":
+        elif self.argv.tetre_output == "html":
             self.graph_gen_html()
 
     def gen_group_image(self, token, tree, depth):
-        e = Digraph(self.args.word, format=self.file_extension)
+        e = Digraph(self.argv.tetre_word, format=self.file_extension)
         e.attr('node', shape='box')
 
         current_id = self.current_token_id
@@ -549,7 +545,7 @@ class CommandSimplifiedGroup(CommandGroup):
                 e.node(child_id, "???")
                 e.edge(str(current_id), child_id, label=child)
 
-        img_name = 'command-simplified-group-'+self.args.word+"-"+str(self.current_group_id)
+        img_name = 'command-simplified-group-'+self.argv.tetre_word+"-"+str(self.current_group_id)
         e.render(self.output_path + 'images/' + img_name)
         self.current_group_id += 1
 
@@ -576,7 +572,7 @@ class CommandSimplifiedGroup(CommandGroup):
         else:
 
             img = ""
-            if self.args.output == "html":
+            if self.argv.tetre_output == "html":
                 img = self.gen_group_image(token, tree, self.depth)
 
             self.groups[string] = {"representative" : tree, \
@@ -610,24 +606,24 @@ class CommandSimplifiedGroup(CommandGroup):
                         obj = value
                         has_obj = True
                     else:
-                        if self.args.output == "json":
+                        if self.argv.tetre_output == "json":
                             others_json.append({"relation": dep, "target": value})
-                        elif self.args.output == "html":
+                        elif self.argv.tetre_output == "html":
                             c = Context({"opt": dep, "result": value})
                             others_html += to.render(c)
 
-        if self.args.output == "json":
+        if self.argv.tetre_output == "json":
             return subj, obj, others_json
-        elif self.args.output == "html":
+        elif self.argv.tetre_output == "html":
             return subj, obj, others_html
 
     def get_external_results(self, sentence):
-        filename = self.args.word+"-"+str(sentence["sentence"].file_id) \
+        filename = self.argv.tetre_word+"-"+str(sentence["sentence"].file_id) \
                     +"-"+str(sentence["sentence"].id)+"-"+str(sentence["token"].idx)
 
-        allenai_openie  = self.args.directory+output_allenai_openie+filename
-        stanford_openie = self.args.directory+output_stanford_openie+filename
-        mpi_clauseie    = self.args.directory+output_mpi_clauseie+filename
+        allenai_openie  = dirs['output_allenai_openie']['path'] + filename
+        stanford_openie = dirs['output_stanford_openie']['path'] + filename
+        mpi_clauseie    = dirs['output_mpi_clauseie']['path'] + filename
 
         text_allenai_openie  = ""
         text_stanford_openie = ""
@@ -671,25 +667,25 @@ class CommandSimplifiedGroup(CommandGroup):
 
         text_allenai_openie = text_stanford_openie = text_mpi_clauseie = ""
 
-        if self.args.include_external:
+        if self.argv.tetre_include_external:
             text_allenai_openie, text_stanford_openie, text_mpi_clauseie = self.get_external_results(sentence)
 
         ts = Template(each_sentence)
         c = Context({
-                     "add_external": self.args.include_external,
+                     "add_external": self.argv.tetre_include_external,
                      "gf_id": sentence["sentence"].file_id,
                      "gs_id": sentence["sentence"].id,
                      "gt_id": sentence["token"].idx,
                      "path": sentence["img_path"],
-                     "sentence": mark_safe(highlight_word(sentence["sentence"], self.args.word)),
+                     "sentence": mark_safe(highlight_word(sentence["sentence"], self.argv.tetre_word)),
                      "subj" : subj,
                      "obj" : obj,
-                     "rel" : self.args.word,
+                     "rel" : self.argv.tetre_word,
                      "others" : mark_safe(others),
                      "rules_applied" : mark_safe(", ".join(sentence["applied"])),
-                     "text_allenai_openie" : mark_safe(highlight_word(text_allenai_openie, self.args.word)),
-                     "text_stanford_openie" : mark_safe(highlight_word(text_stanford_openie, self.args.word)),
-                     "text_mpi_clauseie" : mark_safe(highlight_word(text_mpi_clauseie, self.args.word))
+                     "text_allenai_openie" : mark_safe(highlight_word(text_allenai_openie, self.argv.tetre_word)),
+                     "text_stanford_openie" : mark_safe(highlight_word(text_stanford_openie, self.argv.tetre_word)),
+                     "text_mpi_clauseie" : mark_safe(highlight_word(text_mpi_clauseie, self.argv.tetre_word))
                 })
 
         return ts.render(c)
@@ -736,8 +732,8 @@ class CommandSimplifiedGroup(CommandGroup):
 
             for sentence in group["sentences"]:
 
-                if (self.args.output_csv):
-                    csv_row = [self.args.word,
+                if (self.argv.tetre_output_csv):
+                    csv_row = [self.argv.tetre_word,
                     str(sentence["sentence"].file_id)+"-"+str(sentence["sentence"].id)+"-"+str(sentence["token"].idx)]
 
                     wr = csv.writer(sys.stdout, quoting=csv.QUOTE_ALL)
@@ -758,7 +754,7 @@ class CommandSimplifiedGroup(CommandGroup):
                      "average_per_group" : avg_per_group,
                      "all_sentences": mark_safe(all_imgs_html),
                      "max_num_params": max_num_params,
-                     "word": self.args.word})
+                     "word": self.argv.tetre_word})
 
         with open(self.output_path + self.file_name, 'w') as output:
             output.write(t.render(c))
@@ -774,7 +770,7 @@ class CommandSimplifiedGroup(CommandGroup):
 
                 json_result.append(
                     {"sentence": str(sentence["sentence"]),
-                     "relation" : {"rel": self.args.word, "subj" : subj, "obj" : obj},
+                     "relation" : {"rel": self.argv.tetre_word, "subj" : subj, "obj" : obj},
                      "other_relations" : others,
                      "rules_applied" : ",".join(sentence["applied"])})
 
@@ -782,11 +778,11 @@ class CommandSimplifiedGroup(CommandGroup):
 
     def filter(self, groups):
 
-        if (self.args.sampling == None):
+        if (self.argv.tetre_sampling == None):
             return groups
 
-        sampling = float(self.args.sampling)
-        seed = int(self.args.seed)
+        sampling = float(self.argv.tetre_sampling)
+        seed = int(self.argv.tetre_seed)
 
         simplified_groups = {}
 
@@ -812,43 +808,3 @@ class CommandSimplifiedGroup(CommandGroup):
                 )
         
         return simplified_groups
-
-
-class ExternalToolsPrepare():
-    def __init__(self, args):
-        self.args = args
-
-    def run(self):
-        for token_original, sentence in get_tokens(self.args):
-            filename = self.args.word+"-"+str(sentence.file_id)+"-"+str(sentence.id)+"-"+str(token_original.idx)
-            output_path = self.args.directory+output_comparison
-
-            with open(output_path + filename, 'w') as output:
-                output.write(str(sentence))
-
-        return
-
-class ExternalToolsRun():
-    def __init__(self, args):
-        self.args = args
-
-    def run(self):
-        interface = ExternalInterface(self.args)
-
-        lst = os.listdir(self.args.directory+output_comparison)
-        lst.sort()
-
-        for fn in lst:
-
-            if (fn == ".DS_Store"):
-                continue
-
-            if (not self.args.word in fn):
-                continue
-
-            file = self.args.directory + output_comparison + fn
-            out = self.args.directory + interface.get_interface().dir + fn
-            interface.run(file, out)
-
-
-        return

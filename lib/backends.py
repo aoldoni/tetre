@@ -1,37 +1,41 @@
-# here goes future multiple backends implementations
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
-from nltk.parse.stanford import StanfordDependencyParser
 import os
 import re
+import sys
 
 import spacy
 import spacy.en
+from directories import dirs
+from tree_utils import TreeNode, spacysentence_to_fullsentence
 
-from lib.directories import *
-from lib.tree_utils import TreeNode, spacysentence_to_fullsentence
 
 def raw_parsing(text):
 
+    # Clear unicode
+    if sys.version_info >= (3, 0):
+        text = bytes.decode(str.encode(text).decode('unicode_escape').encode('ascii', 'ignore'))
+    else:
+        text = text.decode('unicode_escape').encode('ascii', 'ignore')
+
+    # Remove confusin "et at." from text
     text = re.sub(r"et al\.?", "", text, flags=re.IGNORECASE)
 
+    # Remove confusin "[1]" citation style from text
     text = re.sub(r"\([^)^(]*?\d{4}[^)^(]*?\)", "", text)
-    # text = re.sub(r"\(.*?\d{4}.*?\)", "EXTERNAL-REFERENCE", text)
-
-    text = bytes.decode(str.encode(text).decode('unicode_escape').encode('ascii','ignore'))
-    # text = re.sub(r"[Ã¢Â€ÂœÃ¢Â€Â•Ã¢ÂˆÂÃŽÂ²ÃŽÂ²ÃÂ†Ã¢Â€Â™Ã¢Â€Âœ]", "", text)
 
     return text
 
 
-def get_tree_from_spacy(args):
+def get_tree_from_spacy(argv):
     en_nlp = spacy.en.English()
-    # en_nlp = spacy.load('en')
 
     sentences = []
 
     file_id = 0
 
-    lst = os.listdir(args.directory+raw_input)
+    lst = os.listdir(dirs['raw_input']['path'])
     lst.sort()
 
     for fn in lst:
@@ -40,39 +44,37 @@ def get_tree_from_spacy(args):
         if (fn == ".DS_Store"):
             continue
 
-        name = args.directory + raw_input + fn
+        name = dirs['raw_input']['path'] + fn
 
         raw_text = ''
 
         with open(name, 'r') as input:
             raw_text = input.read()
 
-        if (args.word not in raw_text):
+        if argv.tetre_word not in raw_text:
             continue
 
         raw_text = raw_parsing(raw_text)
-
         en_doc = en_nlp(raw_text)
 
         sentence_id = 0
-
         for sentence in en_doc.sents:
             sentence_id += 1
 
             sentence_tree = spacysentence_to_fullsentence(sentence, file_id, sentence_id)
 
             for token in sentence_tree:
-                if (token.orth_.lower() == args.word.lower()):
+                if (token.orth_.lower() == argv.tetre_word.lower()):
                     sentences.append( (token, sentence_tree) )
 
     return sentences
 
-def get_tree_from_stanford(args):
+def get_tree_from_stanford(argv):
     sentences = []
 
     file_id = 0
 
-    lst = os.listdir(args.directory+raw_input)
+    lst = os.listdir(dirs['raw_input']['path'])
     lst.sort()
 
     for fn in lst:
@@ -81,21 +83,23 @@ def get_tree_from_stanford(args):
         if (fn == ".DS_Store"):
             continue
 
-        name = args.directory + raw_input + fn
+        name = dirs['raw_input']['path'] + fn
 
         raw_text = ''
 
         with open(name, 'r') as input:
             raw_text = input.read()
 
+    # from nltk.parse.stanford import StanfordDependencyParser
     # dep_parser=StanfordNeuralDependencyParser(model_path="edu/stanford/nlp/models/lexparser/englishPCFG.ser.gz")
     # print [parse.tree() for parse in dep_parser.raw_parse("The quick brown fox jumps over the lazy dog.")]
 
     return sentences
 
-def get_tree(args):
-    if (args.backend == "spacy"):
-        return get_tree_from_spacy(args)
-    elif (args.backend == "stanford"):
-        return get_tree_from_stanford(args)
+def get_tree(argv):
+    if (argv.tetre_backend == "spacy"):
+        return get_tree_from_spacy(argv)
+    elif (argv.tetre_backend == "stanford"):
+        print("Not implemented!")
+        # return get_tree_from_stanford(argv)
     return

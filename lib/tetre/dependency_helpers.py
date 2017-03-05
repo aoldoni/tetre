@@ -1,15 +1,12 @@
-import sys
-import itertools
 import os
-import pickle
 
 from nltk import Tree
 
 import spacy
 import spacy.en
 
-from lib.directories import *
-from lib.cache import get_cached_tokens
+from directories import *
+from cache import get_cached_tokens
 
 import logging, sys
 logger = logging.getLogger('root')
@@ -84,7 +81,13 @@ def patter_recurse_on_prep(token):
         for grangrandchild in where_to_dobj_from.children:
             logging.debug(["c3", token, where_to_dobj_from, grangrandchild, grangrandchild.pos_])
             if (grangrandchild.pos_ in ['NOUN', 'PROPN']):
-                yield from patter_recurse_on_prep(grangrandchild)
+
+                # python3 version converted back to python2 version:
+                # yield from patter_recurse_on_prep(grangrandchild)
+
+                for pattern in patter_recurse_on_prep(grangrandchild):
+                    yield pattern
+
     elif (token.pos_ not in ['NOUN', 'PROPN']):
 
         # Pattern 7 - acl_2008_P08-1082_relate.txt
@@ -93,7 +96,13 @@ def patter_recurse_on_prep(token):
         logging.debug(["c4"])
         child_list = list(token.children)
         if (len(child_list) == 1):
-            yield from patter_recurse_on_prep(child_list[0])
+
+            # python3 version converted back to python2 version:
+            # yield from patter_recurse_on_prep(child_list[0])
+
+            for pattern in patter_recurse_on_prep(child_list[0]):
+                yield pattern
+
 
 def get_noun_chunck(token, all_noun_chuncks):
 

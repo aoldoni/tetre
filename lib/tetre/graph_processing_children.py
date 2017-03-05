@@ -1,10 +1,6 @@
-from nltk import Tree
-from types import FunctionType
-from lib.dependency_helpers import *
-from lib.rule_applier import *
-from lib.tree_utils import find_in_spacynode
-import inspect
-from functools import wraps
+from tetre.dependency_helpers import *
+from tetre.rule_applier import *
+from tree_utils import find_in_spacynode
 
 class Children(RuleApplier):
     def __init__(self):
@@ -27,7 +23,7 @@ class Children(RuleApplier):
             3) Now consider:
             "One method considers the phrases as bag-ofwords and employs a convolution model to transform the word embeddings to phrase embeddings (Collobert et al."
             "(Kobayashi et al., 2004) employs an iterative semi-automatic approach which requires human input at every iteration."
-            "The formerÃ¢Â€Â™s precision on the explicit feature extraction task is 22% lower than OPINE Ã¢Â€Â™s while the latter employs an iterative semi-automatic approach which requires significant human input; neither handles implicit features."
+            "The formers precision on the explicit feature extraction task is 22% lower than OPINE s while the latter employs an iterative semi-automatic approach which requires significant human input; neither handles implicit features."
 
             This would also bring up "relcl".
 
@@ -165,7 +161,7 @@ class Obj(Children):
     # @RuleApplier.register_function
     # def remove_after_comma_prep(self, root, node_set, spacy_tree):
     #     """1) Consider the following sentence:
-    #         "DoppelÃ¢Â€Â™s optimization is orthogonal to BCC: Doppel improves performance when ww dependencies happen, while BCC avoids false aborts caused by rw dependencies."
+    #         "Doppels optimization is orthogonal to BCC: Doppel improves performance when ww dependencies happen, while BCC avoids false aborts caused by rw dependencies."
     #         "Their results show that the feature improves the parsing performance, which coincides with our analysis in Section 1.1."
 
     #         One can stop printing the "obj" after ", which" or ", while".
@@ -247,7 +243,7 @@ class Subj(Children):
     # def remove_advcl(self, root, node_set, spacy_tree):
     #     """
     #         1) Consider the following sentence:
-    #         "Approaches that do not explicitly involve resource adaptation include Wan (2009), which uses co-training (Blum and Mitchell, 1998) with English vs. Chinese features comprising the two independent Ã¢Â€Â•viewsÃ¢Â€Â– to exploit unlabeled Chinese data and a labeled English corpus and thereby improves Chinese sentiment classification."
+    #         "Approaches that do not explicitly involve resource adaptation include Wan (2009), which uses co-training (Blum and Mitchell, 1998) with English vs. Chinese features comprising the two independent views to exploit unlabeled Chinese data and a labeled English corpus and thereby improves Chinese sentiment classification."
             
     #         Shouldn't follow advcl.
 
