@@ -1,22 +1,12 @@
-#!/usr/bin/env python3
-
-import sys
-import os
-import csv
-import pprint
-import itertools
-import functools
 import subprocess
 import types
 import logging
 
-from functools import reduce
-
 ### import everything
-from corpkit import *
-from corpkit.dictionaries import *
+# from corpkit import *
+# from corpkit.dictionaries import *
 
-from nltk.corpus import wordnet as wn
+# from nltk.corpus import wordnet as wn
 
 import spacy
 import spacy.en
@@ -343,6 +333,3 @@ def regenerate(argv):
         cmd.run()
     else:
         print("No command!")
-
-if __name__ == '__main__':
-    sys.exit(regenerate(sys.argv))

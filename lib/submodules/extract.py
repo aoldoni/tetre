@@ -11,8 +11,8 @@ def start(argv):
         import brat_to_stanford.extract as extract
         extract.run(argv)
 
-    elif argv.workflow == 'spacy':
-        import spacy.extract as extract
+    elif argv.workflow == 'tetre':
+        import tetre.extract as extract
         extract.run(argv)
 
     else:

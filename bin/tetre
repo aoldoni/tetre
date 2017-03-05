@@ -27,27 +27,33 @@ def argparser(argv):
     ap_setup = subap.add_parser('setup', help='Generate needed setup folders')
     ap_setup.add_argument('--reset', action='store_true', help='Clean all working data. (Not recommended).')
 
+    # download data process
     ap_download = subap.add_parser('download', help='Download content from a given server (originally developed for ' +
                                                     'internal UNSW server only)')
     ap_download_required = ap_download.add_argument_group('required arguments')
     ap_download_required.add_argument('--url', help='Where to download from.', required=True)
 
+    # preprocess data process
     ap_preprocess = subap.add_parser('preprocess', help='Preprocessing jobs for supported workflows.')
     ap_preprocess.add_argument('--workflow', choices=['microsoft_gazette'],
                                default='microsoft_gazette', help='Supported workflows.')
 
+    # train with data process
     ap_train = subap.add_parser('train', help='Train models for supported workflows.')
     ap_train.add_argument('--workflow', choices=['brat_to_stanford'],
                           default='brat_to_stanford', help='Supported workflows.')
 
+    # compile needed software
     ap_compile = subap.add_parser('compile', help='Re-compile code for supported workflows.')
     ap_compile.add_argument('--workflow', choices=['brat_to_stanford'],
                             default='brat_to_stanford', help='Supported workflows.')
 
+    # extract using models for the supported workflows
     ap_extract = subap.add_parser('extract', help='Extract relations for supported workflows.')
-    ap_extract.add_argument('--workflow', choices=['spacy', 'brat_to_stanford'],
-                            default='spacy', help='Supported workflows.')
+    ap_extract.add_argument('--workflow', choices=['tetre', 'brat_to_stanford', 'openie_tools'],
+                            default='tetre', help='Supported workflows.')
 
+    # params for the extraction brat_to_stanford workflow
     ap_extract.add_argument('--brat_to_stanford_use_model', action='store_true',
                             help='Defines the attempted run mode: uses Relation Extractor with ' +
                             'the trained model or tries OpenIE.')
@@ -55,6 +61,36 @@ def argparser(argv):
                             help='Attempts bulk processing with the list of files as input, or ' +
                             're-runs the program for each file. WARNING: Although faster, Stanford ' +
                             'CoreNLP can hang when doing the bulk processing.')
+
+    # params for the extraction tetre workflow
+    ap_extract.add_argument('--tetre_format', default='dep_',
+                            help='The format of the tree node accumulator.')
+    ap_extract.add_argument('--tetre_behaviour', choices=['groupby', 'listing', 'simplified_groupby'],
+                            default='simplified_groupby',
+                            help='Switches between tool possible behaviours.')
+    ap_extract.add_argument('--tetre_sampling',
+                            help='A sample only of the results will be returned. ' +
+                            'It accepts a percentage number: 6.5 would give 6.5%.')
+    ap_extract.add_argument('--tetre_seed',
+                            help='Works in conjunction with --tetre_sampling. ' +
+                            'It accepts an integer as a seed: 9389383 would ' +
+                            'seed the random generator with 9389383.')
+    ap_extract.add_argument('--tetre_behaviour_root', default='dep_',
+                            help='Determintes the root of the tree.' +
+                            'E.g.: verb|subj|obj - or accept any other simplified dependency tree tag.')
+    ap_extract.add_argument('--tetre_backend', choices=['spacy'], default='spacy',
+                            help='Within the extraction rules, pluggable backend for pos/dependency parsing ' +
+                            'might be possible in the future.')
+    ap_extract.add_argument('--tetre_output', choices=['html', 'json', 'html_csv'], default='html',
+                            help='The output format. ' +
+                            'Note that html(output folder) | json(stdout) | html_csv(stdout).')
+    ap_extract.add_argument('--tetre_include_external', action='store_true',
+                            help='Include external results from other OpenIE tools.')
+    ap_extract.add_argument('--tetre_output_csv', action='store_true',
+                            help='Also output sentences ID as CVSs. ' +
+                                 'This facilitates cross-checking, e.g.: results evaluation.')
+    ap_extract.add_argument('--tetre_force_clean', action='store_true',
+                            help='Ignores any caching and forces reprocessing. Cache is then regenerated.')
 
     parsed = ap.parse_args(args)
     parsed.root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -84,7 +120,7 @@ def tetre(argv):
     sys.path.insert(0, external_lib_dir)
 
     # routing the commands to each submodule..
-    module = importlib.import_module(ap.subap)
+    module = importlib.import_module('submodules.' + ap.subap)
     module.start(ap)
 
 
