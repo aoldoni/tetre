@@ -18,6 +18,7 @@ dirs = {
     'google_parsey_path':       {'path': 'external/bin/parsey/models/syntaxnet', 'root_distance': '../../../../../'},
     'stanford_ner_path':        {'path': 'external/bin/stanford/ner/'},
     'stanford_corenlp_path':    {'path': 'external/bin/stanford/corenlp/'},
+    'standoff2other_path':      {'path': 'external/lib/standoff2other/'},
     'output_openie':            {'path': 'data/output/openie/'},
     'output_rel':               {'path': 'data/output/rel/'},
     'output_ngram':             {'path': 'data/output/ngram/'},
