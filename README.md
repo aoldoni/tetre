@@ -1,12 +1,12 @@
 # TOOLKIT FOR EXPLORING TEXTS FOR RELATION EXTRACTION
 
-These scripts help utilising existing tools in the task of information extractino in a new corpus. They are mostly standalone commandline tools and functions that do data transformation, and parsing/preparation, while also invoking some other selected third party tools.
+These scripts help utilising existing tools in the task of information extraction in a new corpus composed of academic papers. They are mostly standalone commandline tools and functions that do data transformation, and parsing/preparation, while also invoking some other selected third party tools.
 
 
 # INSTALLATION
 
 - Download this toolkit:  
-    `git clone https://github.com/aoldoni/comp9596.git .`
+    `git clone https://github.com/aoldoni/tetre.git .`
 
 - Create directories (one single big command):  
     `mkdir data models allenai_openie clausie parsey stanford training data/input data/output data/downloaded data/output/html data/output/ngram data/output/openie data/output/rel data/output/cache data/output/comparison data/output/comparison/sentences data/output/comparison/allenai_openie data/output/comparison/mpi_clauseie data/output/comparison/stanford_openie`  

@@ -24,7 +24,7 @@ def setup_dirs():
     for directory in dirs.values():
         current_path = directory['path']
 
-        if not os.path.exists(current_path):
+        if not os.path.exists(current_path) and directory['install']:
             os.makedirs(current_path)
 
 

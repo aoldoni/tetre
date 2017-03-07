@@ -1,7 +1,10 @@
 from openie import *
 from directories import *
 
-from tetre.graph import *
+from tetre.graph import CommandAccumulative
+from tetre.graph_group import CommandGroup
+from tetre.graph_simplified import CommandSimplifiedGroup
+
 from tetre.dependency_helpers import *
 from tetre.possible_relations import *
 

@@ -71,7 +71,7 @@ def argparser(argv):
                             help='Switches between tool possible behaviours.')
     ap_extract.add_argument('--tetre_sampling',
                             help='A sample only of the results will be returned. ' +
-                            'It accepts a percentage number: 6.5 would give 6.5%.')
+                            'It accepts a percentage number: 6.5 would give 6.5 percent.')
     ap_extract.add_argument('--tetre_seed',
                             help='Works in conjunction with --tetre_sampling. ' +
                             'It accepts an integer as a seed: 9389383 would ' +
