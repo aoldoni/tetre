@@ -32,22 +32,15 @@ class CommandSimplifiedGroup(CommandGroup):
 
         for token_original, sentence in get_tokens(self.argv):
 
-            # print("------------------------------------------------------------------")
-            # print()
-            # print()
-            # print(sentence)
-
             img_path = self.process_sentence(sentence)
             token = copy.deepcopy(token_original)
             tree = self.get_node_representation(token)
 
             tree, applied_verb = rule_applier.applyAll(tree, token)
 
-            # print([tree, applied_verb])
-
-            tree_grouping       = tree
-            tree_subj_grouping  = ""
-            tree_obj_grouping   = ""
+            tree_grouping = tree
+            tree_subj_grouping = ""
+            tree_obj_grouping = ""
 
             if self.argv.tetre_behaviour_root != "verb":
                 tree_grouping = ""
@@ -61,22 +54,18 @@ class CommandSimplifiedGroup(CommandGroup):
 
             tree_obj_grouping, tree_subj_grouping, applied_obj_subj = rule_applier_children.applyAll(tree_obj_grouping, tree_subj_grouping, token)
 
-            if ("subj" in self.argv.tetre_behaviour_root):
+            if "subj" in self.argv.tetre_behaviour_root:
                 tree_grouping = tree_subj_grouping
-            if ("obj" in self.argv.tetre_behaviour_root):
+            if "obj" in self.argv.tetre_behaviour_root:
                 tree_grouping = tree_obj_grouping
 
             rules = rule_extraction.applyAll(tree, token, sentence)
-
-            # print()
-            # print()
 
             applied = applied_verb + applied_obj_subj
 
             self.group_accounting_add(tree_grouping, token, sentence, img_path, rules, applied)
 
         self.main_image = self.graph_gen_generate(self.accumulated_parents, self.accumulated_children)
-
         self.groups = self.filter(self.groups)
 
         if self.argv.tetre_output == "json":
@@ -108,7 +97,7 @@ class CommandSimplifiedGroup(CommandGroup):
                 e.node(child_id, "???")
                 e.edge(str(current_id), child_id, label=child)
 
-        img_name = 'command-simplified-group-'+ self.argv.tetre_word + "-" + str(self.current_group_id)
+        img_name = 'command-simplified-group-' + self.argv.tetre_word + "-" + str(self.current_group_id)
         e.render(self.output_path + 'images/' + img_name)
         self.current_group_id += 1
 
@@ -124,11 +113,11 @@ class CommandSimplifiedGroup(CommandGroup):
             group = self.groups[string]
 
             # group["sum"] = group["sum"] + 1
-            group["sentences"].append({ \
-                "sentence": sentence, \
-                "token": token, \
-                "img_path": img_path, \
-                "rules": rules, \
+            group["sentences"].append({
+                "sentence": sentence,
+                "token": token,
+                "img_path": img_path,
+                "rules": rules,
                 "applied": applied
             })
 
@@ -138,13 +127,13 @@ class CommandSimplifiedGroup(CommandGroup):
             if self.argv.tetre_output == "html":
                 img = self.gen_group_image(token, tree, self.depth)
 
-            self.groups[string] = {"representative": tree, \
+            self.groups[string] = {"representative": tree,
                                    # "sum" : 1, \
-                                   "params": len(tree), \
-                                   "img": img, \
-                                   "sentences": [ \
+                                   "params": len(tree),
+                                   "img": img,
+                                   "sentences": [
                                        {"sentence": sentence, "token": token, "img_path": img_path, "rules": rules,
-                                        "applied": applied} \
+                                        "applied": applied}
                                        ]}
 
     def get_results(self, sentence, to=False):
@@ -284,7 +273,7 @@ class CommandSimplifiedGroup(CommandGroup):
             # group = self.groups[key]
 
             t = Template(each_img_accumulator)
-            c = Context({"accumulator_img": group["img"], \
+            c = Context({"accumulator_img": group["img"],
                          "total_group_sentences": len(group["sentences"])})
             all_imgs_html += t.render(c)
 
@@ -295,7 +284,7 @@ class CommandSimplifiedGroup(CommandGroup):
 
             for sentence in group["sentences"]:
 
-                if (self.argv.tetre_output_csv):
+                if self.argv.tetre_output_csv:
                     csv_row = [self.argv.tetre_word,
                                str(sentence["sentence"].file_id) + "-" + str(sentence["sentence"].id) + "-" + str(
                                    sentence["token"].idx)]
@@ -342,7 +331,7 @@ class CommandSimplifiedGroup(CommandGroup):
 
     def filter(self, groups):
 
-        if (self.argv.tetre_sampling == None):
+        if self.argv.tetre_sampling == None:
             return groups
 
         sampling = float(self.argv.tetre_sampling)

@@ -51,7 +51,7 @@ class CommandAccumulative(object):
             self.graph_gen_accumulate(token, self.accumulated_parents, self.accumulated_children)
             self.graph_gen_accumulate(token, self.accumulated_parents_local, self.accumulated_children_local)
 
-            if (self.accumulated_print_each == accumulated_local_count):
+            if self.accumulated_print_each == accumulated_local_count:
                 self.sentence_accumulated_each_imgs.append(
                     self.graph_gen_generate(
                         self.accumulated_parents_local,
@@ -82,7 +82,7 @@ class CommandAccumulative(object):
         # sys.exit()
 
     def process_sentence(self, sentence):
-        self.sentence.append(str(sentence).replace("\r","").replace("\n","").strip())
+        self.sentence.append(str(sentence).replace("\r", "").replace("\n", "").strip())
         if self.argv.tetre_output == "html":
             return self.sentence_to_graph(sentence)
         else:
@@ -90,12 +90,12 @@ class CommandAccumulative(object):
 
     def graph_gen_accumulate(self, token, accumulator_parents, accumulator_children):
         if token.dep_.strip() != "":
-            if (token.dep_ not in accumulator_parents):
+            if token.dep_ not in accumulator_parents:
                 accumulator_parents[token.dep_] = {}
 
             strip_string = self.get_token_representation(token.head)
             if strip_string != "":
-                if (strip_string not in accumulator_parents[token.dep_]):
+                if strip_string not in accumulator_parents[token.dep_]:
                     accumulator_parents[token.dep_][strip_string] = 1
                 else:
                     accumulator_parents[token.dep_][strip_string] += 1
@@ -127,7 +127,7 @@ class CommandAccumulative(object):
 
         e.node(main_node, self.argv.tetre_word)
 
-        total_len_accumulator_children = reduce(lambda a,b: a+b, (len(value) for key, value in accumulator_children.items()), 0)
+        total_len_accumulator_children = reduce(lambda a, b: a+b, (len(value) for key, value in accumulator_children.items()), 0)
 
         i = 0
         for key, value in accumulator_children.items():
@@ -153,7 +153,7 @@ class CommandAccumulative(object):
         return 'images/main_image' + id
 
     def sentence_to_graph_add_node(self, e, current_id, orth_):
-        if (orth_ == self.argv.tetre_word):
+        if orth_ == self.argv.tetre_word:
             e.node(str(current_id), orth_, fillcolor="dimgrey", fontcolor="white", style="filled")
         else:
             e.node(str(current_id), orth_)
@@ -164,9 +164,9 @@ class CommandAccumulative(object):
         img_path = img_dot_path + "." + self.file_extension
         self.sentence_imgs.append(img_path)
 
-        found = get_cached_sentence_image(self.argv, \
-                                            self.output_path, \
-                                            sentence, \
+        found = get_cached_sentence_image(self.argv,
+                                            self.output_path,
+                                            sentence,
                                             self.file_extension)
 
         if (not found):
@@ -231,8 +231,8 @@ class CommandAccumulative(object):
             next_img = min(last_img + self.accumulated_print_each, len(self.sentence_imgs))
 
             t = Template(each_img_accumulator)
-            c = Context({"accumulator_img": self.sentence_accumulated_each_imgs[i], \
-                            "total_group_sentences" : (next_img-last_img)})
+            c = Context({"accumulator_img": self.sentence_accumulated_each_imgs[i],
+                         "total_group_sentences" : (next_img-last_img)})
 
             all_imgs_html += t.render(c)
             each_img_html = ""

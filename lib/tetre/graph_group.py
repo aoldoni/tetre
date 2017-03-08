@@ -63,11 +63,11 @@ class CommandGroup(CommandAccumulative):
             # group["sum"] = group["sum"] + 1
             group["sentences"].append({"sentence": sentence, "token": token, "img_path": img_path})
         else:
-            self.groups[string] = {"representative": tree, \
+            self.groups[string] = {"representative": tree,
                                    # "sum" : 1, \
-                                   "img": self.gen_group_image(token, tree, self.depth), \
-                                   "sentences": [ \
-                                       {"sentence": sentence, "token": token, "img_path": img_path} \
+                                   "img": self.gen_group_image(token, tree, self.depth),
+                                   "sentences": [
+                                       {"sentence": sentence, "token": token, "img_path": img_path}
                                        ]}
 
     def gen_group_image(self, token, tree, depth):
@@ -95,7 +95,7 @@ class CommandGroup(CommandAccumulative):
             current_global_id[str(self.current_token_id)] = child
 
         for child_id, child in current_global_id.items():
-            if (self.take_pos_into_consideration):
+            if self.take_pos_into_consideration:
                 e.node(child_id, child.pos_)
             else:
                 e.node(child_id, "???")
@@ -113,7 +113,7 @@ class CommandGroup(CommandAccumulative):
         max_params = 0
 
         for group in self.groups.values():
-            if (group["params"] > max_params):
+            if group["params"] > max_params:
                 max_params = group["params"]
 
         return max_params
@@ -161,7 +161,7 @@ class CommandGroup(CommandAccumulative):
         for group in group_sorting(self.groups):
 
             t = Template(each_img_accumulator)
-            c = Context({"accumulator_img": group["img"], \
+            c = Context({"accumulator_img": group["img"],
                          "total_group_sentences": len(group["sentences"])})
             all_imgs_html += t.render(c)
 
