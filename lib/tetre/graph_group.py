@@ -42,7 +42,6 @@ class CommandGroup(CommandAccumulative):
         params = self.argv.tetre_format.split(",")
 
         node_representation = token.pos_
-        # node_representation = token.dep_+"/"+token.pos_
         if token.n_lefts + token.n_rights > 0:
             tree = Tree(node_representation,
                         [to_nltk_tree_general(child, attr_list=params, level=0) for child in token.children])
@@ -52,19 +51,14 @@ class CommandGroup(CommandAccumulative):
         return tree
 
     def group_accounting_add(self, tree, token, sentence, img_path):
-        found = False
-
         string = nltk_tree_to_qtree(tree)
-        # string2 = treenode_to_qtree(token)
 
-        if (string in self.groups):
+        if string in self.groups:
             group = self.groups[string]
 
-            # group["sum"] = group["sum"] + 1
             group["sentences"].append({"sentence": sentence, "token": token, "img_path": img_path})
         else:
             self.groups[string] = {"representative": tree,
-                                   # "sum" : 1, \
                                    "img": self.gen_group_image(token, tree, self.depth),
                                    "sentences": [
                                        {"sentence": sentence, "token": token, "img_path": img_path}
@@ -91,7 +85,7 @@ class CommandGroup(CommandAccumulative):
         current_global_id = {}
 
         for child in token.children:
-            self.current_token_id = self.current_token_id + 1
+            self.current_token_id += 1
             current_global_id[str(self.current_token_id)] = child
 
         for child_id, child in current_global_id.items():
@@ -138,10 +132,6 @@ class CommandGroup(CommandAccumulative):
         ]
         django.setup()
 
-        index_group = ""
-        each_img_accumulator = ""
-        each_img = ""
-
         with open(dirs['html_templates']['path'] + 'index_group.html', 'r') as index_group:
             index_group = index_group.read()
 
@@ -155,8 +145,6 @@ class CommandGroup(CommandAccumulative):
 
         all_imgs_html = ""
         max_sentences = 0
-
-        # pprint.pprint(group_sorting(self.groups))
 
         for group in group_sorting(self.groups):
 

@@ -15,5 +15,9 @@ def start(argv):
         import tetre.extract as extract
         extract.run(argv)
 
+    elif argv.workflow == 'openie_tools':
+        import openie_tools.extract as extract
+        extract.run(argv)
+
     else:
         print("Not implemented.")

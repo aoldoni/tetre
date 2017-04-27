@@ -1,5 +1,4 @@
 from openie import *
-from directories import *
 
 from tetre.graph import CommandAccumulative
 from tetre.graph_group import CommandGroup

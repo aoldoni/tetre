@@ -90,7 +90,7 @@ class CommandSimplifiedGroup(CommandGroup):
 
         if hasattr(tree, '__iter__'):
             for child in tree:
-                self.current_token_id = self.current_token_id + 1
+                self.current_token_id += 1
                 current_global_id[str(self.current_token_id)] = child
 
             for child_id, child in current_global_id.items():
@@ -104,15 +104,11 @@ class CommandSimplifiedGroup(CommandGroup):
         return 'images/' + img_name + "." + self.file_extension
 
     def group_accounting_add(self, tree, token, sentence, img_path, rules, applied):
-        found = False
-
         string = nltk_tree_to_qtree(tree)
-        # string2 = treenode_to_qtree(token)
 
-        if (string in self.groups):
+        if string in self.groups:
             group = self.groups[string]
 
-            # group["sum"] = group["sum"] + 1
             group["sentences"].append({
                 "sentence": sentence,
                 "token": token,
@@ -122,13 +118,11 @@ class CommandSimplifiedGroup(CommandGroup):
             })
 
         else:
-
             img = ""
             if self.argv.tetre_output == "html":
                 img = self.gen_group_image(token, tree, self.depth)
 
             self.groups[string] = {"representative": tree,
-                                   # "sum" : 1, \
                                    "params": len(tree),
                                    "img": img,
                                    "sentences": [
@@ -205,9 +199,6 @@ class CommandSimplifiedGroup(CommandGroup):
                text_mpi_clauseie.replace('\n', '<br />')
 
     def graph_gen_html_sentence(self, sentence, i):
-        each_sentence = ""
-        each_sentence_opt = ""
-
         with open(dirs['html_templates']['path'] + 'each_sentence.html', 'r') as each_sentence:
             each_sentence = each_sentence.read()
 
@@ -252,10 +243,6 @@ class CommandSimplifiedGroup(CommandGroup):
         ]
         django.setup()
 
-        index_group = ""
-        each_img_accumulator = ""
-        each_img = ""
-
         with open(dirs['html_templates']['path'] + 'index_group.html', 'r') as index_group:
             index_group = index_group.read()
 
@@ -267,11 +254,7 @@ class CommandSimplifiedGroup(CommandGroup):
         all_imgs_html = ""
         max_sentences = 0
 
-        # pprint.pprint(group_sorting(self.groups))
-
         for group in group_sorting(self.groups):
-            # group = self.groups[key]
-
             t = Template(each_img_accumulator)
             c = Context({"accumulator_img": group["img"],
                          "total_group_sentences": len(group["sentences"])})
@@ -331,7 +314,7 @@ class CommandSimplifiedGroup(CommandGroup):
 
     def filter(self, groups):
 
-        if self.argv.tetre_sampling == None:
+        if self.argv.tetre_sampling is None:
             return groups
 
         sampling = float(self.argv.tetre_sampling)

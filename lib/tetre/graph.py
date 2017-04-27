@@ -38,7 +38,6 @@ class CommandAccumulative(object):
         self.file_extension = "png"
 
         self.output_path = dirs['output_html']['path']
-
         self.file_name = "results-" + argv.tetre_word + ".html"
 
     def run(self):
@@ -79,7 +78,6 @@ class CommandAccumulative(object):
             string_representation.append(getattr(token, param))
 
         return "/".join(string_representation)
-        # sys.exit()
 
     def process_sentence(self, sentence):
         self.sentence.append(str(sentence).replace("\r", "").replace("\n", "").strip())
@@ -169,7 +167,7 @@ class CommandAccumulative(object):
                                             sentence,
                                             self.file_extension)
 
-        if (not found):
+        if not found:
             e = Digraph(self.argv.tetre_word, format=self.file_extension)
             e.attr('node', shape='box')
             e.attr('graph', label=str(sentence))
@@ -190,7 +188,7 @@ class CommandAccumulative(object):
         current_global_id = {}
 
         for child in token.children:
-            self.current_token_id = self.current_token_id + 1
+            self.current_token_id += 1
             current_global_id[str(self.current_token_id)] = child
 
         for child_id, child in current_global_id.items():
@@ -210,10 +208,6 @@ class CommandAccumulative(object):
             }
         ]
         django.setup()
-
-        index = ""
-        each_img_accumulator = ""
-        each_img = ""
 
         with open(dirs['html_templates']['path'] + 'index.html', 'r') as index:
             index = index.read()

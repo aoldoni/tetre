@@ -6,6 +6,7 @@ import argparse
 import os
 import importlib
 
+desc = 'TETRE, a humble Toolit for Exploring Text for Relation Extraction'
 
 def argparser(argv):
     """The command line options for TETRE.
@@ -22,7 +23,7 @@ def argparser(argv):
 
     args = argv[1:]
 
-    ap = argparse.ArgumentParser(description='TETRE, a humble Toolit for Exploring Text for Relation Extraction')
+    ap = argparse.ArgumentParser(description=desc)
     subap = ap.add_subparsers(dest='subap')
 
     ap_setup = subap.add_parser('setup', help='Generate needed setup folders')
@@ -95,10 +96,37 @@ def argparser(argv):
     ap_extract.add_argument('--tetre_word',
                             help='The word being looked for.')
 
+    # params for the extraction openie_tools workflow
+    ap_extract.add_argument('--openie_prepare_sentences', action='store_true',
+                            help='Prepare sentences in the input data folder to be ' +
+                                 'processed externally by the other OpenIE tools.')
+    ap_extract.add_argument('--openie_run_others', choices=["MPICluaseIE", "AllenAIOpenIE", "StanfordOpenIE"],
+                            help='Process prepared sentences using the external tools supported by TETRE.')
+
+    # extract using models for the supported workflows
+    ap_postprocess = subap.add_parser('postprocess', help='General postprocessing and supporting tasks.')
+    ap_postprocess.add_argument('--stats', action='store_true',
+                                help='Shows more popular relations using Spacy.')
+
     parsed = ap.parse_args(args)
     parsed.root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-    return parsed
+    return ap, parsed
+
+
+def validate_arguments(argument_parser, argv):
+    """Basic validation of the command line arguments.
+
+    Args:
+        argument_parser: The command line parser ArgumentParser object.
+        argv: The command line params from default Python argv.
+
+    """
+    if len(argv) == 1:
+        argument_parser.print_help()
+        return False
+
+    return True
 
 
 def tetre(argv):
@@ -110,7 +138,10 @@ def tetre(argv):
     """
 
     # parse command line
-    ap = argparser(argv)
+    argument_parser, ap = argparser(argv)
+
+    if not validate_arguments(argument_parser, argv):
+        return
 
     # add ability to import packages from re-organised folders without
     # adding them to PYTHONPATH

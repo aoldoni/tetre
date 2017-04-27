@@ -1,31 +1,51 @@
-from directories import *
-from pydoc import locate
+from directories import dirs
 
 import os
+
 
 class StanfordOpenIE():
     def __init__(self, args):
         self.args = args
-        self.dir = output_stanford_openie
+        self.output_dir = dirs['output_stanford_openie']['path']
 
-    def run(self, i, o):
-        os.system('java -cp stanford/stanford-corenlp-full-2015-12-09/*:stanford/stanford-ner-2015-12-09/lib/* -Xmx8g edu.stanford.nlp.naturalli.OpenIE -props '+config+'pipeline-openie.properties ' + i + ' 1>' + o)
+    @staticmethod
+    def run(i, o):
+        command = ''.join(['java -cp ', dirs['stanford_corenlp_path']['path'],
+                           '*:', dirs['stanford_corenlp_path']['path'], 'lib/* ',
+                           '-Xmx8g edu.stanford.nlp.naturalli.OpenIE -props ',
+                           dirs['config']['path'], 'pipeline-openie.properties ', i, ' 1>', o])
+
+        os.system(command)
+
 
 class AllenAIOpenIE():
     def __init__(self, args):
         self.args = args
-        self.dir = output_allenai_openie
+        self.output_dir = dirs['output_allenai_openie']['path']
 
-    def run(self, i, o):
-        os.system('(cd allenai_openie/; sbt \'run-main edu.knowitall.openie.OpenIECli --input-file ../'+i+' --ouput-file ../'+o+'\')')
+    @staticmethod
+    def run(i, o):
+        command = ''.join(['(cd ', dirs['allenai_root']['path'],
+                           '; ', 'sbt \'run-main edu.knowitall.openie.OpenIECli --input-file ',
+                           dirs['allenai_root']['root_distance'], i, ' --ouput-file ',
+                           dirs['allenai_root']['root_distance'], o, '\')'])
+
+        os.system(command)
+
 
 class MPICluaseIE():
     def __init__(self, args):
         self.args = args
-        self.dir = output_mpi_clauseie
+        self.output_dir = dirs['output_mpi_clauseie']['path']
 
-    def run(self, i, o):
-        os.system('./clausie/clausie.sh -f '+i+' -o '+o+'')
+    @staticmethod
+    def run(i, o):
+        command = ''.join(['./',
+                           dirs['clauseie_root']['path'],
+                           'clausie.sh -f ', i, ' -o ', o])
+
+        os.system(command)
+
 
 class ExternalInterface():
     def __init__(self, args):
@@ -41,9 +61,9 @@ class ExternalInterface():
 
     def get_interface(self):
 
-        if self.args.run_with_others in self.classes:
-            for the_class in globals():
-                self.interface = globals()[self.args.run_with_others](self.args)
+        class_name = self.args.openie_run_others
+
+        if class_name in self.classes:
+            self.interface = globals()[class_name](self.args)
 
         return self.interface
-
