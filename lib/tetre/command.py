@@ -2,6 +2,8 @@ from parsers_cache import get_cached_sentence_image
 from directories import dirs
 from tree_utils import nltk_tree_to_qtree
 
+file_extension = "png"
+
 
 class ResultsGroupMatcher(object):
     def __init__(self, argv):
@@ -19,10 +21,7 @@ class ResultsGroupMatcher(object):
     def group_accounting_add_by_tree(self, tree, token, sentence, img_path, rules, applied):
         self.group_accounting_add(tree, token, sentence, img_path, tree, rules, applied)
 
-    def group_accounting_add_by_token(self, tree, token, sentence, img_path):
-        self.group_accounting_add(tree, token, sentence, img_path, token)
-
-    def group_accounting_add(self, tree, token, sentence, img_path, representative, rules=[], applied=[]):
+    def group_accounting_add(self, tree, token, sentence, img_path, representative, img_renderer, rules=[], applied=[]):
         string = nltk_tree_to_qtree(tree)
 
         if string in self.groups:
@@ -40,7 +39,7 @@ class ResultsGroupMatcher(object):
             img = ""
 
             if self.argv.tetre_output == "html":
-                img = self.gen_group_image(representative)
+                img = img_renderer.gen_group_image(representative)
 
             self.groups[string] = {"representative": tree,
                                    "params": len(tree),
@@ -84,9 +83,6 @@ class SentencesAccumulator(object):
         self.current_token_id = 0
         self.current_sentence_id = 0
 
-        self.file_extension = "png"
-        self.output_path = dirs['output_html']['path']
-
     def process_sentence(self, sentence):
         self.sentence.append(str(sentence).replace("\r", "").replace("\n", "").strip())
         if self.argv.tetre_output == "html":
@@ -97,16 +93,16 @@ class SentencesAccumulator(object):
     def sentence_to_graph(self, sentence):
         img_name = 'sentence-' + str(sentence.file_id) + "-" + str(sentence.id)
         img_dot_path = 'images/' + img_name
-        img_path = img_dot_path + "." + self.file_extension
+        img_path = img_dot_path + "." + file_extension
         self.sentence_imgs.append(img_path)
 
         found = get_cached_sentence_image(self.argv,
-                                          self.output_path,
+                                          dirs['output_html']['path'],
                                           sentence,
-                                          self.file_extension)
+                                          file_extension)
 
         if not found:
-            e = Digraph(self.argv.tetre_word, format=self.file_extension)
+            e = Digraph(self.argv.tetre_word, format=file_extension)
             e.attr('node', shape='box')
             e.attr('graph', label=str(sentence))
 

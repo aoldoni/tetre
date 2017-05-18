@@ -5,37 +5,24 @@ from django.utils.safestring import mark_safe
 from django.template import Template, Context
 
 from tetre.command_utils import setup_django_template_system
-from tetre.command import SentencesAccumulator, ResultsGroupMatcher
+from tetre.command import SentencesAccumulator, ResultsGroupMatcher, file_extension
 
 from directories import dirs
 from parsers import get_tokens, highlight_word
 from tree_utils import to_nltk_tree_general, group_sorting, get_node_representation
 
 
-class CommandGroup(SentencesAccumulator, ResultsGroupMatcher):
+class GroupImageRenderer(object):
     def __init__(self, argv):
-        SentencesAccumulator.__init__(self, argv)
-        ResultsGroupMatcher.__init__(self, argv)
-
         self.argv = argv
+        self.current_token_id = 0
+        self.current_group_id = 0
 
         self.take_pos_into_consideration = len(
             [params for params in self.argv.tetre_format.split(",") if params == "pos_"])
 
-    def run(self):
-        for token, sentence in get_tokens(self.argv):
-            img_path = self.process_sentence(sentence)
-
-            tree = get_node_representation(self.argv.tetre_format, token)
-
-            self.group_accounting_add_by_token(tree, token, sentence, img_path)
-
-        self.graph_gen_html()
-
-        return
-
     def gen_group_image(self, token, depth = 1):
-        e = Digraph(self.argv.tetre_word, format=self.file_extension)
+        e = Digraph(self.argv.tetre_word, format=file_extension)
         e.attr('node', shape='box')
 
         current_id = self.current_token_id
@@ -44,9 +31,9 @@ class CommandGroup(SentencesAccumulator, ResultsGroupMatcher):
         self.group_to_graph_recursive_with_depth(token, current_id, e, depth)
 
         img_name = 'command-group-' + self.argv.tetre_word + "-" + str(self.current_group_id)
-        e.render(self.output_path + 'images/' + img_name)
+        e.render(dirs['output_html']['path'] + 'images/' + img_name)
         self.current_group_id += 1
-        return 'images/' + img_name + "." + self.file_extension
+        return 'images/' + img_name + "." + file_extension
 
     def group_to_graph_recursive_with_depth(self, token, parent_id, e, depth):
         if len(list(token.children)) == 0 or depth == 0:
@@ -69,6 +56,15 @@ class CommandGroup(SentencesAccumulator, ResultsGroupMatcher):
             self.group_to_graph_recursive_with_depth(child, child_id, e, depth - 1)
 
         return
+
+
+class OutputGenerator(object):
+    def __init__(self, argv, sentence_imgs, sentence, commandgroup):
+        self.argv = argv
+        self.sentence_imgs = sentence_imgs
+        self.sentence = sentence
+        self.groups = commandgroup.groups
+        self.commandgroup = commandgroup
 
     def graph_gen_html(self):
         setup_django_template_system()
@@ -113,8 +109,8 @@ class CommandGroup(SentencesAccumulator, ResultsGroupMatcher):
 
             all_imgs_html += each_img_html
 
-        avg_per_group = self.get_average_per_group()
-        max_num_params = self.get_max_params()
+        avg_per_group = self.commandgroup.get_average_per_group()
+        max_num_params = self.commandgroup.get_max_params()
 
         t = Template(index_group)
         c = Context({"sentences_num": len(self.sentence),
@@ -125,7 +121,36 @@ class CommandGroup(SentencesAccumulator, ResultsGroupMatcher):
                      "max_num_params": max_num_params,
                      "word": self.argv.tetre_word})
 
-        with open(self.output_path + file_name, 'w') as output:
+        with open(dirs['output_html']['path'] + file_name, 'w') as output:
             output.write(t.render(c))
+
+        return
+
+
+class CommandGroup(SentencesAccumulator, ResultsGroupMatcher):
+    def __init__(self, argv):
+        SentencesAccumulator.__init__(self, argv)
+        ResultsGroupMatcher.__init__(self, argv)
+
+        self.img_renderer = GroupImageRenderer(argv)
+
+        self.argv = argv
+
+    def group_accounting_add_by_token(self, tree, token, sentence, img_path):
+        self.group_accounting_add(tree, token, sentence, img_path, token, self.img_renderer)
+
+    def run(self):
+        for token, sentence in get_tokens(self.argv):
+            img_path = self.process_sentence(sentence)
+
+            tree = get_node_representation(self.argv.tetre_format, token)
+
+            self.group_accounting_add_by_token(tree, token, sentence, img_path)
+
+        output_generator = OutputGenerator(self.argv,
+                                           self.sentence_imgs,
+                                           self.sentence,
+                                           self)
+        output_generator.graph_gen_html()
 
         return
