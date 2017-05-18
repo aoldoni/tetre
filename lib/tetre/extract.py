@@ -1,11 +1,6 @@
-from openie import *
-
 from tetre.graph import CommandAccumulative
 from tetre.graph_group import CommandGroup
 from tetre.graph_simplified import CommandSimplifiedGroup
-
-from tetre.dependency_helpers import *
-from tetre.possible_relations import *
 
 
 def argv_preprocessing(argv):
@@ -17,7 +12,6 @@ def argv_preprocessing(argv):
 
 
 def run(argv):
-
     argv = argv_preprocessing(argv)
 
     if (argv.tetre_behaviour == "accumulator"):

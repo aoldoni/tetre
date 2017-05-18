@@ -6,7 +6,8 @@ import argparse
 import os
 import importlib
 
-desc = 'TETRE, a humble Toolit for Exploring Text for Relation Extraction'
+desc = 'TETRE, a humble Toolkit for Exploring Text for Relation Extraction'
+
 
 def argparser(argv):
     """The command line options for TETRE.
@@ -103,7 +104,7 @@ def argparser(argv):
     ap_extract.add_argument('--openie_run_others', choices=["MPICluaseIE", "AllenAIOpenIE", "StanfordOpenIE"],
                             help='Process prepared sentences using the external tools supported by TETRE.')
 
-    # extract using models for the supported workflows
+    # postprocessing tasks
     ap_postprocess = subap.add_parser('postprocess', help='General postprocessing and supporting tasks.')
     ap_postprocess.add_argument('--stats', action='store_true',
                                 help='Shows more popular relations using Spacy.')
@@ -140,6 +141,7 @@ def tetre(argv):
     # parse command line
     argument_parser, ap = argparser(argv)
 
+    # simple arguments validation
     if not validate_arguments(argument_parser, argv):
         return
 

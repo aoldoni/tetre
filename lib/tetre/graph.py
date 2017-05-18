@@ -8,11 +8,10 @@ from django.utils.safestring import mark_safe
 from django.template import Template, Context
 from django.conf import settings
 
-from tree_utils import *
-
 from directories import dirs
 from cache import get_cached_sentence_image
 
+from tree_utils import *
 from tetre.dependency_helpers import *
 
 

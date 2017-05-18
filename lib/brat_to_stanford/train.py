@@ -33,7 +33,7 @@ def transform_ner_from_standoff(file):
     command_line = ''.join(['./' + dirs['standoff2other_path']['path'] + 'standoff2conll.py ',
                         dirs['annotated']['path'], ' ',
                         ' > ' + dirs['transformed']['path'] + 'documents.tsv'])
-    print(command_line)
+
     os.system(command_line)
 
     # from logging import error
@@ -66,7 +66,7 @@ def transform_rel_from_standoff(file, file_postags):
                        '--process_pos_tag_input ',
                        file_postags,
                        ' > ' + dirs['transformed']['path'] + 'stanford-rel-input.corp'])
-    print(command_line)
+
     os.system(command_line)
 
     # from logging import error
@@ -100,9 +100,6 @@ def run_google(argv):
     # go into the dir of installation
     os.chdir(''.join([script_dir, '/', dirs['google_parsey_path']['path']]))
 
-    print(''.join(['cat ', root_dir_distance, dirs['transformed']['path'],
-                   "documents.tsv | awk '{ print $1 }' | syntaxnet/google.sh 1>", root_dir_distance,
-                   dirs['transformed']['path'], 'pos.tsv']))
     os.system(''.join(['cat ', root_dir_distance, dirs['transformed']['path'],
                        "documents.tsv | awk '{ print $1 }' | syntaxnet/google.sh 1>", root_dir_distance,
                        dirs['transformed']['path'], 'pos.tsv']))
