@@ -8,7 +8,8 @@ import sys
 import spacy
 import spacy.en
 from directories import dirs
-from tree_utils import TreeNode, spacysentence_to_fullsentence
+from tree import TreeNode
+from tree_utils import spacysentence_to_fullsentence
 
 
 def raw_parsing(text):

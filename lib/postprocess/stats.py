@@ -1,4 +1,4 @@
-from tetre.dependency_helpers import get_uncached_tokens
+from parsers import get_uncached_tokens
 
 
 class PossibleRelations(object):
@@ -11,13 +11,14 @@ class PossibleRelations(object):
          """
         self.argv = argv
 
-    def run(self):
+    @staticmethod
+    def run():
         """Search more popular verbs (VBZ, VERB, VerbForm=fin Tense=pres Number=sing Person=3).
          """
 
         struct = {}
 
-        for token, sentence in get_uncached_tokens(self.argv):
+        for token, sentence in get_uncached_tokens():
             if token.tag_ == "VBZ":
                 if token.orth_ not in struct:
                     struct[token.orth_] = 1
@@ -40,5 +41,6 @@ def run(argv):
         argv: The command line parameters.
 
     """
-    cmd = PossibleRelations()
-    cmd.run
+
+    cmd = PossibleRelations(argv)
+    cmd.run()

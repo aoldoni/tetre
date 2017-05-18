@@ -1,7 +1,6 @@
 import os
 
 from directories import dirs
-from openie import openie_to_pretty
 
 
 def run_relations_separate_output(argv):
@@ -119,3 +118,9 @@ def run(argv):
         run_relations(argv)
     else:
         run_relations_separate_output(argv)
+
+
+def openie_to_pretty(entry):
+    if len(entry) >=4:
+        return entry[2].strip() + " ( " + entry[1].strip() + " , " + entry[3].strip() + " ) - " + entry[0].strip()
+    return ""

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from tetre.dependency_helpers import *
+from parsers import get_tokens
 from tetre.rule_applier import *
 from tree_utils import find_in_spacynode, merge_nodes
 

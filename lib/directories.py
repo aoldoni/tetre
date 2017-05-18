@@ -24,7 +24,7 @@ dirs = {
     'stanford_corenlp_path':    {'install': True,  'path': 'external/bin/stanford/corenlp/'},
     'allenai_root':             {'install': True,  'path': 'external/bin/allenai/',
                                  'root_distance': '../../../'},
-    'clauseie_root':              {'install': True,  'path': 'external/bin/clausie/'},
+    'clauseie_root':            {'install': True,  'path': 'external/bin/clausie/'},
 
     'standoff2other_path':      {'install': True,  'path': 'external/lib/standoff2other/'},
 

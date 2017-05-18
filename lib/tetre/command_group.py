@@ -1,25 +1,23 @@
 from graphviz import Digraph
+from nltk import Tree
 
-import django
 from django.utils.safestring import mark_safe
 from django.template import Template, Context
-from django.conf import settings
 
-from tree_utils import *
+from tetre.command_utils import setup_django_template_system
+from tetre.command import SentencesAccumulator, ResultsGroupMatcher
+
 from directories import dirs
+from parsers import get_tokens, highlight_word
+from tree_utils import to_nltk_tree_general, group_sorting, get_node_representation
 
-from tetre.graph import CommandAccumulative
-from tetre.dependency_helpers import *
 
-
-class CommandGroup(CommandAccumulative):
+class CommandGroup(SentencesAccumulator, ResultsGroupMatcher):
     def __init__(self, argv):
-        CommandAccumulative.__init__(self, argv)
-        self.argv = argv
-        self.groups = {}
+        SentencesAccumulator.__init__(self, argv)
+        ResultsGroupMatcher.__init__(self, argv)
 
-        self.depth = 1
-        self.current_group_id = 0
+        self.argv = argv
 
         self.take_pos_into_consideration = len(
             [params for params in self.argv.tetre_format.split(",") if params == "pos_"])
@@ -28,43 +26,15 @@ class CommandGroup(CommandAccumulative):
         for token, sentence in get_tokens(self.argv):
             img_path = self.process_sentence(sentence)
 
-            tree = self.get_node_representation(token)
+            tree = get_node_representation(self.argv.tetre_format, token)
 
-            self.group_accounting_add(tree, token, sentence, img_path)
+            self.group_accounting_add_by_token(tree, token, sentence, img_path)
 
-        self.main_image = self.graph_gen_generate(self.accumulated_parents, self.accumulated_children)
         self.graph_gen_html()
 
         return
 
-    def get_node_representation(self, token):
-
-        params = self.argv.tetre_format.split(",")
-
-        node_representation = token.pos_
-        if token.n_lefts + token.n_rights > 0:
-            tree = Tree(node_representation,
-                        [to_nltk_tree_general(child, attr_list=params, level=0) for child in token.children])
-        else:
-            tree = Tree(node_representation, [])
-
-        return tree
-
-    def group_accounting_add(self, tree, token, sentence, img_path):
-        string = nltk_tree_to_qtree(tree)
-
-        if string in self.groups:
-            group = self.groups[string]
-
-            group["sentences"].append({"sentence": sentence, "token": token, "img_path": img_path})
-        else:
-            self.groups[string] = {"representative": tree,
-                                   "img": self.gen_group_image(token, tree, self.depth),
-                                   "sentences": [
-                                       {"sentence": sentence, "token": token, "img_path": img_path}
-                                       ]}
-
-    def gen_group_image(self, token, tree, depth):
+    def gen_group_image(self, token, depth = 1):
         e = Digraph(self.argv.tetre_word, format=self.file_extension)
         e.attr('node', shape='box')
 
@@ -100,37 +70,9 @@ class CommandGroup(CommandAccumulative):
 
         return
 
-    def get_average_per_group(self):
-        return int(self.get_sentence_totals() / len(self.groups))
-
-    def get_max_params(self):
-        max_params = 0
-
-        for group in self.groups.values():
-            if group["params"] > max_params:
-                max_params = group["params"]
-
-        return max_params
-
-    def get_sentence_totals(self):
-        total = 0
-
-        for key, group in self.groups.items():
-            total += len(group["sentences"])
-
-        return total
-
-    def percentage(self, percent, whole):
-        return (percent * whole) / 100.0
-
     def graph_gen_html(self):
-        settings.configure()
-        settings.TEMPLATES = [
-            {
-                'BACKEND': 'django.template.backends.django.DjangoTemplates'
-            }
-        ]
-        django.setup()
+        setup_django_template_system()
+        file_name = "results-" + self.argv.tetre_word + ".html"
 
         with open(dirs['html_templates']['path'] + 'index_group.html', 'r') as index_group:
             index_group = index_group.read()
@@ -183,7 +125,7 @@ class CommandGroup(CommandAccumulative):
                      "max_num_params": max_num_params,
                      "word": self.argv.tetre_word})
 
-        with open(self.output_path + self.file_name, 'w') as output:
+        with open(self.output_path + file_name, 'w') as output:
             output.write(t.render(c))
 
         return

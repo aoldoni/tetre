@@ -5,25 +5,25 @@ import copy
 import random
 import csv
 
-import django
 from django.utils.safestring import mark_safe
 from django.template import Template, Context
-from django.conf import settings
 
-from tree_utils import *
+from tetre.command_utils import setup_django_template_system, percentage
+from tetre.command import SentencesAccumulator, ResultsGroupMatcher
 
 from directories import dirs
 
-from tetre.graph_group import CommandGroup
 from tetre.graph_processing import Process, Reduction
 from tetre.graph_processing_children import ProcessChildren
 from tetre.graph_extraction import ProcessExtraction
-from tetre.dependency_helpers import *
+from parsers import get_tokens, highlight_word
+from tree_utils import group_sorting, get_node_representation
 
 
-class CommandSimplifiedGroup(CommandGroup):
+class CommandSimplifiedGroup(SentencesAccumulator, ResultsGroupMatcher):
     def __init__(self, argv):
-        CommandGroup.__init__(self, argv)
+        SentencesAccumulator.__init__(self, argv)
+        ResultsGroupMatcher.__init__(self, argv)
 
     def run(self):
         rule_applier = Process()
@@ -34,7 +34,7 @@ class CommandSimplifiedGroup(CommandGroup):
 
             img_path = self.process_sentence(sentence)
             token = copy.deepcopy(token_original)
-            tree = self.get_node_representation(token)
+            tree = get_node_representation(self.argv.tetre_format, token)
 
             tree, applied_verb = rule_applier.applyAll(tree, token)
 
@@ -46,13 +46,15 @@ class CommandSimplifiedGroup(CommandGroup):
                 tree_grouping = ""
                 for child in token.children:
                     if self.argv.tetre_behaviour_root in child.dep_:
-                        tree_grouping = self.get_node_representation(child)
+                        tree_grouping = get_node_representation(self.argv.tetre_format, child)
                     if "subj" in child.dep_:
-                        tree_subj_grouping = self.get_node_representation(child)
+                        tree_subj_grouping = get_node_representation(self.argv.tetre_format, child)
                     if "obj" in child.dep_:
-                        tree_obj_grouping = self.get_node_representation(child)
+                        tree_obj_grouping = get_node_representation(self.argv.tetre_format, child)
 
-            tree_obj_grouping, tree_subj_grouping, applied_obj_subj = rule_applier_children.applyAll(tree_obj_grouping, tree_subj_grouping, token)
+            tree_obj_grouping, tree_subj_grouping, applied_obj_subj = rule_applier_children.applyAll(tree_obj_grouping,
+                                                                                                     tree_subj_grouping,
+                                                                                                     token)
 
             if "subj" in self.argv.tetre_behaviour_root:
                 tree_grouping = tree_subj_grouping
@@ -63,9 +65,8 @@ class CommandSimplifiedGroup(CommandGroup):
 
             applied = applied_verb + applied_obj_subj
 
-            self.group_accounting_add(tree_grouping, token, sentence, img_path, rules, applied)
+            self.group_accounting_add_by_tree(tree_grouping, token, sentence, img_path, rules, applied)
 
-        self.main_image = self.graph_gen_generate(self.accumulated_parents, self.accumulated_children)
         self.groups = self.filter(self.groups)
 
         if self.argv.tetre_output == "json":
@@ -73,7 +74,7 @@ class CommandSimplifiedGroup(CommandGroup):
         elif self.argv.tetre_output == "html":
             self.graph_gen_html()
 
-    def gen_group_image(self, token, tree, depth):
+    def gen_group_image(self, tree):
         e = Digraph(self.argv.tetre_word, format=self.file_extension)
         e.attr('node', shape='box')
 
@@ -103,34 +104,7 @@ class CommandSimplifiedGroup(CommandGroup):
 
         return 'images/' + img_name + "." + self.file_extension
 
-    def group_accounting_add(self, tree, token, sentence, img_path, rules, applied):
-        string = nltk_tree_to_qtree(tree)
-
-        if string in self.groups:
-            group = self.groups[string]
-
-            group["sentences"].append({
-                "sentence": sentence,
-                "token": token,
-                "img_path": img_path,
-                "rules": rules,
-                "applied": applied
-            })
-
-        else:
-            img = ""
-            if self.argv.tetre_output == "html":
-                img = self.gen_group_image(token, tree, self.depth)
-
-            self.groups[string] = {"representative": tree,
-                                   "params": len(tree),
-                                   "img": img,
-                                   "sentences": [
-                                       {"sentence": sentence, "token": token, "img_path": img_path, "rules": rules,
-                                        "applied": applied}
-                                       ]}
-
-    def get_results(self, sentence, to=False):
+    def get_results(self, sentence, template):
         rule = Reduction()
 
         has_subj = False
@@ -157,7 +131,7 @@ class CommandSimplifiedGroup(CommandGroup):
                             others_json.append({"relation": dep, "target": value})
                         elif self.argv.tetre_output == "html":
                             c = Context({"opt": dep, "result": value})
-                            others_html += to.render(c)
+                            others_html += template["template"].render(c)
 
         if self.argv.tetre_output == "json":
             return subj, obj, others_json
@@ -179,26 +153,26 @@ class CommandSimplifiedGroup(CommandGroup):
         try:
             with open(allenai_openie, 'r') as text_allenai_openie:
                 text_allenai_openie = text_allenai_openie.read()
-        except:
+        except IOError:
             pass
 
         try:
             with open(stanford_openie, 'r') as text_stanford_openie:
                 text_stanford_openie = text_stanford_openie.read()
-        except:
+        except IOError:
             pass
 
         try:
             with open(mpi_clauseie, 'r') as text_mpi_clauseie:
                 text_mpi_clauseie = text_mpi_clauseie.read()
-        except:
+        except IOError:
             pass
 
-        return text_allenai_openie.replace('\n', '<br />'), \
-               text_stanford_openie.replace('\n', '<br />'), \
-               text_mpi_clauseie.replace('\n', '<br />')
+        return text_allenai_openie.replace('\n', '<br />'),\
+            text_stanford_openie.replace('\n', '<br />'),\
+            text_mpi_clauseie.replace('\n', '<br />')
 
-    def graph_gen_html_sentence(self, sentence, i):
+    def graph_gen_html_sentence(self, sentence):
         with open(dirs['html_templates']['path'] + 'each_sentence.html', 'r') as each_sentence:
             each_sentence = each_sentence.read()
 
@@ -207,7 +181,7 @@ class CommandSimplifiedGroup(CommandGroup):
 
         to = Template(each_sentence_opt)
 
-        subj, obj, others = self.get_results(sentence, to)
+        subj, obj, others = self.get_results(sentence, {"html": True, "template": to})
 
         text_allenai_openie = text_stanford_openie = text_mpi_clauseie = ""
 
@@ -235,21 +209,14 @@ class CommandSimplifiedGroup(CommandGroup):
         return ts.render(c)
 
     def graph_gen_html(self):
-        settings.configure()
-        settings.TEMPLATES = [
-            {
-                'BACKEND': 'django.template.backends.django.DjangoTemplates'
-            }
-        ]
-        django.setup()
+        setup_django_template_system()
+        file_name = "results-" + self.argv.tetre_word + ".html"
 
         with open(dirs['html_templates']['path'] + 'index_group.html', 'r') as index_group:
             index_group = index_group.read()
 
         with open(dirs['html_templates']['path'] + 'each_img_accumulator.html', 'r') as each_img_accumulator:
             each_img_accumulator = each_img_accumulator.read()
-
-        i = 0
 
         all_imgs_html = ""
         max_sentences = 0
@@ -275,8 +242,7 @@ class CommandSimplifiedGroup(CommandGroup):
                     wr = csv.writer(sys.stdout, quoting=csv.QUOTE_ALL)
                     wr.writerow(csv_row)
 
-                each_sentence_html += self.graph_gen_html_sentence(sentence, i)
-                i += 1
+                each_sentence_html += self.graph_gen_html_sentence(sentence)
 
             all_imgs_html += each_sentence_html
 
@@ -292,7 +258,7 @@ class CommandSimplifiedGroup(CommandGroup):
                      "max_num_params": max_num_params,
                      "word": self.argv.tetre_word})
 
-        with open(self.output_path + self.file_name, 'w') as output:
+        with open(self.output_path + file_name, 'w') as output:
             output.write(t.render(c))
 
         return
@@ -302,7 +268,7 @@ class CommandSimplifiedGroup(CommandGroup):
 
         for group in group_sorting(self.groups):
             for sentence in group["sentences"]:
-                subj, obj, others = self.get_results(sentence)
+                subj, obj, others = self.get_results(sentence, {"html": False, "template": None})
 
                 json_result.append(
                     {"sentence": str(sentence["sentence"]),
@@ -326,7 +292,7 @@ class CommandSimplifiedGroup(CommandGroup):
 
         for key, group in self.groups.items():
 
-            qty = int(self.percentage(sampling, len(group["sentences"])))
+            qty = int(percentage(sampling, len(group["sentences"])))
 
             if qty < 1:
                 qty = 1
