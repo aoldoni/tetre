@@ -14,6 +14,7 @@ from directories import dirs
 from tree_utils import get_token_representation
 from parsers import get_tokens
 
+
 accumulated_print_each = 10
 
 

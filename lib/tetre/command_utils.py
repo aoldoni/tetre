@@ -1,6 +1,7 @@
 import django
 from django.conf import settings
 
+
 def setup_django_template_system():
     settings.configure()
     settings.TEMPLATES = [

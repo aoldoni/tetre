@@ -9,7 +9,7 @@ from django.utils.safestring import mark_safe
 from django.template import Template, Context
 
 from tetre.command_utils import setup_django_template_system, percentage
-from tetre.command import SentencesAccumulator, ResultsGroupMatcher
+from tetre.command import SentencesAccumulator, ResultsGroupMatcher, file_extension
 
 from directories import dirs
 
@@ -20,62 +20,14 @@ from parsers import get_tokens, highlight_word
 from tree_utils import group_sorting, get_node_representation
 
 
-class CommandSimplifiedGroup(SentencesAccumulator, ResultsGroupMatcher):
+class GroupImageRenderer(object):
     def __init__(self, argv):
-        SentencesAccumulator.__init__(self, argv)
-        ResultsGroupMatcher.__init__(self, argv)
-
-    def run(self):
-        rule_applier = Process()
-        rule_applier_children = ProcessChildren()
-        rule_extraction = ProcessExtraction()
-
-        for token_original, sentence in get_tokens(self.argv):
-
-            img_path = self.process_sentence(sentence)
-            token = copy.deepcopy(token_original)
-            tree = get_node_representation(self.argv.tetre_format, token)
-
-            tree, applied_verb = rule_applier.applyAll(tree, token)
-
-            tree_grouping = tree
-            tree_subj_grouping = ""
-            tree_obj_grouping = ""
-
-            if self.argv.tetre_behaviour_root != "verb":
-                tree_grouping = ""
-                for child in token.children:
-                    if self.argv.tetre_behaviour_root in child.dep_:
-                        tree_grouping = get_node_representation(self.argv.tetre_format, child)
-                    if "subj" in child.dep_:
-                        tree_subj_grouping = get_node_representation(self.argv.tetre_format, child)
-                    if "obj" in child.dep_:
-                        tree_obj_grouping = get_node_representation(self.argv.tetre_format, child)
-
-            tree_obj_grouping, tree_subj_grouping, applied_obj_subj = rule_applier_children.applyAll(tree_obj_grouping,
-                                                                                                     tree_subj_grouping,
-                                                                                                     token)
-
-            if "subj" in self.argv.tetre_behaviour_root:
-                tree_grouping = tree_subj_grouping
-            if "obj" in self.argv.tetre_behaviour_root:
-                tree_grouping = tree_obj_grouping
-
-            rules = rule_extraction.applyAll(tree, token, sentence)
-
-            applied = applied_verb + applied_obj_subj
-
-            self.group_accounting_add_by_tree(tree_grouping, token, sentence, img_path, rules, applied)
-
-        self.groups = self.filter(self.groups)
-
-        if self.argv.tetre_output == "json":
-            self.graph_gen_json()
-        elif self.argv.tetre_output == "html":
-            self.graph_gen_html()
+        self.argv = argv
+        self.current_token_id = 0
+        self.current_group_id = 0
 
     def gen_group_image(self, tree):
-        e = Digraph(self.argv.tetre_word, format=self.file_extension)
+        e = Digraph(self.argv.tetre_word, format=file_extension)
         e.attr('node', shape='box')
 
         current_id = self.current_token_id
@@ -99,10 +51,17 @@ class CommandSimplifiedGroup(SentencesAccumulator, ResultsGroupMatcher):
                 e.edge(str(current_id), child_id, label=child)
 
         img_name = 'command-simplified-group-' + self.argv.tetre_word + "-" + str(self.current_group_id)
-        e.render(self.output_path + 'images/' + img_name)
+        e.render(dirs['output_html']['path'] + 'images/' + img_name)
         self.current_group_id += 1
 
-        return 'images/' + img_name + "." + self.file_extension
+        return 'images/' + img_name + "." + file_extension
+
+
+class OutputGenerator(object):
+    def __init__(self, argv, command_simplified_group):
+        self.argv = argv
+        self.groups = command_simplified_group.groups
+        self.command_simplified_group = command_simplified_group
 
     def get_results(self, sentence, template):
         rule = Reduction()
@@ -246,11 +205,11 @@ class CommandSimplifiedGroup(SentencesAccumulator, ResultsGroupMatcher):
 
             all_imgs_html += each_sentence_html
 
-        avg_per_group = self.get_average_per_group()
-        max_num_params = self.get_max_params()
+        avg_per_group = self.command_simplified_group.get_average_per_group()
+        max_num_params = self.command_simplified_group.get_max_params()
 
         t = Template(index_group)
-        c = Context({"sentences_num": self.get_sentence_totals(),
+        c = Context({"sentences_num": self.command_simplified_group.get_sentence_totals(),
                      "groups_num": len(self.groups),
                      "max_group_num": max_sentences,
                      "average_per_group": avg_per_group,
@@ -258,7 +217,7 @@ class CommandSimplifiedGroup(SentencesAccumulator, ResultsGroupMatcher):
                      "max_num_params": max_num_params,
                      "word": self.argv.tetre_word})
 
-        with open(self.output_path + file_name, 'w') as output:
+        with open(dirs['output_html']['path'] + file_name, 'w') as output:
             output.write(t.render(c))
 
         return
@@ -277,6 +236,19 @@ class CommandSimplifiedGroup(SentencesAccumulator, ResultsGroupMatcher):
                      "rules_applied": ",".join(sentence["applied"])})
 
         print(json.dumps(json_result, sort_keys=True))
+
+
+class CommandSimplifiedGroup(SentencesAccumulator, ResultsGroupMatcher):
+    def __init__(self, argv):
+        SentencesAccumulator.__init__(self, argv)
+        ResultsGroupMatcher.__init__(self, argv)
+
+        self.img_renderer = GroupImageRenderer(argv)
+
+        self.argv = argv
+
+    def group_accounting_add_by_tree(self, tree, token, sentence, img_path, rules, applied):
+        self.group_accounting_add(tree, token, sentence, img_path, tree, self.img_renderer, rules, applied)
 
     def filter(self, groups):
 
@@ -310,3 +282,54 @@ class CommandSimplifiedGroup(SentencesAccumulator, ResultsGroupMatcher):
                 )
 
         return simplified_groups
+
+    def run(self):
+        rule_applier = Process()
+        rule_applier_children = ProcessChildren()
+        rule_extraction = ProcessExtraction()
+
+        for token_original, sentence in get_tokens(self.argv):
+
+            img_path = self.process_sentence(sentence)
+            token = copy.deepcopy(token_original)
+            tree = get_node_representation(self.argv.tetre_format, token)
+
+            tree, applied_verb = rule_applier.applyAll(tree, token)
+
+            tree_grouping = tree
+            tree_subj_grouping = ""
+            tree_obj_grouping = ""
+
+            if self.argv.tetre_behaviour_root != "verb":
+                tree_grouping = ""
+                for child in token.children:
+                    if self.argv.tetre_behaviour_root in child.dep_:
+                        tree_grouping = get_node_representation(self.argv.tetre_format, child)
+                    if "subj" in child.dep_:
+                        tree_subj_grouping = get_node_representation(self.argv.tetre_format, child)
+                    if "obj" in child.dep_:
+                        tree_obj_grouping = get_node_representation(self.argv.tetre_format, child)
+
+            tree_obj_grouping, tree_subj_grouping, applied_obj_subj = rule_applier_children.applyAll(tree_obj_grouping,
+                                                                                                     tree_subj_grouping,
+                                                                                                     token)
+
+            if "subj" in self.argv.tetre_behaviour_root:
+                tree_grouping = tree_subj_grouping
+            if "obj" in self.argv.tetre_behaviour_root:
+                tree_grouping = tree_obj_grouping
+
+            rules = rule_extraction.applyAll(tree, token, sentence)
+
+            applied = applied_verb + applied_obj_subj
+
+            self.group_accounting_add_by_tree(tree_grouping, token, sentence, img_path, rules, applied)
+
+        self.groups = self.filter(self.groups)
+
+        output_generator = OutputGenerator(self.argv, self)
+
+        if self.argv.tetre_output == "json":
+            output_generator.graph_gen_json()
+        elif self.argv.tetre_output == "html":
+            output_generator.graph_gen_html()

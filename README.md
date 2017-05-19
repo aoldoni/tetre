@@ -2,6 +2,7 @@
 
 These scripts help utilising existing tools in the task of information extraction in a new corpus composed of academic papers. They are mostly standalone commandline tools and functions that do data transformation, and parsing/preparation, while also invoking some other selected third party tools.
 
+- Add link to master thesis https://raw.githubusercontent.com/aoldoni/comp9596-master-thesis/master/thesis.pdf
 
 # INSTALLATION
 
@@ -186,3 +187,5 @@ Different output, JSON pretty output:
 - This toolkit already contains an enhanced version of Sampo Pyysalo's library https://github.com/spyysalo/standoff2conll which generates files in the Stanford's Relation Extractor training formar, based on the Brat's annotation standoff format.
 - Add a note regarding the customizations needed for the Relation Extractor. https://github.com/stanfordnlp/CoreNLP/issues/359
 - Add a note in here on how to use my custom stanford src code as to re-compile stanford corenlp, and specify the older 2016 versino.
+
+- Add an example on how to add a new growth/reduction/child rule.

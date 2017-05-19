@@ -1,6 +1,7 @@
 from nltk import Tree
 from tree import TreeNode, FullSentence
 
+
 def to_nltk_tree_general(node, attr_list=["dep_", "pos_"], level = 99999):
     """Tranforms a Spacy dependency tree into an NLTK tree, with certain spacy tree node attributes serving
     as parts of the NLTK tree node label content for uniqueness.
@@ -77,6 +78,7 @@ def get_node_representation(tetre_format, token):
 
     return tree
 
+
 def get_token_representation(tetre_format, token):
     string_representation = []
     params = tetre_format.split(",")
@@ -84,6 +86,7 @@ def get_token_representation(tetre_format, token):
         string_representation.append(getattr(token, param))
 
     return "/".join(string_representation)
+
 
 def spacynode_to_treenode(spacy_token, parent = None, root = None, string_representation = ""):
     node = TreeNode(spacy_token.dep_, spacy_token.pos_, spacy_token.orth_, \
@@ -178,6 +181,7 @@ def find_in_spacynode(node, dep, orth):
                 return result
 
     return False 
+
 
 def merge_nodes(nodes, under = False):
     idx = 0

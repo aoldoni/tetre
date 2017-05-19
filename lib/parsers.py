@@ -17,7 +17,7 @@ def should_skip_file(fn):
      """
     jump_list = ["thumbs.db", ".DS_Store"]
 
-    if fn in jump_list:
+    if any(fn in each_fn for each_fn in jump_list):
         return True
     else:
         return False
