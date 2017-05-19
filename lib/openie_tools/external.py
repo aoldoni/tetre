@@ -1,7 +1,9 @@
+import os
+
 from tetre.dependency_helpers import get_tokens
+from parsers import should_skip_file
 from openie_tools.interfaces import ExternalInterface
 from directories import dirs
-import os
 
 
 class ExternalToolsPrepare():
@@ -45,8 +47,7 @@ class ExternalToolsRun():
         lst.sort()
 
         for fn in lst:
-
-            if fn == ".DS_Store":
+            if should_skip_file(fn):
                 continue
 
             if self.args.tetre_word not in fn:

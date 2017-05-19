@@ -1,6 +1,7 @@
 import os
 
 from directories import dirs
+from parsers import should_skip_file
 
 
 def run_relations_separate_output(argv):
@@ -13,7 +14,7 @@ def run_relations_separate_output(argv):
     """
 
     for fn in os.listdir(dirs['raw_input']['path']):
-        if fn == ".DS_Store":
+        if should_skip_file(fn):
             continue
 
         name = dirs['raw_input']['path'] + fn
@@ -69,7 +70,7 @@ def run_relations(argv):
     filename = 'filelist.txt'
 
     for fn in os.listdir(dirs['raw_input']['path']):
-        if fn == ".DS_Store":
+        if should_skip_file(fn):
             continue
 
         names.append(dirs['raw_input']['path'] + fn)

@@ -8,7 +8,7 @@ import sys
 import spacy
 import spacy.en
 from directories import dirs
-from tree import TreeNode
+from parsers import should_skip_file
 from tree_utils import spacysentence_to_fullsentence
 
 
@@ -42,7 +42,7 @@ def get_tree_from_spacy(argv):
     for fn in lst:
         file_id += 1
 
-        if (fn == ".DS_Store"):
+        if should_skip_file(fn):
             continue
 
         name = dirs['raw_input']['path'] + fn
@@ -81,7 +81,7 @@ def get_tree_from_stanford(argv):
     for fn in lst:
         file_id += 1
 
-        if (fn == ".DS_Store"):
+        if should_skip_file(fn):
             continue
 
         name = dirs['raw_input']['path'] + fn
