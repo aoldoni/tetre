@@ -66,10 +66,9 @@ def group_sorting(groups):
 
 
 def get_node_representation(tetre_format, token):
-
     params = tetre_format.split(",")
-
     node_representation = token.pos_
+
     if token.n_lefts + token.n_rights > 0:
         tree = Tree(node_representation,
                     [to_nltk_tree_general(child, attr_list=params, level=0) for child in token.children])
@@ -114,31 +113,11 @@ def spacynode_to_treenode(spacy_token, parent = None, root = None, string_repres
 
 
 def spacysentence_to_fullsentence(spacy_sentence, file_id, sentence_id):
-    tree_node   = spacynode_to_treenode(spacy_sentence.root)
-
-    sentence    = FullSentence(tree_node, file_id, sentence_id)
+    tree_node = spacynode_to_treenode(spacy_sentence.root)
+    sentence = FullSentence(tree_node, file_id, sentence_id)
     sentence.set_string_representation(str(spacy_sentence))
 
     return sentence
-
-
-def treenode_to_qtree(tree, level = 1, first = True):
-    if level < 0:
-        return ""
-
-    self_result = " [ "
-
-    if first:
-        self_result += " " + tree.to_comparable_value_as_head() + " "
-    else:
-        self_result += " " + tree.to_comparable_value_as_child() + " "
-
-    if len(tree.children) > 0:
-        self_result += " ".join([treenode_to_qtree(node, level-1, False) for node in sorted(tree.children, key=lambda node: node.to_comparable_value_as_child())])
-
-    self_result += " ] "
-
-    return self_result
 
 
 def nltk_tree_to_qtree(tree):
@@ -159,9 +138,6 @@ def nltk_tree_to_qtree(tree):
 
 
 def find_in_spacynode(node, dep, orth):
-    
-    # print(",".join([node.orth_, orth, node.dep_, dep]))
-
     if dep != "" and orth != "":
         if dep in node.dep_ and orth == node.orth_:
             return node
@@ -195,9 +171,9 @@ def merge_nodes(nodes, under = False):
 
     if not under:
         under = TreeNode(nodes[0].dep_, "", "",
-                    idx // len(nodes),
-                    n_lefts,
-                    n_rights)
+                         idx // len(nodes),
+                         n_lefts,
+                         n_rights)
 
     for node in nodes:
         under.children.append(node)

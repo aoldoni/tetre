@@ -1,7 +1,6 @@
 
 
 class TreeNode(object):
-
     def __init__(self, dep_, pos_, orth_, idx, n_lefts, n_rights):
         self.children = []
 
@@ -67,7 +66,8 @@ class TreeNode(object):
         self_representation = "\n" + (level*"\t") + "  (" + self.orth_ + "/" + self.dep_ + "/" + self.pos_ + ")  "
 
         if len(self.children) > 0:
-            return self_representation + " [ " + "".join([child.to_tree_string(level+1) for child in self.children]) + " ] "
+            return self_representation + " [ " +\
+                   "".join([child.to_tree_string(level+1) for child in self.children]) + " ] "
 
         return self_representation
 
