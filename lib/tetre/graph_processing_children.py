@@ -2,6 +2,7 @@
 from tetre.rule_applier import *
 from tree_utils import find_in_spacynode
 
+
 class Children(RuleApplier):
     def __init__(self):
         RuleApplier.__init__(self)

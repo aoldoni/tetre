@@ -31,8 +31,8 @@ def transform_ner_from_standoff(file):
 
     # alternative as library for the following command line
     command_line = ''.join(['./' + dirs['standoff2other_path']['path'] + 'standoff2conll.py ',
-                        dirs['annotated']['path'], ' ',
-                        ' > ' + dirs['transformed']['path'] + 'documents.tsv'])
+                            dirs['annotated']['path'], ' ',
+                            ' > ' + dirs['transformed']['path'] + 'documents.tsv'])
 
     os.system(command_line)
 
@@ -61,11 +61,11 @@ def transform_rel_from_standoff(file, file_postags):
     """
     # alternative as library for the following command line
     command_line = ''.join(['./' + dirs['standoff2other_path']['path'] + 'standoff2conll.py ',
-                       dirs['annotated']['path'], ' ',
-                       '--process ROTHANDYIH ',
-                       '--process_pos_tag_input ',
-                       file_postags,
-                       ' > ' + dirs['transformed']['path'] + 'stanford-rel-input.corp'])
+                            dirs['annotated']['path'], ' ',
+                            '--process ROTHANDYIH ',
+                            '--process_pos_tag_input ',
+                            file_postags,
+                            ' > ' + dirs['transformed']['path'] + 'stanford-rel-input.corp'])
 
     os.system(command_line)
 

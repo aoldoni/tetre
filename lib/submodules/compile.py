@@ -8,8 +8,8 @@ def start(argv):
 
     """
     if argv.workflow == 'brat_to_stanford':
-        import brat_to_stanford.compile as compile
-        compile.regenerate(argv)
+        import brat_to_stanford.compile as stanford_compile
+        stanford_compile.regenerate(argv)
 
     if argv.workflow != 'brat_to_stanford':
         print("Not implemented.")

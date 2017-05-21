@@ -60,7 +60,7 @@ class GroupImageRenderer(object):
 class OutputGenerator(object):
     def __init__(self, argv, command_simplified_group):
         self.argv = argv
-        self.groups = command_simplified_group.groups
+        self.groups = command_simplified_group.get_groups()
         self.command_simplified_group = command_simplified_group
 
     def get_results(self, sentence, template):

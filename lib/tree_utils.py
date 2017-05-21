@@ -87,7 +87,7 @@ def get_token_representation(tetre_format, token):
     return "/".join(string_representation)
 
 
-def spacynode_to_treenode(spacy_token, parent = None, root = None, string_representation = ""):
+def spacynode_to_treenode(spacy_token, parent=None, root=None):
     node = TreeNode(spacy_token.dep_, spacy_token.pos_, spacy_token.orth_,
                     spacy_token.idx, spacy_token.n_lefts, spacy_token.n_rights)
 
@@ -159,7 +159,7 @@ def find_in_spacynode(node, dep, orth):
     return False 
 
 
-def merge_nodes(nodes, under = False):
+def merge_nodes(nodes, under=False):
     idx = 0
     n_lefts = 0
     n_rights = 0

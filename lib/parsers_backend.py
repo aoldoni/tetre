@@ -63,36 +63,36 @@ def get_tree_from_spacy(argv):
 
             for token in sentence_tree:
                 if token.orth_.lower() == argv.tetre_word.lower():
-                    sentences.append( (token, sentence_tree) )
+                    sentences.append((token, sentence_tree))
 
     return sentences
 
 
-def get_tree_from_stanford(argv):
-    sentences = []
-
-    file_id = 0
-
-    lst = os.listdir(dirs['raw_input']['path'])
-    lst.sort()
-
-    for fn in lst:
-        file_id += 1
-
-        if should_skip_file(fn):
-            continue
-
-        # name = dirs['raw_input']['path'] + fn
-
-        # raw_text = ''
-        # with open(name, 'r') as file_input:
-            # raw_text = file_input.read()
-
-    # from nltk.parse.stanford import StanfordDependencyParser
-    # dep_parser=StanfordNeuralDependencyParser(model_path="edu/stanford/nlp/models/lexparser/englishPCFG.ser.gz")
-    # print [parse.tree() for parse in dep_parser.raw_parse("The quick brown fox jumps over the lazy dog.")]
-
-    return sentences
+# def get_tree_from_stanford(argv):
+#     sentences = []
+#
+#     file_id = 0
+#
+#     lst = os.listdir(dirs['raw_input']['path'])
+#     lst.sort()
+#
+#     for fn in lst:
+#         file_id += 1
+#
+#         if should_skip_file(fn):
+#             continue
+#
+#         name = dirs['raw_input']['path'] + fn
+#
+#         raw_text = ''
+#         with open(name, 'r') as file_input:
+#             raw_text = file_input.read()
+#
+#     from nltk.parse.stanford import StanfordDependencyParser
+#     dep_parser=StanfordNeuralDependencyParser(model_path="edu/stanford/nlp/models/lexparser/englishPCFG.ser.gz")
+#     print [parse.tree() for parse in dep_parser.raw_parse("The quick brown fox jumps over the lazy dog.")]
+#
+#     return sentences
 
 
 def get_tree(argv):

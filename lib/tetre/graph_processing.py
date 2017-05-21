@@ -132,7 +132,7 @@ class Growth(RuleApplier):
                 is_but = False
                 other_conj_exists = False
                 has_subj = False
-                has_obj = False
+                # has_obj = False
 
                 for j in range(0, len(children_list)):
                     if token_head.children[j].dep_ in "cc" \
@@ -143,8 +143,8 @@ class Growth(RuleApplier):
                         other_conj_exists = True
                     if "subj" in token_head.children[j].dep_:
                         has_subj = True
-                    if "obj" in token_head.children[j].dep_:
-                        has_obj = True
+                    # if "obj" in token_head.children[j].dep_:
+                    #     has_obj = True
 
                 for i in range(0, len(children_list)):
                     is_other_conj = token_head.children[i].dep_ == "conj" and token_head.children[i] != token
@@ -161,7 +161,7 @@ class Growth(RuleApplier):
                     cond_subj = not is_but and is_subj
                     cond_dobj = not is_but and not has_subj and is_obj
                     cond_conj_other = is_but and not is_subj and other_conj_exists and \
-                                      is_other_conj and not is_sub_child
+                        is_other_conj and not is_sub_child
                     cond_conj_same = is_but and not other_conj_exists and is_subj
 
                     if cond_subj or \

@@ -10,7 +10,7 @@ class RuleApplier(object):
         self.translation_rules = \
             [
                 (['nsubj', 'csubj', 'nsubjpass', 'csubjpass'], 'subj'),
-                (['dobj','iobj','pobj'], 'obj'),
+                (['dobj', 'iobj', 'pobj'], 'obj'),
                 (['npadvmod', 'amod', 'advmod', 'nummod', 'quantmod', 'rcmod', 'tmod', 'vmod'], 'mod')
             ]
         return
@@ -34,7 +34,7 @@ class RuleApplier(object):
         # if nothing is found, returns itself
         return tag
 
-    def apply(self, nltk_tree, spacy_tree, tree_root = ""):
+    def apply(self, nltk_tree, spacy_tree, tree_root=""):
 
         try:
             root = nltk_tree.label()
@@ -60,7 +60,7 @@ class RuleApplier(object):
                 root, node_set, spacy_tree, is_applied = rule(self, root, node_set, root_spacy_tree)
 
                 if is_applied:
-                    rule_representation = str(rule).replace("<function ","")
+                    rule_representation = str(rule).replace("<function ", "")
                     rule_representation = rule_representation[:rule_representation.find(" at")]
                     applied.append(rule_representation)
 

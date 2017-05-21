@@ -24,8 +24,8 @@ class TreeNode(object):
     def add_child(self, child):
         self.children.append(child)
 
-    def remove_child(self, id):
-        self.children.pop(id)
+    def remove_child(self, node_id):
+        self.children.pop(node_id)
 
     def set_head(self, head):
         self.head = head
@@ -74,7 +74,7 @@ class TreeNode(object):
     def to_comparable_value_as_child(self):
         result = []
         for rule in self.comparing_rule_child:
-            result.append(getattr(self,rule))
+            result.append(getattr(self, rule))
 
         return "/".join(result)
 

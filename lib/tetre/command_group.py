@@ -1,5 +1,4 @@
 from graphviz import Digraph
-from nltk import Tree
 
 from django.utils.safestring import mark_safe
 from django.template import Template, Context
@@ -63,7 +62,7 @@ class OutputGenerator(object):
         self.argv = argv
         self.sentence_imgs = sentence_imgs
         self.sentence = sentence
-        self.groups = commandgroup.groups
+        self.groups = commandgroup.get_groups()
         self.commandgroup = commandgroup
 
     def graph_gen_html(self):
