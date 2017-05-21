@@ -1,7 +1,6 @@
 import os
 
-from directories import dirs
-from parsers import should_skip_file
+from directories import dirs, should_skip_file
 
 
 def run_relations_separate_output(argv):
@@ -122,6 +121,6 @@ def run(argv):
 
 
 def openie_to_pretty(entry):
-    if len(entry) >=4:
+    if len(entry) >= 4:
         return entry[2].strip() + " ( " + entry[1].strip() + " , " + entry[3].strip() + " ) - " + entry[0].strip()
     return ""

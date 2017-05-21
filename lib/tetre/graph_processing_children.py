@@ -5,7 +5,7 @@ from tree_utils import find_in_spacynode
 class Children(RuleApplier):
     def __init__(self):
         RuleApplier.__init__(self)
-        self.tags_to_be_removed = set(['det', ' ', ''])
+        self.tags_to_be_removed = {'det', ' ', ''}
         return
 
     def bring_grandchild_prep_or_relcl_up_as_child(self, root, node_set, spacy_tree):
@@ -73,7 +73,7 @@ class Children(RuleApplier):
                 changed = False
 
                 prep = find_in_spacynode(node, dep_, orth_)
-                if prep == False:
+                if not prep:
                     break
 
                 # print ("1", prep.dep_, prep.orth_, prep.idx)

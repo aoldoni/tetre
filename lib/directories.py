@@ -43,6 +43,23 @@ dirs = {
 }
 
 
+def should_skip_file(fn):
+    """List of file names that should skipped once looping through input files
+
+    Args:
+        fn: The filename to be checked.
+
+    Returns:
+        A boolean representing if the words should be skipped or not
+     """
+    jump_list = ["thumbs.db", ".DS_Store"]
+
+    if any(fn in each_fn for each_fn in jump_list):
+        return True
+    else:
+        return False
+
+
 # models = 'models/'
 # config = 'config/'
 #

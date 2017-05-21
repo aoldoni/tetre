@@ -59,7 +59,7 @@ class RuleApplier(object):
 
         applied = []
 
-        if root_spacy_tree != None:
+        if root_spacy_tree is not None:
             # print("will apply 2!")
             for rule in self.get_rules():
                 # print("will apply 3!")

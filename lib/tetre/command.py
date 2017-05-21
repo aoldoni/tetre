@@ -18,7 +18,7 @@ class ResultsGroupMatcher(object):
     def set_groups(self, groups):
         self.groups = groups
 
-    def group_accounting_add(self, tree, token, sentence, img_path, representative, img_renderer, rules=[], applied=[]):
+    def group_accounting_add(self, tree, token, sentence, img_path, representative, img_renderer, rules=(), applied=()):
         string = nltk_tree_to_qtree(tree)
 
         if string in self.groups:

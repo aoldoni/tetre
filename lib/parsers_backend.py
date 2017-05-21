@@ -7,8 +7,7 @@ import sys
 
 import spacy
 import spacy.en
-from directories import dirs
-from parsers import should_skip_file
+from directories import dirs, should_skip_file
 from tree_utils import spacysentence_to_fullsentence
 
 
@@ -47,10 +46,8 @@ def get_tree_from_spacy(argv):
 
         name = dirs['raw_input']['path'] + fn
 
-        raw_text = ''
-
-        with open(name, 'r') as input:
-            raw_text = input.read()
+        with open(name, 'r') as file_input:
+            raw_text = file_input.read()
 
         if argv.tetre_word not in raw_text:
             continue
@@ -65,10 +62,11 @@ def get_tree_from_spacy(argv):
             sentence_tree = spacysentence_to_fullsentence(sentence, file_id, sentence_id)
 
             for token in sentence_tree:
-                if (token.orth_.lower() == argv.tetre_word.lower()):
+                if token.orth_.lower() == argv.tetre_word.lower():
                     sentences.append( (token, sentence_tree) )
 
     return sentences
+
 
 def get_tree_from_stanford(argv):
     sentences = []
@@ -84,12 +82,11 @@ def get_tree_from_stanford(argv):
         if should_skip_file(fn):
             continue
 
-        name = dirs['raw_input']['path'] + fn
+        # name = dirs['raw_input']['path'] + fn
 
-        raw_text = ''
-
-        with open(name, 'r') as input:
-            raw_text = input.read()
+        # raw_text = ''
+        # with open(name, 'r') as file_input:
+            # raw_text = file_input.read()
 
     # from nltk.parse.stanford import StanfordDependencyParser
     # dep_parser=StanfordNeuralDependencyParser(model_path="edu/stanford/nlp/models/lexparser/englishPCFG.ser.gz")
@@ -97,10 +94,11 @@ def get_tree_from_stanford(argv):
 
     return sentences
 
+
 def get_tree(argv):
-    if (argv.tetre_backend == "spacy"):
+    if argv.tetre_backend == "spacy":
         return get_tree_from_spacy(argv)
-    elif (argv.tetre_backend == "stanford"):
+    elif argv.tetre_backend == "stanford":
         print("Not implemented!")
         # return get_tree_from_stanford(argv)
     return

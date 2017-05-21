@@ -2,7 +2,7 @@ from nltk import Tree
 from tree import TreeNode, FullSentence
 
 
-def to_nltk_tree_general(node, attr_list=["dep_", "pos_"], level = 99999):
+def to_nltk_tree_general(node, attr_list=("dep_", "pos_"), level=99999):
     """Tranforms a Spacy dependency tree into an NLTK tree, with certain spacy tree node attributes serving
     as parts of the NLTK tree node label content for uniqueness.
 
@@ -89,7 +89,7 @@ def get_token_representation(tetre_format, token):
 
 
 def spacynode_to_treenode(spacy_token, parent = None, root = None, string_representation = ""):
-    node = TreeNode(spacy_token.dep_, spacy_token.pos_, spacy_token.orth_, \
+    node = TreeNode(spacy_token.dep_, spacy_token.pos_, spacy_token.orth_,
                     spacy_token.idx, spacy_token.n_lefts, spacy_token.n_rights)
 
     if isinstance(parent, TreeNode):
@@ -133,7 +133,7 @@ def treenode_to_qtree(tree, level = 1, first = True):
     else:
         self_result += " " + tree.to_comparable_value_as_child() + " "
 
-    if (len(tree.children) > 0):
+    if len(tree.children) > 0:
         self_result += " ".join([treenode_to_qtree(node, level-1, False) for node in sorted(tree.children, key=lambda node: node.to_comparable_value_as_child())])
 
     self_result += " ] "
@@ -144,10 +144,10 @@ def treenode_to_qtree(tree, level = 1, first = True):
 def nltk_tree_to_qtree(tree):
     self_result = " [ "
 
-    if (isinstance(tree, Tree)):
+    if isinstance(tree, Tree):
         self_result += " " + tree.label() + " "
 
-        if (len(tree) > 0):
+        if len(tree) > 0:
             self_result += " ".join([nltk_tree_to_qtree(node) for node in sorted(tree)])
 
     else:
@@ -177,7 +177,7 @@ def find_in_spacynode(node, dep, orth):
         for child in node.children:
             results.append(find_in_spacynode(child, dep, orth))
         for result in results:
-            if result != False:
+            if result:
                 return result
 
     return False 
@@ -193,10 +193,10 @@ def merge_nodes(nodes, under = False):
         n_lefts += node.n_lefts
         n_rights += node.n_rights
 
-    if under == False:
-        under = TreeNode(nodes[0].dep_, "", "", \
-                    idx // len(nodes), \
-                    n_lefts, \
+    if not under:
+        under = TreeNode(nodes[0].dep_, "", "",
+                    idx // len(nodes),
+                    n_lefts,
                     n_rights)
 
     for node in nodes:

@@ -2,7 +2,7 @@ from directories import dirs
 import os
 
 
-class StanfordOpenIE():
+class StanfordOpenIE:
     def __init__(self, argv):
         """Initializes default interface parameters and stores command line parameters internally.
 
@@ -30,7 +30,7 @@ class StanfordOpenIE():
         os.system(command)
 
 
-class AllenAIOpenIE():
+class AllenAIOpenIE:
     def __init__(self, argv):
         """Initializes default interface parameters and stores command line parameters internally.
 
@@ -58,7 +58,7 @@ class AllenAIOpenIE():
         os.system(command)
 
 
-class MPICluaseIE():
+class MPICluaseIE:
     def __init__(self, argv):
         """Initializes default interface parameters and stores command line parameters internally.
 
@@ -83,7 +83,7 @@ class MPICluaseIE():
         os.system(command)
 
 
-class ExternalInterface():
+class ExternalInterface:
     def __init__(self, argv):
         """Initializes default interface parameters and stores command line parameters internally.
 

@@ -36,14 +36,14 @@ class Growth(RuleApplier):
 
         upwards = ["relcl", "ccomp"]
 
-        #adjust tree
+        # adjust tree
         token = spacy_tree
         token_head = spacy_tree
 
         # print("0", token.to_tree_string())
         # print("0", token_head.to_tree_string())
 
-        if (token_head.dep_ in upwards and token_head.head != token):
+        if token_head.dep_ in upwards and token_head.head != token:
             token_head = token_head.head
 
             # print("1", token.to_tree_string())
@@ -55,7 +55,7 @@ class Growth(RuleApplier):
 
             children_list = token.children[:]
             for i in range(0, len(children_list)):
-                if (children_list[i].dep_ in self.subs):
+                if children_list[i].dep_ in self.subs:
                     hasSubj = True
 
                     # print(token.children[i].orth_, token.children[i].pos_)
@@ -83,14 +83,14 @@ class Growth(RuleApplier):
             # print("2", token.to_tree_string())
             # print("2", token_head.to_tree_string())
 
-            if (isChanging):
+            if isChanging:
                 isApplied = True
                 children_list = token_head.children[:]
                 for i in range(0, len(children_list)):
-                    if (children_list[i].idx == token.idx):
+                    if children_list[i].idx == token.idx:
                         token_head.children.pop(i)
 
-                        #adjust representation
+                        # adjust representation
                         node_set.append(self.downwards_subj)
 
                 # print("3", token.to_tree_string())
@@ -155,10 +155,10 @@ class Growth(RuleApplier):
                 changed = False
                 children_list = token_head.children[:]
 
-                isBut           = False
+                isBut = False
                 otherConjExists = False
-                hasSubj         = False
-                hasObj          = False
+                hasSubj = False
+                hasObj = False
 
                 for j in range(0, len(children_list)):
                     if token_head.children[j].dep_ in "cc" \
@@ -185,7 +185,7 @@ class Growth(RuleApplier):
                     isObj = token_head.children[i].dep_ in self.objs
 
                     nodeResult = find_in_spacynode(token_head.children[i], token.dep_, token.orth_)
-                    if nodeResult != False:
+                    if nodeResult:
                         isSubChild = True
                     else:
                         isSubChild = False
@@ -193,7 +193,7 @@ class Growth(RuleApplier):
                     cond_subj = not isBut and isSubj
                     cond_dobj = not isBut and not hasSubj and isObj
                     cond_conj_other = isBut and not isSubj and otherConjExists and isOtherConj and not isSubChild
-                    cond_conj_same  = isBut and not otherConjExists and isSubj
+                    cond_conj_same = isBut and not otherConjExists and isSubj
 
                     # print("1", isOtherConj)
                     # print("1", cond_subj)
@@ -201,10 +201,10 @@ class Growth(RuleApplier):
                     # print("1", cond_conj_same)
                     # print("1", isBut)
 
-                    if  (cond_subj) or \
-                        (cond_conj_other) or \
-                        (cond_dobj) or \
-                        (cond_conj_same):
+                    if cond_subj or \
+                        cond_conj_other or \
+                        cond_dobj or \
+                        cond_conj_same:
 
                         isApplied = True
 
@@ -218,9 +218,9 @@ class Growth(RuleApplier):
                             token_head.children[i].dep_ = self.downwards_subj
 
                         # adjust representation
-                        node_set.append(token_head.children[i].dep_ )
+                        node_set.append(token_head.children[i].dep_)
 
-                        #adjust actual tree
+                        # adjust actual tree
                         token.children.append(token_head.children[i])
                         token_head.children[i].head = token
                         token_head.children.pop(i)
@@ -281,7 +281,7 @@ class Growth(RuleApplier):
                     isApplied = True
 
                     child.dep_ = target
-                    node_set = [target if node==replace else node for node in node_set]
+                    node_set = [target if node == replace else node for node in node_set]
                     break
 
         node_set = set([self.rewrite_dp_tag(node) for node in node_set])
@@ -311,7 +311,7 @@ class Growth(RuleApplier):
                     isApplied = True
 
                     child.dep_ = target
-                    node_set = [target if node==replace else node for node in node_set]
+                    node_set = [target if node == replace else node for node in node_set]
 
         node_set = list(set([self.rewrite_dp_tag(node) for node in node_set]))
         return root, node_set, spacy_tree, isApplied
@@ -325,13 +325,12 @@ class Growth(RuleApplier):
 
             In the first sentence, the relation uses(which; automatically generated synonyms) could have been extracted by getting the nsubj dependency and transforming it to be the child's dobj. The same is valid for the second example.
         """
-        isApplied       = False
-
         token = spacy_tree
         token_head = token.head
 
-        hasSubj         = False
-        hasObj          = False
+        isApplied = False
+        hasSubj = False
+        hasObj = False
 
         for j in range(0, len(token.children)):
             if "subj" in token.children[j].dep_:
@@ -341,16 +340,16 @@ class Growth(RuleApplier):
 
         # print(0, hasObj, hasSubj, "subj" in token.dep_ and hasSubj and not hasObj)
 
-        if ("subj" in token.dep_ and hasSubj and not hasObj):
+        if "subj" in token.dep_ and hasSubj and not hasObj:
             isApplied = True
             
             children_list = token_head.children[:]
 
             for i in range(0, len(children_list)):
-                if (children_list[i].idx == token.idx):
+                if children_list[i].idx == token.idx:
                     token_head.children.pop(i)
 
-                    #adjust representation
+                    # adjust representation
                     node_set.append(self.downwards_obj)
 
             token_head.dep_ = self.downwards_obj
@@ -363,7 +362,7 @@ class Growth(RuleApplier):
 class Reduction(RuleApplier):
     def __init__(self):
         RuleApplier.__init__(self)
-        self.tags_to_be_removed = set(['punct', 'mark', ' ', '', 'meta'])
+        self.tags_to_be_removed = {'punct', 'mark', ' ', '', 'meta'}
 
     @RuleApplier.register_function
     def remove_duplicates(self, root, node_set, spacy_tree):
@@ -422,7 +421,7 @@ class Reduction(RuleApplier):
             # print("group", group, count)
 
             if count < 2:
-                continue;
+                continue
 
             changed = True
             while changed:
@@ -445,6 +444,7 @@ class Reduction(RuleApplier):
             child.head = spacy_tree
 
         return root, node_set, spacy_tree, isApplied
+
 
 class Process(object):
     def __init__(self):

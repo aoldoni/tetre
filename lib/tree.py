@@ -41,11 +41,12 @@ class TreeNode(object):
     def set_root(self, root):
         self.root = root
 
-    def sort(self, flat_list):
+    @staticmethod
+    def sort(flat_list):
         return sorted(list(flat_list), key=lambda obj: obj.idx)
 
     def to_sentence_list(self, to_sort=True):
-        if (to_sort):
+        if to_sort:
             sorted_sentence = self.sort(flatten_list(self.to_sentence_list_internal()))
         else:
             sorted_sentence = flatten_list(self.to_sentence_list_internal())
@@ -56,7 +57,7 @@ class TreeNode(object):
         return " ".join([t.orth_ for t in self.to_sentence_list()])
 
     def to_sentence_list_internal(self):
-        if self.nofollow == True:
+        if self.nofollow:
             return []
 
         sentence = [self] + [child.to_sentence_list_internal() for child in self.children if not child.nofollow]

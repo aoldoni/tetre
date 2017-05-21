@@ -32,6 +32,7 @@ class Extraction(RuleApplier):
 
         return relations
 
+
 class ProcessExtraction(object):
     def __init__(self):
         self.extraction = Extraction()

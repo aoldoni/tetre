@@ -1,12 +1,11 @@
 import os
 
 from tetre.dependency_helpers import get_tokens
-from parsers import should_skip_file
 from openie_tools.interfaces import ExternalInterface
-from directories import dirs
+from directories import dirs, should_skip_file
 
 
-class ExternalToolsPrepare():
+class ExternalToolsPrepare:
     """Obtains the segments from the sentences, but only the sentences containing the token being searched for.
     Each sentence for the occurrence of the token is then saved in a separate file.
     Each file will then later serve as an input for the external tools.
@@ -29,7 +28,7 @@ class ExternalToolsPrepare():
         return
 
 
-class ExternalToolsRun():
+class ExternalToolsRun:
     """Lists all files from the preparation directory and then run the selected external tool on the file.
     Each file contains one sentence.
     """

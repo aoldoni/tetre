@@ -21,7 +21,7 @@ class GroupImageRenderer(object):
         self.take_pos_into_consideration = len(
             [params for params in self.argv.tetre_format.split(",") if params == "pos_"])
 
-    def gen_group_image(self, token, depth = 1):
+    def gen_group_image(self, token, depth=1):
         e = Digraph(self.argv.tetre_word, format=file_extension)
         e.attr('node', shape='box')
 

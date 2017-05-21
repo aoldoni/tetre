@@ -325,7 +325,7 @@ class CommandSimplifiedGroup(SentencesAccumulator, ResultsGroupMatcher):
 
             self.group_accounting_add_by_tree(tree_grouping, token, sentence, img_path, rules, applied)
 
-        self.groups = self.filter(self.groups)
+        self.set_groups(self.filter(self.get_groups()))
 
         output_generator = OutputGenerator(self.argv, self)
 

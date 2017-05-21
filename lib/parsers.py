@@ -1,26 +1,8 @@
 import spacy
 import os
 
-from nltk import Tree
-from directories import dirs
+from directories import dirs, should_skip_file
 from parsers_cache import get_cached_tokens
-
-
-def should_skip_file(fn):
-    """List of file names that should skipped once looping through input files
-
-    Args:
-        fn: The filename to be checked.
-
-    Returns:
-        A boolean representing if the words should be skipped or not
-     """
-    jump_list = ["thumbs.db", ".DS_Store"]
-
-    if any(fn in each_fn for each_fn in jump_list):
-        return True
-    else:
-        return False
 
 
 def get_uncached_tokens():
