@@ -1,8 +1,8 @@
+from graphviz import Digraph
+
 from parsers_cache import get_cached_sentence_image
 from directories import dirs
 from tree_utils import nltk_tree_to_qtree
-
-from graphviz import Digraph
 
 file_extension = "png"
 

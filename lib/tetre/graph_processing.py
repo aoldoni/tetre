@@ -1,7 +1,7 @@
+from functools import reduce
+
 from tetre.rule_applier import *
 from tree_utils import find_in_spacynode, merge_nodes
-
-from functools import reduce
 
 
 class Growth(RuleApplier):

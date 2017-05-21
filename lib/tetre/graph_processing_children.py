@@ -1,4 +1,3 @@
-# from tetre.dependency_helpers import *
 from tetre.rule_applier import *
 from tree_utils import find_in_spacynode
 
