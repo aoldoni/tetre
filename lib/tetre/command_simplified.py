@@ -294,7 +294,7 @@ class CommandSimplifiedGroup(SentencesAccumulator, ResultsGroupMatcher):
             token = copy.deepcopy(token_original)
             tree = get_node_representation(self.argv.tetre_format, token)
 
-            tree, applied_verb = rule_applier.applyAll(tree, token)
+            tree, applied_verb = rule_applier.apply_all(tree, token)
 
             tree_grouping = tree
             tree_subj_grouping = ""
@@ -310,16 +310,17 @@ class CommandSimplifiedGroup(SentencesAccumulator, ResultsGroupMatcher):
                     if "obj" in child.dep_:
                         tree_obj_grouping = get_node_representation(self.argv.tetre_format, child)
 
-            tree_obj_grouping, tree_subj_grouping, applied_obj_subj = rule_applier_children.applyAll(tree_obj_grouping,
-                                                                                                     tree_subj_grouping,
-                                                                                                     token)
+            tree_obj_grouping, tree_subj_grouping, applied_obj_subj = \
+                rule_applier_children.apply_all(tree_obj_grouping,
+                                                tree_subj_grouping,
+                                                token)
 
             if "subj" in self.argv.tetre_behaviour_root:
                 tree_grouping = tree_subj_grouping
             if "obj" in self.argv.tetre_behaviour_root:
                 tree_grouping = tree_obj_grouping
 
-            rules = rule_extraction.applyAll(tree, token, sentence)
+            rules = rule_extraction.apply_all(tree, token, sentence)
 
             applied = applied_verb + applied_obj_subj
 

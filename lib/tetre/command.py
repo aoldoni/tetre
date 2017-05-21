@@ -2,6 +2,8 @@ from parsers_cache import get_cached_sentence_image
 from directories import dirs
 from tree_utils import nltk_tree_to_qtree
 
+from graphviz import Digraph
+
 file_extension = "png"
 
 
@@ -106,7 +108,7 @@ class SentencesAccumulator(object):
             current_id = self.current_token_id
             self.sentence_to_graph_add_node(e, current_id, sentence.root.orth_)
             self.sentence_to_graph_recursive(sentence.root, current_id, e)
-            e.render(self.output_path + img_dot_path)
+            e.render(dirs['output_html']['path'] + img_dot_path)
 
         self.current_sentence_id += 1
 
@@ -130,3 +132,9 @@ class SentencesAccumulator(object):
             self.sentence_to_graph_recursive(child, child_id, e)
 
         return
+
+    def sentence_to_graph_add_node(self, e, current_id, orth_):
+        if orth_ == self.argv.tetre_word:
+            e.node(str(current_id), orth_, fillcolor="dimgrey", fontcolor="white", style="filled")
+        else:
+            e.node(str(current_id), orth_)

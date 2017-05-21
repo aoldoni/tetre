@@ -1,4 +1,3 @@
-# from tetre.dependency_helpers import *
 from tetre.rule_applier import *
 
 
@@ -11,7 +10,7 @@ class Extraction(RuleApplier):
         result = {}
 
         for child in spacy_tree.children:
-            if child.nofollow:
+            if child.no_follow:
                 continue
 
             if child.dep_ not in result:
@@ -38,6 +37,6 @@ class ProcessExtraction(object):
         self.extraction = Extraction()
         return
 
-    def applyAll(self, nltk_tree, spacy_tree, sentence):
+    def apply_all(self, nltk_tree, spacy_tree, sentence):
         relations = self.extraction.apply(nltk_tree, spacy_tree)
         return relations

@@ -1,18 +1,18 @@
 from nltk import Tree
 
+
 class RuleApplier(object):
     deco_list = []
 
     def __init__(self):
-        ## c.f. the grouping at http://universaldependencies.org/u/dep/all.html#al-u-dep/nsubjpass
-        ##
+        # c.f. the grouping at http://universaldependencies.org/u/dep/all.html#al-u-dep/nsubjpass
         # rule1: subject
         self.translation_rules = \
-        [
-            (['nsubj', 'csubj', 'nsubjpass', 'csubjpass'], 'subj'),
-            (['dobj','iobj','pobj'], 'obj'),
-            (['npadvmod', 'amod', 'advmod', 'nummod', 'quantmod', 'rcmod', 'tmod', 'vmod'], 'mod')
-        ]
+            [
+                (['nsubj', 'csubj', 'nsubjpass', 'csubjpass'], 'subj'),
+                (['dobj','iobj','pobj'], 'obj'),
+                (['npadvmod', 'amod', 'advmod', 'nummod', 'quantmod', 'rcmod', 'tmod', 'vmod'], 'mod')
+            ]
         return
 
     @staticmethod
@@ -31,7 +31,7 @@ class RuleApplier(object):
             if tag in source_tags:
                 return target_tag
 
-        # if nothing, return itself
+        # if nothing is found, returns itself
         return tag
 
     def apply(self, nltk_tree, spacy_tree, tree_root = ""):
@@ -47,26 +47,17 @@ class RuleApplier(object):
 
         root_spacy_tree = spacy_tree
 
-        # print("1 root", tree_root, root, node_set, root_spacy_tree, spacy_tree)
-
         if tree_root != "":
             root_spacy_tree = None
             for child in spacy_tree.children:
                 if tree_root in child.dep_:
                     root_spacy_tree = child
 
-        # print("2 root", tree_root, root, node_set, root_spacy_tree, spacy_tree)
-
         applied = []
 
         if root_spacy_tree is not None:
-            # print("will apply 2!")
             for rule in self.get_rules():
-                # print("will apply 3!")
-
                 root, node_set, spacy_tree, is_applied = rule(self, root, node_set, root_spacy_tree)
-
-                # print(self.__class__.__name__, rule, "during", [root, node_set], is_applied)
 
                 if is_applied:
                     rule_representation = str(rule).replace("<function ","")

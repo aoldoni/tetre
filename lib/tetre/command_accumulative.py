@@ -59,12 +59,6 @@ class GroupImageRenderer(object):
 
         return 'images/main_image' + image_id
 
-    def sentence_to_graph_add_node(self, e, current_id, orth_):
-        if orth_ == self.argv.tetre_word:
-            e.node(str(current_id), orth_, fillcolor="dimgrey", fontcolor="white", style="filled")
-        else:
-            e.node(str(current_id), orth_)
-
 
 class OutputGenerator(object):
     def __init__(self, argv, sentence_accumulated_each_imgs, sentence_imgs, sentence):

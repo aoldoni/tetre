@@ -5,8 +5,8 @@ class TreeNode(object):
     def __init__(self, dep_, pos_, orth_, idx, n_lefts, n_rights):
         self.children = []
 
-        self.comparing_rule_head    = ["pos_"]
-        self.comparing_rule_child   = ["dep_"]
+        self.comparing_rule_head = ["pos_"]
+        self.comparing_rule_child = ["dep_"]
 
         self.dep_ = dep_
         self.pos_ = pos_
@@ -16,7 +16,7 @@ class TreeNode(object):
         self.n_lefts = n_lefts
         self.n_rights = n_rights
 
-        self.nofollow = False
+        self.no_follow = False
 
         self.root = None
         self.head = None
@@ -57,13 +57,13 @@ class TreeNode(object):
         return " ".join([t.orth_ for t in self.to_sentence_list()])
 
     def to_sentence_list_internal(self):
-        if self.nofollow:
+        if self.no_follow:
             return []
 
-        sentence = [self] + [child.to_sentence_list_internal() for child in self.children if not child.nofollow]
+        sentence = [self] + [child.to_sentence_list_internal() for child in self.children if not child.no_follow]
         return sentence
 
-    def to_tree_string(self, level = 1):
+    def to_tree_string(self, level=1):
         self_representation = "\n" + (level*"\t") + "  (" + self.orth_ + "/" + self.dep_ + "/" + self.pos_ + ")  "
 
         if len(self.children) > 0:
@@ -81,35 +81,12 @@ class TreeNode(object):
     def to_comparable_value_as_head(self):
         result = []
         for rule in self.comparing_rule_head:
-            result.append(getattr(self,rule))
+            result.append(getattr(self, rule))
 
         return "/".join(result)
 
     def __str__(self):
         return self.orth_
-
-    # def __eq__(self, other):
-    #     if self.__class__ is not other.__class__:
-    #         return False
-
-    #     for rule in self.comparing_rule_head:
-    #         if not getattr(self,rule) == getattr(self,other):
-    #             return False
-
-    #     # Parents are the same, continue checking the children.
-    #     return recursive_child_compare(self, other)
-
-    # @staticmethod
-    # def recursive_child_compare(self, other):
-    #     other_list = list(other.children)
-
-    #     for child in self.children:
-    #         if child in other_list:
-
-    #     # This code is incomplete
-    #     for rule in self.comparing_rule_head:
-    #         if not getattr(self,rule) == getattr(self,other):
-    #             return False
 
 
 class FullSentence(object):
