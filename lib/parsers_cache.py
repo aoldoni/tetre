@@ -5,9 +5,8 @@ from parsers_backend import get_tree
 from directories import dirs
 
 
-def get_cached_sentence_image(argv, output_path, sentence, file_extension):
-    img_name = 'sentence-'+str(sentence.file_id)+"-"+str(sentence.id)
-    cache_file_final = output_path + 'images/' + img_name + "." + file_extension
+def get_cached_sentence_image(argv, output_path, img_path):
+    cache_file_final = output_path + img_path
 
     if argv.tetre_force_clean:
         return False
