@@ -4,7 +4,24 @@ from parsers_cache import get_cached_sentence_image
 from directories import dirs
 from tree_utils import nltk_tree_to_qtree
 
-file_extension = "png"
+
+class GroupImageNameGenerator(object):
+    file_extension = "png"
+    base_image_path = "images/"
+
+    def __init__(self, base, word, file_id=""):
+        self.base = base
+        self.word = word
+        self.file_id = file_id
+
+    def get_base_path(self):
+        return self.base + "-" + self.word + "-" + self.file_id
+
+    def get_base_path_with_extension(self):
+        return self.base_image_path + self.get_base_path() + "." + self.file_extension
+
+    def get_render_path(self):
+        return dirs['output_html']['path'] + self.base_image_path + self.get_base_path()
 
 
 class ResultsGroupMatcher(object):
@@ -73,6 +90,8 @@ class ResultsGroupMatcher(object):
 
 
 class SentencesAccumulator(object):
+    base_image_name = 'sentence'
+
     def __init__(self, argv):
         self.argv = argv
 
@@ -90,29 +109,29 @@ class SentencesAccumulator(object):
             return ""
 
     def sentence_to_graph(self, sentence):
-        img_name = 'sentence-' + str(sentence.file_id) + "-" + str(sentence.id)
-        img_dot_path = 'images/' + img_name
-        img_path = img_dot_path + "." + file_extension
-        self.sentence_imgs.append(img_path)
+        name_generator = GroupImageNameGenerator(self.base_image_name,
+                                                 self.argv.tetre_word,
+                                                 str(sentence.file_id) + "-" + str(sentence.id))
+
+        self.sentence_imgs.append(name_generator.get_base_path_with_extension())
 
         found = get_cached_sentence_image(self.argv,
                                           dirs['output_html']['path'],
-                                          sentence,
-                                          file_extension)
+                                          name_generator.get_base_path_with_extension())
 
         if not found:
-            e = Digraph(self.argv.tetre_word, format=file_extension)
+            e = Digraph(self.argv.tetre_word, format=GroupImageNameGenerator.file_extension)
             e.attr('node', shape='box')
             e.attr('graph', label=str(sentence))
 
             current_id = self.current_token_id
             self.sentence_to_graph_add_node(e, current_id, sentence.root.orth_)
             self.sentence_to_graph_recursive(sentence.root, current_id, e)
-            e.render(dirs['output_html']['path'] + img_dot_path)
+            e.render(name_generator.get_render_path())
 
         self.current_sentence_id += 1
 
-        return img_path
+        return name_generator.get_base_path_with_extension()
 
     def sentence_to_graph_recursive(self, token, parent_id, e):
         if len(list(token.children)) == 0:

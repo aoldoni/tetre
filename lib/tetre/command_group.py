@@ -4,7 +4,7 @@ from django.utils.safestring import mark_safe
 from django.template import Template, Context
 
 from tetre.command_utils import setup_django_template_system
-from tetre.command import SentencesAccumulator, ResultsGroupMatcher, file_extension
+from tetre.command import SentencesAccumulator, ResultsGroupMatcher, GroupImageNameGenerator
 
 from directories import dirs
 from parsers import get_tokens, highlight_word
@@ -12,6 +12,8 @@ from tree_utils import to_nltk_tree_general, group_sorting, get_node_representat
 
 
 class GroupImageRenderer(object):
+    base_image_name = 'command-group'
+
     def __init__(self, argv):
         self.argv = argv
         self.current_token_id = 0
@@ -21,7 +23,7 @@ class GroupImageRenderer(object):
             [params for params in self.argv.tetre_format.split(",") if params == "pos_"])
 
     def gen_group_image(self, token, depth=1):
-        e = Digraph(self.argv.tetre_word, format=file_extension)
+        e = Digraph(self.argv.tetre_word, format=GroupImageNameGenerator.file_extension)
         e.attr('node', shape='box')
 
         current_id = self.current_token_id
@@ -29,10 +31,12 @@ class GroupImageRenderer(object):
 
         self.group_to_graph_recursive_with_depth(token, current_id, e, depth)
 
-        img_name = 'command-group-' + self.argv.tetre_word + "-" + str(self.current_group_id)
-        e.render(dirs['output_html']['path'] + 'images/' + img_name)
+        name_generator = GroupImageNameGenerator(self.base_image_name, self.argv.tetre_word, str(self.current_group_id))
+        e.render(name_generator.get_render_path())
+
         self.current_group_id += 1
-        return 'images/' + img_name + "." + file_extension
+
+        return name_generator.get_base_path_with_extension()
 
     def group_to_graph_recursive_with_depth(self, token, parent_id, e, depth):
         if len(list(token.children)) == 0 or depth == 0:

@@ -7,7 +7,7 @@ from django.utils.safestring import mark_safe
 from django.template import Template, Context
 
 from tetre.command_utils import setup_django_template_system
-from tetre.command import SentencesAccumulator, file_extension
+from tetre.command import SentencesAccumulator, GroupImageNameGenerator
 
 from directories import dirs
 
@@ -19,11 +19,13 @@ accumulated_print_each = 10
 
 
 class GroupImageRenderer(object):
+    base_image_name = 'accumulated'
+
     def __init__(self, argv):
         self.argv = argv
 
     def graph_gen_generate(self, accumulator_parents, accumulator_children, image_id=""):
-        e = Digraph(self.argv.tetre_word, format=file_extension)
+        e = Digraph(self.argv.tetre_word, format=GroupImageNameGenerator.file_extension)
         e.attr('node', shape='box')
 
         main_node = "A"
@@ -55,9 +57,10 @@ class GroupImageRenderer(object):
 
             i += 1
 
-        e.render(dirs['output_html']['path'] + 'images/main_image' + image_id)
+        name_generator = GroupImageNameGenerator(self.base_image_name, self.argv.tetre_word, image_id)
+        e.render(name_generator.get_render_path())
 
-        return 'images/main_image' + image_id
+        return name_generator.get_base_path_with_extension()
 
 
 class OutputGenerator(object):
@@ -106,8 +109,10 @@ class OutputGenerator(object):
 
             all_imgs_html += each_img_html
 
+        name_generator = GroupImageNameGenerator(GroupImageRenderer.base_image_name, self.argv.tetre_word)
+
         t = Template(index)
-        c = Context({"main_img": "images/main_image." + file_extension,
+        c = Context({"main_img": name_generator.get_base_path_with_extension(),
                      "all_sentences": mark_safe(all_imgs_html),
                      "word": self.argv.tetre_word})
 
@@ -178,7 +183,7 @@ class CommandAccumulative(SentencesAccumulator):
                     img_renderer.graph_gen_generate(
                         self.accumulated_parents_local,
                         self.accumulated_children_local,
-                        str(accumulated_global_count)) + "." + file_extension
+                        str(accumulated_global_count))
                 )
                 accumulated_global_count += 1
 
