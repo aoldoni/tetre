@@ -247,7 +247,7 @@ class FullSentence(object):
 def flatten_list(l):
     """Given a list of lists, yields a flattened version of this list.
 
-     Returns:
+     Yields:
          A list.
      """
     for el in l:
