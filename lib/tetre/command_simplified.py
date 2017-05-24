@@ -24,11 +24,24 @@ class GroupImageRenderer(object):
     base_image_name = 'command-simplified-group'
 
     def __init__(self, argv):
+        """Generates the images for each group of sentences.
+
+        Args:
+            argv: The command line arguments.
+        """
         self.argv = argv
         self.current_token_id = 0
         self.current_group_id = 0
 
     def gen_group_image(self, tree):
+        """Generates the images based on the node that represents this group.
+
+        Args:
+            tree: The NLTK Tree node.
+
+        Returns:
+            A string with the image path.
+        """
         e = Digraph(self.argv.tetre_word, format=GroupImageNameGenerator.file_extension)
         e.attr('node', shape='box')
 
@@ -62,6 +75,13 @@ class GroupImageRenderer(object):
 
 class OutputGenerator(object):
     def __init__(self, argv, command_simplified_group):
+        """Generates the HTML output as to be analysed.
+
+        Args:
+            argv: The command line arguments.
+            command_simplified_group: the CommandSimplifiedGroup object itself,
+                as to access the current groups of sentences.
+        """
         self.argv = argv
         self.groups = command_simplified_group.get_groups()
         self.command_simplified_group = command_simplified_group
@@ -243,6 +263,13 @@ class OutputGenerator(object):
 
 class CommandSimplifiedGroup(SentencesAccumulator, ResultsGroupMatcher):
     def __init__(self, argv):
+        """Generates the HTML for all sentences containing the searched word. It groups the sentences based on the
+        child nodes of the token with the word being searched. Rules are applied to increase number of relations
+        obtained.
+
+        Args:
+            argv: The command line arguments.
+        """
         SentencesAccumulator.__init__(self, argv)
         ResultsGroupMatcher.__init__(self, argv)
 
@@ -250,11 +277,29 @@ class CommandSimplifiedGroup(SentencesAccumulator, ResultsGroupMatcher):
 
         self.argv = argv
 
-    def group_accounting_add_by_tree(self, tree, token, sentence, img_path, rules, applied):
-        self.group_accounting_add(tree, token, sentence, img_path, tree, self.img_renderer, rules, applied)
+    def group_accounting_add_by_tree(self, tree, token, sentence, img_path, extracted_relations, applied):
+        """Groups the sentences based on the child nodes of the token with the word being searched.
+
+        Args:
+            tree: The NLTK tree with the node representation.
+            token: The TreeNode SpaCy-like node.
+            sentence: The raw sentence text.
+            img_path: The path to the image related to this sentence.
+            extracted_relations: The relations extracted from the sentence.
+            applied: The rules applied to this sentence.
+        """
+        self.group_accounting_add(tree, token, sentence, img_path,
+                                  tree, self.img_renderer, extracted_relations, applied)
 
     def filter(self, groups):
+        """Given all groups and sentenes obtained, returns a sample of these sentences.
 
+        Args:
+            groups: The dictionary with the sentence groups.
+
+        Returns:
+            The dictionary with the sentence groups.
+        """
         if self.argv.tetre_sampling is None:
             return groups
 
@@ -287,6 +332,8 @@ class CommandSimplifiedGroup(SentencesAccumulator, ResultsGroupMatcher):
         return simplified_groups
 
     def run(self):
+        """Execution entry point.
+        """
         rule_applier = Process()
         rule_applier_children = ProcessChildren()
         rule_extraction = ProcessExtraction()
@@ -323,11 +370,11 @@ class CommandSimplifiedGroup(SentencesAccumulator, ResultsGroupMatcher):
             if "obj" in self.argv.tetre_behaviour_root:
                 tree_grouping = tree_obj_grouping
 
-            rules = rule_extraction.apply_all(tree, token, sentence)
+            extracted_relations = rule_extraction.apply_all(tree, token, sentence)
 
             applied = applied_verb + applied_obj_subj
 
-            self.group_accounting_add_by_tree(tree_grouping, token, sentence, img_path, rules, applied)
+            self.group_accounting_add_by_tree(tree_grouping, token, sentence, img_path, extracted_relations, applied)
 
         self.set_groups(self.filter(self.get_groups()))
 

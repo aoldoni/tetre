@@ -22,9 +22,25 @@ class GroupImageRenderer(object):
     base_image_name = 'accumulated'
 
     def __init__(self, argv):
+        """Generates the images for each group of sentences.
+
+        Args:
+            argv: The command line arguments.
+        """
         self.argv = argv
 
     def graph_gen_generate(self, accumulator_parents, accumulator_children, image_id=""):
+        """Generates the images based on the accumulated data from the nodes that represents this group.
+
+        Args:
+            accumulator_parents: All accumulated parent nodes for the token being searched.
+            accumulator_children: All accumulated child nodes for the token being searched.
+            image_id: An integer with the current group id.
+
+        Returns:
+            A string with the image path.
+        """
+
         e = Digraph(self.argv.tetre_word, format=GroupImageNameGenerator.file_extension)
         e.attr('node', shape='box')
 
@@ -65,12 +81,22 @@ class GroupImageRenderer(object):
 
 class OutputGenerator(object):
     def __init__(self, argv, sentence_accumulated_each_imgs, sentence_imgs, sentence):
+        """Generates the HTML output as to be analysed.
+
+        Args:
+            argv: The command line arguments.
+            sentence_accumulated_each_imgs: A list of the groups images (string path).
+            sentence_imgs: A list of all the sentences (string raw text).
+            sentence: The list of raw sentences string.
+        """
         self.argv = argv
         self.sentence_accumulated_each_imgs = sentence_accumulated_each_imgs
         self.sentence_imgs = sentence_imgs
         self.sentence = sentence
 
     def graph_gen_html(self):
+        """Generates the HTML output as to be analysed.
+        """
         setup_django_template_system()
         file_name = "results-" + self.argv.tetre_word + ".html"
 
@@ -119,11 +145,18 @@ class OutputGenerator(object):
         with open(dirs['output_html']['path'] + file_name, 'w') as output:
             output.write(t.render(c))
 
-        return
-
 
 class CommandAccumulative(SentencesAccumulator):
     def __init__(self, argv):
+        """Generates the HTML for all sentences containing the searched word. It does not group the sentences
+        based on any logic, except their order. Every X sentences (determined by the accumulated_print_each module
+        variable) get grouped, and the sorrounding nodes of the token being searched for in these sentences
+        get accumulated for statistics. It is useful in case one wants to find the most common dependencies
+        for this word.
+
+        Args:
+            argv: The command line arguments.
+        """
         SentencesAccumulator.__init__(self, argv)
 
         self.accumulated_children = {}
@@ -136,6 +169,13 @@ class CommandAccumulative(SentencesAccumulator):
         self.sentence_accumulated_each_imgs = []
 
     def graph_gen_accumulate(self, token, accumulator_parents, accumulator_children):
+        """Given a node in the tree, obtain the sorrounding nodes and accumulate them for statistics.
+
+        Args:
+            token: The TreeNode SpaCy-like node.
+            accumulator_parents: All accumulated parent nodes for the token being searched.
+            accumulator_children: All accumulated child nodes for the token being searched.
+        """
         if token.dep_.strip() != "":
             if token.dep_ not in accumulator_parents:
                 accumulator_parents[token.dep_] = {}
@@ -164,9 +204,9 @@ class CommandAccumulative(SentencesAccumulator):
             else:
                 accumulator_children[child.dep_][strip_string] += 1
 
-        return
-
     def run(self):
+        """Execution entry point.
+        """
         accumulated_global_count = 0
         accumulated_local_count = 0
 
@@ -201,5 +241,3 @@ class CommandAccumulative(SentencesAccumulator):
 
         self.main_image = img_renderer.graph_gen_generate(self.accumulated_parents, self.accumulated_children)
         output_generator.graph_gen_html()
-
-        return

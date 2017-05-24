@@ -12,6 +12,14 @@ from tree_utils import spacysentence_to_fullsentence
 
 
 def raw_parsing(text):
+    """Applies some parsing rules to the raw text.
+
+    Args:
+        text: A string cotaining the original text of the file.
+
+    Returns:
+        The string with the file contents after being processed.
+    """
 
     # Clear unicode
     if sys.version_info >= (3, 0):
@@ -29,6 +37,15 @@ def raw_parsing(text):
 
 
 def get_tree_from_spacy(argv):
+    """Parses the raw text using SpaCy.
+
+    Args:
+        argv: The command line arguments.
+
+    Returns:
+        A list of tree.FullSentence objects, the sentences parsed from the raw text.
+    """
+
     en_nlp = spacy.en.English()
 
     sentences = []
@@ -96,6 +113,16 @@ def get_tree_from_spacy(argv):
 
 
 def get_tree(argv):
+    """Parses the raw text using the selected backend.
+
+    Args:
+        argv: The command line arguments.
+
+    Returns:
+        A list of tree.FullSentence objects, the sentences parsed from the raw text. It is expected that
+        future backends would also be transformed into such SpaCy-like structure.
+    """
+
     if argv.tetre_backend == "spacy":
         return get_tree_from_spacy(argv)
     elif argv.tetre_backend == "stanford":

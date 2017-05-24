@@ -15,6 +15,11 @@ class GroupImageRenderer(object):
     base_image_name = 'command-group'
 
     def __init__(self, argv):
+        """Generates the images for each group of sentences.
+
+        Args:
+            argv: The command line arguments.
+        """
         self.argv = argv
         self.current_token_id = 0
         self.current_group_id = 0
@@ -23,6 +28,15 @@ class GroupImageRenderer(object):
             [params for params in self.argv.tetre_format.split(",") if params == "pos_"])
 
     def gen_group_image(self, token, depth=1):
+        """Generates the images based on the node that represents this group.
+
+        Args:
+            token: The Treenode node.
+            depth: integer 1 by default, as we are only interested in the first level.
+
+        Returns:
+            A string with the image path.
+        """
         e = Digraph(self.argv.tetre_word, format=GroupImageNameGenerator.file_extension)
         e.attr('node', shape='box')
 
@@ -39,6 +53,14 @@ class GroupImageRenderer(object):
         return name_generator.get_base_path_with_extension()
 
     def group_to_graph_recursive_with_depth(self, token, parent_id, e, depth):
+        """Generates the images based on the node that represents this group (internal call for depths-1).
+
+        Args:
+            token: The Treenode node.
+            parent_id: The id of the parent node this token is a child of in the dependency tree.
+            e: The graphical object (graphviz.Digraph).
+            depth: integer 1 by default, as we are only interested in the first level.
+        """
         if len(list(token.children)) == 0 or depth == 0:
             return
 
@@ -58,11 +80,17 @@ class GroupImageRenderer(object):
         for child_id, child in current_global_id.items():
             self.group_to_graph_recursive_with_depth(child, child_id, e, depth - 1)
 
-        return
-
 
 class OutputGenerator(object):
     def __init__(self, argv, sentence_imgs, sentence, commandgroup):
+        """Generates the HTML output as to be analysed.
+
+        Args:
+            argv: The command line arguments.
+            sentence_imgs: A list of all the sentence images (string path), one for each sentence.
+            sentence: A list of all the sentences (string raw text).
+            commandgroup: the CommandGroup object itself, as to access the current groups of sentences.
+        """
         self.argv = argv
         self.sentence_imgs = sentence_imgs
         self.sentence = sentence
@@ -70,6 +98,8 @@ class OutputGenerator(object):
         self.commandgroup = commandgroup
 
     def graph_gen_html(self):
+        """Generates the HTML output as to be analysed.
+        """
         setup_django_template_system()
         file_name = "results-" + self.argv.tetre_word + ".html"
 
@@ -127,22 +157,35 @@ class OutputGenerator(object):
         with open(dirs['output_html']['path'] + file_name, 'w') as output:
             output.write(t.render(c))
 
-        return
-
 
 class CommandGroup(SentencesAccumulator, ResultsGroupMatcher):
     def __init__(self, argv):
+        """Generates the HTML for all sentences containing the searched word. It groups the sentences based on the
+        child nodes of the token with the word being searched. No rules are applied so sentences are presented as is.
+
+        Args:
+            argv: The command line arguments.
+        """
         SentencesAccumulator.__init__(self, argv)
         ResultsGroupMatcher.__init__(self, argv)
 
         self.img_renderer = GroupImageRenderer(argv)
-
         self.argv = argv
 
     def group_accounting_add_by_token(self, tree, token, sentence, img_path):
+        """Groups the sentences based on the child nodes of the token with the word being searched.
+
+        Args:
+            tree: The NLTK tree with the node representation.
+            token: The TreeNode SpaCy-like node.
+            sentence: The raw sentence text.
+            img_path: The path to the image related to this sentence.
+        """
         self.group_accounting_add(tree, token, sentence, img_path, token, self.img_renderer)
 
     def run(self):
+        """Execution entry point.
+        """
         for token, sentence in get_tokens(self.argv):
             img_path = self.process_sentence(sentence)
 
@@ -155,5 +198,3 @@ class CommandGroup(SentencesAccumulator, ResultsGroupMatcher):
                                            self.sentence,
                                            self)
         output_generator.graph_gen_html()
-
-        return
