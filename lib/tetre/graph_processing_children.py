@@ -4,9 +4,12 @@ from tree_utils import find_in_spacynode
 
 class Children(RuleApplier):
     def __init__(self):
+        """Common functionality for both Subj and Obj classes. These are classes that contain rules that
+        are applied not on the tree rooted in the node with the orth_ word being searched for, but that apply
+        on a version of a tree that is rooted at the child nodes, wither the subj or the obj nodes.
+        """
         RuleApplier.__init__(self)
         self.tags_to_be_removed = {'det', ' ', ''}
-        return
 
     def bring_grandchild_prep_or_relcl_up_as_child(self, root, node_set, spacy_tree):
         """
@@ -63,6 +66,17 @@ class Children(RuleApplier):
             a separate service."
 
             In this case, this would also bring up prep "whereby".
+
+        Args:
+            root: The head of the NLTK tree.
+            node_set: The nodes of the NLTK tree.
+            spacy_tree: The TreeNode object, rooted at the child node.
+
+        Returns:
+            root: The modified head of the NLTK tree.
+            node_set: The modified nodes of the NLTK tree.
+            spacy_tree: The modified TreeNode object.
+            is_applied: A boolean marking if the rule was applied or not.
         """
 
         bring_up = [
@@ -119,12 +133,26 @@ class Children(RuleApplier):
 
 class Obj(Children):
     def __init__(self):
+        """An object that contains rules to be applied in a version of the SpaCy-like TreeNode tree that is rooted
+        at the obj node, a child node of the node that contains the word being searched for.
+        """
         Children.__init__(self)
         return
 
     @RuleApplier.register_function
     def remove_duplicates(self, root, node_set, spacy_tree):
         """This groups sentence with e.g.: multiple "punct" into the same group for easier analysis.
+
+        Args:
+            root: The head of the NLTK tree.
+            node_set: The nodes of the NLTK tree.
+            spacy_tree: The TreeNode object, rooted at the child node.
+
+        Returns:
+            root: The modified head of the NLTK tree.
+            node_set: The modified nodes of the NLTK tree.
+            spacy_tree: The modified TreeNode object.
+            is_applied: A boolean marking if the rule was applied or not.
         """
         return root, set(node_set), spacy_tree, False
 
@@ -151,6 +179,17 @@ class Obj(Children):
             In this case, the "appos" relation prints further information on the noun that is part of the "obj" node.
             http://universaldependencies.org/u/dep/appos.html - one can remove it as in all observed cases the extra
             information wasn't really relevant (wither it were citations, or long subsequent clauses)
+
+        Args:
+            root: The head of the NLTK tree.
+            node_set: The nodes of the NLTK tree.
+            spacy_tree: The TreeNode object, rooted at the child node.
+
+        Returns:
+            root: The modified head of the NLTK tree.
+            node_set: The modified nodes of the NLTK tree.
+            spacy_tree: The modified TreeNode object.
+            is_applied: A boolean marking if the rule was applied or not.
         """
 
         is_applied = False
@@ -168,6 +207,17 @@ class Obj(Children):
     def tranform_tags(self, root, node_set, spacy_tree):
         """This transform tags from several variations into a more general version. The mappings are contained
         in the self.translation_rules variables.
+
+        Args:
+            root: The head of the NLTK tree.
+            node_set: The nodes of the NLTK tree.
+            spacy_tree: The TreeNode object, rooted at the child node.
+
+        Returns:
+            root: The modified head of the NLTK tree.
+            node_set: The modified nodes of the NLTK tree.
+            spacy_tree: The modified TreeNode object.
+            is_applied: A boolean marking if the rule was applied or not.
         """
 
         node_set = set([self.rewrite_dp_tag(node) for node in node_set])
@@ -175,11 +225,27 @@ class Obj(Children):
 
     @RuleApplier.register_function
     def bring_grandchild_prep_or_relcl_up_as_child(self, root, node_set, spacy_tree):
+        """Just a proxy for the method with the same signature at the parent.
+
+        Args:
+            root: The head of the NLTK tree.
+            node_set: The nodes of the NLTK tree.
+            spacy_tree: The TreeNode object, rooted at the child node.
+
+        Returns:
+            root: The modified head of the NLTK tree.
+            node_set: The modified nodes of the NLTK tree.
+            spacy_tree: The modified TreeNode object.
+            is_applied: A boolean marking if the rule was applied or not.
+        """
         return super(Obj, self).bring_grandchild_prep_or_relcl_up_as_child(root, node_set, spacy_tree)
 
 
 class Subj(Children):
     def __init__(self):
+        """An object that contains rules to be applied in a version of the SpaCy-like TreeNode tree that is rooted
+        at the subj node, a child node of the node that contains the word being searched for.
+        """
         Children.__init__(self)
         return
 
@@ -187,6 +253,17 @@ class Subj(Children):
     def remove_duplicates(self, root, node_set, spacy_tree):
         """
             1) This groups sentence with e.g.: multiple "punct" into the same group for easier analysis.
+
+        Args:
+            root: The head of the NLTK tree.
+            node_set: The nodes of the NLTK tree.
+            spacy_tree: The TreeNode object, rooted at the child node.
+
+        Returns:
+            root: The modified head of the NLTK tree.
+            node_set: The modified nodes of the NLTK tree.
+            spacy_tree: The modified TreeNode object.
+            is_applied: A boolean marking if the rule was applied or not.
         """
         return root, set(node_set), spacy_tree, False
 
@@ -207,6 +284,17 @@ class Subj(Children):
             In this case, the "appos" relation prints further information on the noun that is part of the "obj" node.
             http://universaldependencies.org/u/dep/appos.html - one can remove it as in all observed cases the extra
             information wasn't really relevant "[4]".
+
+        Args:
+            root: The head of the NLTK tree.
+            node_set: The nodes of the NLTK tree.
+            spacy_tree: The TreeNode object, rooted at the child node.
+
+        Returns:
+            root: The modified head of the NLTK tree.
+            node_set: The modified nodes of the NLTK tree.
+            spacy_tree: The modified TreeNode object.
+            is_applied: A boolean marking if the rule was applied or not.
         """
 
         is_applied = False
@@ -224,22 +312,63 @@ class Subj(Children):
     def tranform_tags(self, root, node_set, spacy_tree):
         """This transform tags from several variations into a more general version. The mappings are contained
         in the self.translation_rules variables.
+
+        Args:
+            root: The head of the NLTK tree.
+            node_set: The nodes of the NLTK tree.
+            spacy_tree: The TreeNode object, rooted at the child node.
+
+        Returns:
+            root: The modified head of the NLTK tree.
+            node_set: The modified nodes of the NLTK tree.
+            spacy_tree: The modified TreeNode object.
+            is_applied: A boolean marking if the rule was applied or not.
         """
         node_set = set([self.rewrite_dp_tag(node) for node in node_set])
         return root, node_set, spacy_tree, False
 
     @RuleApplier.register_function
     def bring_grandchild_prep_or_relcl_up_as_child(self, root, node_set, spacy_tree):
+        """Just a proxy for the method with the same signature at the parent.
+
+        Args:
+            root: The head of the NLTK tree.
+            node_set: The nodes of the NLTK tree.
+            spacy_tree: The TreeNode object, rooted at the child node.
+
+        Returns:
+            root: The modified head of the NLTK tree.
+            node_set: The modified nodes of the NLTK tree.
+            spacy_tree: The modified TreeNode object.
+            is_applied: A boolean marking if the rule was applied or not.
+        """
         return super(Subj, self).bring_grandchild_prep_or_relcl_up_as_child(root, node_set, spacy_tree)
 
 
 class ProcessChildren(object):
     def __init__(self):
+        """Creates the ProcessChildren object which is simply an entry point for both Subj and Obj rules.
+        """
         self.obj = Obj()
         self.subj = Subj()
-        return
 
     def apply_all(self, nltk_tree_obj, nltk_tree_subj, spacy_tree):
+        """Apply all obj and subj rules.
+
+        Args:
+            nltk_tree_obj: The tree in the NLTK structure that represents the grouping, rooted at the obj child node.
+            nltk_tree_subj: The tree in the NLTK structure that represents the grouping, rooted at the subj child node.
+            spacy_tree: The actual TreeNode in which the rules will be extracted from, rooted at the word being
+                searched for.
+
+        Returns:
+            nltk_tree_obj: the final version of the NLTK representation tree, rooted at the obj child
+                node, after all rules are applied.
+            nltk_tree_subj: the final version of the NLTK representation tree, rooted at the subj child
+                node, after all rules are applied.
+            A combined list of the method signatures of all rules applied.
+        """
+
         nltk_tree_obj, applied_obj = self.obj.apply(nltk_tree_obj, spacy_tree, tree_root="obj")
         nltk_tree_subj, applied_subj = self.subj.apply(nltk_tree_subj, spacy_tree, tree_root="subj")
         return nltk_tree_obj, nltk_tree_subj, (applied_obj + applied_subj)

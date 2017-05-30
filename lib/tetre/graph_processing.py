@@ -498,7 +498,7 @@ class Reduction(RuleApplier):
 
 class Process(object):
     def __init__(self):
-        """Creates the Process cless which is simply an entry point for both Growth and Reduction rules.
+        """Creates the Process object which is simply an entry point for both Growth and Reduction rules.
         """
         self.growth = Growth()
         self.reduction = Reduction()
