@@ -6,6 +6,9 @@ from tree_utils import find_in_spacynode, merge_nodes
 
 class Growth(RuleApplier):
     def __init__(self):
+        """Implements all growth rules. Growth rules are the ones that increases the number of children that
+        are right below the node of the word being searched for, representing its relations.
+        """
         RuleApplier.__init__(self)
         self.subs = ['nsubj', 'csubj', 'nsubjpass', 'csubjpass']
         self.objs = ['dobj', 'iobj', 'pobj']
@@ -30,6 +33,17 @@ class Growth(RuleApplier):
             two shortcomings that GeckoFTL improves upon."
 
             In this case, GeckoFTL is is a proper noun, so it shouldn't be replaced.
+
+        Args:
+            root: The head of the NLTK tree.
+            node_set: The nodes of the NLTK tree.
+            spacy_tree: The TreeNode object, rooted at the word being searched for.
+
+        Returns:
+            root: The modified head of the NLTK tree.
+            node_set: The modified nodes of the NLTK tree.
+            spacy_tree: The modified TreeNode object.
+            is_applied: A boolean marking if the rule was applied or not.
         """
 
         is_applied = False
@@ -111,6 +125,17 @@ class Growth(RuleApplier):
             improves complexity bounds with respect to space as well as time."
 
             In this case, the subj is actually the dobj of the head.
+
+        Args:
+            root: The head of the NLTK tree.
+            node_set: The nodes of the NLTK tree.
+            spacy_tree: The TreeNode object, rooted at the word being searched for.
+
+        Returns:
+            root: The modified head of the NLTK tree.
+            node_set: The modified nodes of the NLTK tree.
+            spacy_tree: The modified TreeNode object.
+            is_applied: A boolean marking if the rule was applied or not.
         """
 
         is_applied = False
@@ -211,6 +236,17 @@ class Growth(RuleApplier):
 
             In this case, although in this sentence the dobj was detected, the ccomp is the nsubj. Thus, after
             replacing the items for dobj, if there is no nsubj in the sentence we try to tranform then in nsubj.
+
+        Args:
+            root: The head of the NLTK tree.
+            node_set: The nodes of the NLTK tree.
+            spacy_tree: The TreeNode object, rooted at the word being searched for.
+
+        Returns:
+            root: The modified head of the NLTK tree.
+            node_set: The modified nodes of the NLTK tree.
+            spacy_tree: The modified TreeNode object.
+            is_applied: A boolean marking if the rule was applied or not.
         """
 
         is_applied = False
@@ -247,6 +283,17 @@ class Growth(RuleApplier):
             In this case, one can see that "matrix co-factorization" and improves "predicting individual decisions". It
             could be rewriting as "improves prediction of individual decisions". Thus anything after a "prep in"
             could be considered an "obj".
+
+        Args:
+            root: The head of the NLTK tree.
+            node_set: The nodes of the NLTK tree.
+            spacy_tree: The TreeNode object, rooted at the word being searched for.
+
+        Returns:
+            root: The modified head of the NLTK tree.
+            node_set: The modified nodes of the NLTK tree.
+            spacy_tree: The modified TreeNode object.
+            is_applied: A boolean marking if the rule was applied or not.
         """
         is_applied = False
 
@@ -281,6 +328,17 @@ class Growth(RuleApplier):
             In the first sentence, the relation uses(which; automatically generated synonyms) could have been extracted
             by getting the nsubj dependency and transforming it to be the child's dobj. The same is valid for the
             second example.
+
+        Args:
+            root: The head of the NLTK tree.
+            node_set: The nodes of the NLTK tree.
+            spacy_tree: The TreeNode object, rooted at the word being searched for.
+
+        Returns:
+            root: The modified head of the NLTK tree.
+            node_set: The modified nodes of the NLTK tree.
+            spacy_tree: The modified TreeNode object.
+            is_applied: A boolean marking if the rule was applied or not.
         """
         token = spacy_tree
         token_head = token.head
@@ -316,12 +374,26 @@ class Growth(RuleApplier):
 
 class Reduction(RuleApplier):
     def __init__(self):
+        """Implements all reduction rules. Reduction rules are the ones that decreases the number of children that
+        are right below the node of the word being searched for, representing its relations.
+        """
         RuleApplier.__init__(self)
         self.tags_to_be_removed = {'punct', 'mark', ' ', '', 'meta'}
 
     @RuleApplier.register_function
     def remove_duplicates(self, root, node_set, spacy_tree):
         """This groups sentence with e.g.: multiple "punct" into the same group for easier analysis.
+
+        Args:
+            root: The head of the NLTK tree.
+            node_set: The nodes of the NLTK tree.
+            spacy_tree: The TreeNode object, rooted at the word being searched for.
+
+        Returns:
+            root: The modified head of the NLTK tree.
+            node_set: The modified nodes of the NLTK tree.
+            spacy_tree: The modified TreeNode object.
+            is_applied: A boolean marking if the rule was applied or not.
         """
         return root, set(node_set), spacy_tree, False
 
@@ -329,6 +401,17 @@ class Reduction(RuleApplier):
     def remove_tags(self, root, node_set, spacy_tree):
         """This removes dependency paths of the types contained in self.tags_to_be_removed as they are not considered
         relevant. This reduces the number of different groups.
+
+        Args:
+            root: The head of the NLTK tree.
+            node_set: The nodes of the NLTK tree.
+            spacy_tree: The TreeNode object, rooted at the word being searched for.
+
+        Returns:
+            root: The modified head of the NLTK tree.
+            node_set: The modified nodes of the NLTK tree.
+            spacy_tree: The modified TreeNode object.
+            is_applied: A boolean marking if the rule was applied or not.
         """
         is_applied = False
 
@@ -345,6 +428,17 @@ class Reduction(RuleApplier):
     def transform_tags(self, root, node_set, spacy_tree):
         """This transform tags from several variations into a more general version. The mappings are contained
         in the self.translation_rules variables.
+
+        Args:
+            root: The head of the NLTK tree.
+            node_set: The nodes of the NLTK tree.
+            spacy_tree: The TreeNode object, rooted at the word being searched for.
+
+        Returns:
+            root: The modified head of the NLTK tree.
+            node_set: The modified nodes of the NLTK tree.
+            spacy_tree: The modified TreeNode object.
+            is_applied: A boolean marking if the rule was applied or not.
         """
         node_set = set([self.rewrite_dp_tag(node) for node in node_set])
         return root, node_set, spacy_tree, False
@@ -358,6 +452,17 @@ class Reduction(RuleApplier):
             In this example, the sentence has 2 nsubj: "Another partitional method" and "ORCLUS [2]". They should
             be in the same sentence. Because it has 2 subj, the representation ends up being the one from the
             last nsubj.
+
+        Args:
+            root: The head of the NLTK tree.
+            node_set: The nodes of the NLTK tree.
+            spacy_tree: The TreeNode object, rooted at the word being searched for.
+
+        Returns:
+            root: The modified head of the NLTK tree.
+            node_set: The modified nodes of the NLTK tree.
+            spacy_tree: The modified TreeNode object.
+            is_applied: A boolean marking if the rule was applied or not.
         """
 
         is_applied = False
@@ -393,11 +498,24 @@ class Reduction(RuleApplier):
 
 class Process(object):
     def __init__(self):
+        """Creates the Process cless which is simply an entry point for both Growth and Reduction rules.
+        """
         self.growth = Growth()
         self.reduction = Reduction()
         return
 
     def apply_all(self, nltk_tree, spacy_tree):
+        """Apply all growth and reduction rules.
+
+        Args:
+            nltk_tree: The tree in the NLTK structure that represents the grouping.
+            spacy_tree: The actual TreeNode in which the rules will be extracted from, rooted at the word being
+                searched for.
+
+        Returns:
+            nltk_tree: the final version of the NLTK representation tree, after all rules are applied.
+            A combined list of the method signatures of all rules applied.
+        """
 
         nltk_tree, applied_growth = self.growth.apply(nltk_tree, spacy_tree)
         nltk_tree, applied_reduction = self.reduction.apply(nltk_tree, spacy_tree)
