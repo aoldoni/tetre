@@ -76,7 +76,8 @@ class RuleApplier(object):
 
         Args:
             nltk_tree: The tree in the NLTK structure that represents the grouping.
-            spacy_tree: The actual TreeNode in which the rules will be extracted from.
+            spacy_tree: The actual TreeNode in which the rules will be extracted from, rooted at the word being
+                searched for.
             tree_root: A string containing the dependency tree tag of the immediate child not of the word being
                 searched for that will serve as the new root. This new root is used when the rules are applied in the
                 child nodes, mostly obj and subj.

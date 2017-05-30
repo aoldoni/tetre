@@ -9,6 +9,17 @@ class Extraction(RuleApplier):
 
     @RuleApplier.register_function
     def raw_subsentences(self, root, node_set, spacy_tree):
+        """This extraction rule simply appends as extraction all the child nodes of the word being searched for.
+
+        Args:
+            root: The head of the NLTK tree.
+            node_set: The nodes of the NLTK tree.
+            spacy_tree: The TreeNode object, rooted at the word being searched for.
+
+        Result:
+            A dictionary with the elements that are child dependencies in the relation. The dependency tag is the
+            key of the dictionary, with the sentence string rooted at the child node is the value.
+        """
         result = {}
 
         for child in spacy_tree.children:
@@ -23,6 +34,15 @@ class Extraction(RuleApplier):
         return result
 
     def apply(self, nltk_tree, spacy_tree):
+        """Apply all extraction rules and returns a list with its results.
+
+        Args:
+            nltk_tree: The NLTK tree with the tree representation.
+            spacy_tree: The SpaCy-like TreeNode tree, rooted at the word being searched for.
+
+        Returns:
+            A list of the relations extracted by each rule.
+        """
         root = nltk_tree.label()
         node_set = [node for node in nltk_tree]
 
