@@ -2,7 +2,9 @@
 
 These scripts help utilising existing tools in the task of information extraction in a new corpus composed of academic papers. They are mostly standalone commandline tools and functions that do data transformation, and parsing/preparation, while also invoking some other selected third party tools.
 
-- Add link to master thesis https://raw.githubusercontent.com/aoldoni/comp9596-master-thesis/master/thesis.pdf
+![](demo_optimised.gif)
+
+- Full descriptin of inner workings can be found at my thesis repo: https://raw.githubusercontent.com/aoldoni/comp9596-master-thesis/master/thesis.pdf
 
 # INSTALLATION
 
@@ -69,7 +71,7 @@ E.g.:
 These are optional packages, mostly if you want to explore available wrappers for the Stanford's relation extractor and NER processes, or
 if you want to compare the TETRE output with the externally available tools.
 
-IMPORTANT: You may skip to the (Hello World)[#hello-world] section below if your intention is simply to use TETRE stand-alone.
+IMPORTANT: You may skip to the [Hello World](#hello-world) section below if your intention is simply to use TETRE stand-alone.
 
 
 ## INSTALLATION STANFORD'S CORENLP
