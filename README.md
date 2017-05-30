@@ -7,17 +7,20 @@ These scripts help utilising existing tools in the task of information extractio
 # INSTALLATION
 
 - Download this toolkit:  
+    `mkdir tetre`
+    `cd tetre`
     `git clone https://github.com/aoldoni/tetre.git .`
 
 - Create directories (one single big command):  
-    `mkdir data models allenai_openie clausie parsey stanford training data/input data/output data/downloaded data/output/html data/output/ngram data/output/openie data/output/rel data/output/cache data/output/comparison data/output/comparison/sentences data/output/comparison/allenai_openie data/output/comparison/mpi_clauseie data/output/comparison/stanford_openie`  
-
-- Prepare static assets link:  
+    `./bin/tetre setup`
+    
+- Prepare the static assets link:  
     `cd data/output/html/`  
     `ln -s ../../../templates/assets/ assets`  
     `cd ../../..`  
 
-The next steps depend on what you will be trying to run. In case of MacOS, uou might want to replace some of these steps with using `brew`. Information to installing brew can be found at http://brew.sh/.
+The next steps depend on what you will be trying to run. In case of MacOS, you might want to replace some of these steps with using `brew`.
+Information to installing brew can be found at http://brew.sh/.
 
 
 ## INSTALLATION PYTHON DEPENDENCIES
@@ -31,20 +34,25 @@ The next steps depend on what you will be trying to run. In case of MacOS, uou m
 E.g.:  
     `python3 get_pip.py`
 
+- Create a virtual environment. From now onwards, all the package installations will only be available in this directory/virtual environment:
+    `virtualenv .env`
+    `source .env/bin/activate`
+
+- Install Graphviz binaries: http://www.graphviz.org/Download.php
+- Install jq for the demo: https://stedolan.github.io/jq/ (or you might just want to pipe the TETRE output to `python -m json.tool` instead)
+
 - Install the following Python/Python3 modules:  
     - requests
     - BeautifulSoup4
 
 E.g.:  
-    `python3 -m pip requests BeautifulSoup4`
-
-- Install Graphviz binaries: http://www.graphviz.org/Download..php
+    `python3 -m pip install requests BeautifulSoup4`
 
 
 ## INSTALLATION MAIN PACKAGES
 
-- Install Spacy, Virtualenv, and Spacy's English model: https://spacy.io/docs/#getting-started
-    `pip install spacy==0.101.0`  
+- Install Spacy 0.101.0, Virtualenv, and Spacy's English model: https://spacy.io/docs/#getting-started
+    `python3 -m pip install spacy==0.101.0`  
     
 - Install NLTK (as a python3 module): http://www.nltk.org/install.html
 - Install Brat 1.3 Crunchy Frog: http://brat.nlplab.org/installation.html
@@ -56,7 +64,14 @@ E.g.:
     - graphviz
 
 E.g.:  
-    `python3 -m pip nltk corpkit corenlp-xml`
+    `python3 -m pip install nltk corpkit corenlp-xml django graphviz`
+
+
+# INSTALLATION EXTERNAL PACKAGES 
+
+These are optional packages, mostly if you want to explore available wrappers for the Stanford's relation extractor and NER processes, or
+if you want to compare the TETRE output with the externally available tools. You may skip to the Hello World section below
+if your intention is simply to use TETRE stand-alone.
 
 
 ## INSTALLATION STANFORD'S CORENLP
@@ -65,43 +80,43 @@ E.g.:
 2. Install Maven: https://maven.apache.org/install.html
 
 3. Move into created directory:  
-    `cd stanford`
+    `cd external/bin/stanford`
 
 4. Download the jars for:
     - NER
     - Full CoreNLP
 
-5. Extract them inside the stanford folder, thus having the following subdirectories:
-    - `stanford/stanford-corenlp-full-2015-12-09`
-    - `stanford/stanford-ner-2015-12-09`
+5. Extract them inside the respective folder folder, thus having the following subdirectories, respectivelly:
+    - `external/bin/stanford/ner/`
+    - `external/bin/stanford/corenlp/`
 
-6. Inside `stanford/stanford-corenlp-full-2015-12-09/src` replace the code with:  
-    `cd stanford/stanford-corenlp-full-2015-12-09/src`  
+6. Inside `external/bin/stanford/corenlp/src` replace the code with:  
+    `external/bin/stanford/corenlp/src`  
     `rm -rf *`  
     `git clone https://github.com/aoldoni/comp9596-stanford-corenlp-full`  
 
-7. `cd ../../..`
+7. Return to root directory:
+    `cd ../../../../../`
 
-8. Run `recompile_stanford.py`
+8. Install `ant` (e.g.: using `brew` or `apt-get`). Re-compile stanford's binaries:
+    `./bin/tetre compile`
 
-9. The file `stanford/stanford-corenlp-full-2015-12-09/stanford-corenlp-dblp.jar` should now exist.
-
-10. Install `ant` if you need to recompile Stanford's CoreNLP.
+9. The file `external/bin/stanford/corenlp/stanford-corenlp-compiled.jar` should now exist.
 
 ## INSTALLATION GOOGLE'S PARSEY
 
 - Move into created directory:  
-    `cd parsey`
+    `cd external/bin/parsey`
 
 - Install Google Syntaxnet: https://github.com/tensorflow/models/tree/master/syntaxnet#installation
 
-- Copy file from:   
+- Copy custom initiator file for syntaxnet available inside this project into the correct directory:   
     `cp external/extra/google-parsey/google.sh external/bin/parsey/models/syntaxnet/syntaxnet/google.sh`
 
 ## INSTALLATION CLAUSEIE
 
 - Move into created directory:  
-    `cd clausie`
+    `cd external/bin/clausie`
 
 - Download ClauseIE from http://resources.mpi-inf.mpg.de/d5/clausie/clausie-0-0-1.zip and extract into this folder.
 
@@ -109,10 +124,56 @@ E.g.:
 ## INSTALLATION ALLENAI OPENIE
 
 - Move into created directory:  
-    `cd allenai_openie`
+    `cd external/bin/allenai_openie`
 
 - Run installation process found in https://github.com/allenai/openie-standalone#command-line-interface
 
+
+# HELLO WORLD
+
+- Move your raw text data into `data/input/raw`:
+    `cp -R my_raw_text_files/* data/input/raw/`
+
+- Process your relation:
+
+    `/bin/tetre extract --tetre_word improves --tetre_output json | jq ''`
+
+- The output will be the JSON relations, such as:
+
+```json
+[
+  {
+    "other_relations": [],
+    "relation": {
+      "obj": "statistical machine translation methods",
+      "rel": "improves",
+      "subj": "noun phrase translation subsystem"
+    },
+    "rules_applied": "Growth.replace_subj_if_dep_is_relcl_or_ccomp,Subj.remove_tags",
+    "sentence": "In addition, Koehn and Knight  show that it is reasonable to define noun phrase translation without context as an independent MT subtask and build a noun phrase translation subsystem that improves statistical machine translation methods.\n"
+  },
+  {
+    "other_relations": [],
+    "relation": {
+      "obj": "chronological ordering significantly",
+      "rel": "improves",
+      "subj": "proposed algorithm"
+    },
+    "rules_applied": "Reduction.remove_tags,Obj.remove_tags,Subj.remove_tags",
+    "sentence": "The evaluation results show that the proposed algorithm improves the chronological ordering significantly.\n"
+  },
+  {
+    "other_relations": [],
+    "relation": {
+      "obj": "performance of the classifier over all categories",
+      "rel": "improves",
+      "subj": "combination of the two different types of representations"
+    },
+    "rules_applied": "Reduction.remove_tags,Obj.remove_tags,Subj.remove_tags",
+    "sentence": "They show that concept-based representations can outperform traditional word-based representations, and that a combination of the two different types of representations improves the performance of the classifier over all categories.\n"
+  },
+  ...
+```
 
 # SCRIPTS AND PURPOSE
 
