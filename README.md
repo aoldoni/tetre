@@ -7,9 +7,9 @@ These scripts help utilising existing tools in the task of information extractio
 # INSTALLATION
 
 - Download this toolkit:  
-    `mkdir tetre`
-    `cd tetre`
-    `git clone https://github.com/aoldoni/tetre.git .`
+    `mkdir tetre`  
+    `cd tetre`  
+    `git clone https://github.com/aoldoni/tetre.git .`  
 
 - Create directories (one single big command):  
     `./bin/tetre setup`
@@ -29,14 +29,11 @@ Information to installing brew can be found at http://brew.sh/.
     - This program expects Python 2 to be running as `python`.
     - This program expects Python 3 (at least 3.4) to be running as `python3`.
 
-- Install PIP: https://pip.pypa.io/en/stable/installing/ - please install it using `python3` so all packages will be installed under the new version. This is important since if you install pip under `python` (i.e. for Python 2) the packages installed will not work in the python3 version of the code.
+- Install PIP: https://pip.pypa.io/en/stable/installing/ - please install it using `python3` so all packages will be installed under the new version. This is important since if you install pip under `python` (i.e. for Python 2) the packages installed will not work in the python3 version of the code. E.g.: `python3 get_pip.py`
 
-E.g.:  
-    `python3 get_pip.py`
-
-- Create a virtual environment. From now onwards, all the package installations will only be available in this directory/virtual environment:
-    `virtualenv .env`
-    `source .env/bin/activate`
+- Create a virtual environment. From now onwards, all the package installations will only be available in this directory/virtual environment:  
+    `virtualenv .env`  
+    `source .env/bin/activate`  
 
 - Install Graphviz binaries: http://www.graphviz.org/Download.php
 - Install jq for the demo: https://stedolan.github.io/jq/ (or you might just want to pipe the TETRE output to `python -m json.tool` instead)
@@ -70,8 +67,9 @@ E.g.:
 # INSTALLATION EXTERNAL PACKAGES 
 
 These are optional packages, mostly if you want to explore available wrappers for the Stanford's relation extractor and NER processes, or
-if you want to compare the TETRE output with the externally available tools. You may skip to the Hello World section below
-if your intention is simply to use TETRE stand-alone.
+if you want to compare the TETRE output with the externally available tools.
+
+IMPORTANT: You may skip to the (Hello World)[#hello-world] section below if your intention is simply to use TETRE stand-alone.
 
 
 ## INSTALLATION STANFORD'S CORENLP
