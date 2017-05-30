@@ -4,6 +4,7 @@ import json
 import copy
 import random
 import csv
+import sys
 
 from django.utils.safestring import mark_safe
 from django.template import Template, Context
@@ -86,7 +87,18 @@ class OutputGenerator(object):
         self.groups = command_simplified_group.get_groups()
         self.command_simplified_group = command_simplified_group
 
-    def get_results(self, sentence, template):
+    def get_extracted_results(self, sentence, template):
+        """Generates the HTML/JSON output of the extracted results, given the sentence object.
+
+        Args:
+            sentence: A dictionary that describes all data related to the sentence being processed.
+            template: The template renderer from Django.
+
+        Returns:
+            subj: A string with the content of the subj part of the relation.
+            obj: A string with the content of the obj part of the relation.
+            others_json or others_html: A string with other possible components of the relation.
+        """
         rule = Reduction()
 
         has_subj = False
@@ -121,8 +133,17 @@ class OutputGenerator(object):
             return subj, obj, others_html
 
     def get_external_results(self, sentence):
+        """Obtains the results and relations extracted by the external tools for comparison purposes. Used
+        for evaluation.
+
+        Args:
+            sentence: A dictionary that describes all data related to the sentence being processed.
+
+        Returns:
+            A string with the HTML for each of the external extracted relations for this sentence.
+        """
         filename = self.argv.tetre_word + "-" + str(sentence["sentence"].file_id) \
-                   + "-" + str(sentence["sentence"].id) + "-" + str(sentence["token"].idx)
+            + "-" + str(sentence["sentence"].id) + "-" + str(sentence["token"].idx)
 
         allenai_openie = dirs['output_allenai_openie']['path'] + filename
         stanford_openie = dirs['output_stanford_openie']['path'] + filename
@@ -155,6 +176,16 @@ class OutputGenerator(object):
             text_mpi_clauseie.replace('\n', '<br />')
 
     def graph_gen_html_sentence(self, sentence):
+        """Merges all parts of the extracted relations of the sentence. Retuns all the output related to
+        the sentence being processed.
+
+        Args:
+            sentence: A dictionary that describes all data related to the sentence being processed.
+
+        Returns:
+            A string with the HTML/JSON for all the output of this sentence.
+        """
+
         with open(dirs['html_templates']['path'] + 'each_sentence.html', 'r') as each_sentence:
             each_sentence = each_sentence.read()
 
@@ -163,7 +194,7 @@ class OutputGenerator(object):
 
         to = Template(each_sentence_opt)
 
-        subj, obj, others = self.get_results(sentence, {"html": True, "template": to})
+        subj, obj, others = self.get_extracted_results(sentence, {"html": True, "template": to})
 
         text_allenai_openie = text_stanford_openie = text_mpi_clauseie = ""
 
@@ -191,6 +222,8 @@ class OutputGenerator(object):
         return ts.render(c)
 
     def graph_gen_html(self):
+        """Generates the HTML output for all the sentences for the word being searched for.
+        """
         setup_django_template_system()
         file_name = "results-" + self.argv.tetre_word + ".html"
 
@@ -243,14 +276,14 @@ class OutputGenerator(object):
         with open(dirs['output_html']['path'] + file_name, 'w') as output:
             output.write(t.render(c))
 
-        return
-
     def graph_gen_json(self):
+        """Generates the JSON output for all the sentences for the word being searched for.
+        """
         json_result = []
 
         for group in group_sorting(self.groups):
             for sentence in group["sentences"]:
-                subj, obj, others = self.get_results(sentence, {"html": False, "template": None})
+                subj, obj, others = self.get_extracted_results(sentence, {"html": False, "template": None})
 
                 json_result.append(
                     {"sentence": str(sentence["sentence"]),

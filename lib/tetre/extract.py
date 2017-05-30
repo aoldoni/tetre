@@ -4,6 +4,14 @@ from tetre.command_simplified import CommandSimplifiedGroup
 
 
 def argv_preprocessing(argv):
+    """Parses and validates the command line arguments.
+
+    Args:
+        argv: An object with the command line arguments.
+
+    Returns:
+        An object with the command line arguments.
+    """
     if argv.tetre_output == "html_csv":
         argv.tetre_output = "html"
         argv.tetre_output_csv = True
@@ -16,6 +24,14 @@ def argv_preprocessing(argv):
 
 
 def run(argv):
+    """Interface for the TETRE extraction tools module, given the command line parameters.
+
+    Args:
+        argv: An object with the command line arguments.
+
+    Returns:
+        Void.
+    """
     argv = argv_preprocessing(argv)
 
     if argv.tetre_behaviour == "accumulator":
