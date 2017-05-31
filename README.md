@@ -306,3 +306,7 @@ Force reprocessing (avoid cache):
 # NOTES
 
 - See https://github.com/stanfordnlp/CoreNLP/issues/359 for notes on the customizations needed for the Stanford's Relation Extractor.
+
+# LICENSE
+
+[MIT](LICENSE)
