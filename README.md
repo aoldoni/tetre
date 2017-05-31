@@ -309,9 +309,9 @@ Force reprocessing (avoid cache):
 
 # NOTES
 
-- See https://github.com/stanfordnlp/CoreNLP/issues/359 for notes on the customizations needed for the Stanford's Relation Extractor.
+- See [this issue](https://github.com/stanfordnlp/CoreNLP/issues/359), [this repository](https://github.com/aoldoni/stanford-corenlp), and [these notes](https://github.com/aoldoni/standoff2conll/tree/develop#custom-entities-in-stanford-re-training) for information on the customizations needed for the Stanford's Relation Extractor to run with different entities.
 
 
 # LICENSE
 
-[MIT](LICENSE)
+Copyright (c) 2017 Alisson Oldoni [MIT License](LICENSE)
