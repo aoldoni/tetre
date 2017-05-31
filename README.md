@@ -147,9 +147,9 @@ To install, please do:
     - `external/bin/stanford/corenlp/`
 
 6. Inside `external/bin/stanford/corenlp/src` replace the code with the modified 3.6.0 version from:  
-    `external/bin/stanford/corenlp/src`  
+    `cd external/bin/stanford/corenlp/src`  
     `rm -rf *`  
-    `git clone https://github.com/aoldoni/comp9596-stanford-corenlp-full`  
+    `git clone https://github.com/aoldoni/comp9596-stanford-corenlp-full .`  
 
 This is needed as this modified version implements the custom relations and entity types described in the thesis PDF.
 
