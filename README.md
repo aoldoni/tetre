@@ -1,141 +1,21 @@
-# TOOLKIT FOR EXPLORING TEXTS FOR RELATION EXTRACTION
+# TETRE: A TOOLKIT FOR EXPLORING TEXTS FOR RELATION EXTRACTION
 
-These scripts help utilising existing tools in the task of information extraction in a new corpus composed of academic papers. They are mostly standalone commandline tools and functions that do data transformation, and parsing/preparation, while also invoking some other selected third party tools.
+TETRE is mainly a tool that uses the SpaCy dependency parser to identify relations of entities in text using rules applied to the dependency tree, having the relation word and the raw text as an input. This tool and its built in rule-set was optimised for the task of information extraction in a corpus composed of academic papers.
+
+TETRE is a standalone commandline tool with functions that do data transformation, parsing, wraps tasks of third-party binaries (such as the Stanford CorNLP), and outputs the relations in both HTML and JSON. It uses [Pickle](https://docs.python.org/3/library/pickle.html) to cache parsed relations for fast iteration when producing or fine-tuning rules.
+
+For full description of TETRE's justification and inner workings of the rule-based approach can be found at my thesis repo at: https://raw.githubusercontent.com/aoldoni/comp9596-master-thesis/master/thesis.pdf
 
 ![](demo_optimised.gif)
 
-- Full descriptin of inner workings can be found at my thesis repo: https://raw.githubusercontent.com/aoldoni/comp9596-master-thesis/master/thesis.pdf
+### HELLO WORLD
 
-# INSTALLATION
+- Install TETRE and its dependencies (see [Installation](#installation)).
 
-- Download this toolkit:  
-    `mkdir tetre`  
-    `cd tetre`  
-    `git clone https://github.com/aoldoni/tetre.git .`  
-
-- Create directories (one single big command):  
-    `./bin/tetre setup`
-    
-- Prepare the static assets link:  
-    `cd data/output/html/`  
-    `ln -s ../../../templates/assets/ assets`  
-    `cd ../../..`  
-
-The next steps depend on what you will be trying to run. In case of MacOS, you might want to replace some of these steps with using `brew`.
-Information to installing brew can be found at http://brew.sh/.
-
-
-## INSTALLATION PYTHON DEPENDENCIES
-
-- Install Python: http://docs.python-guide.org/en/latest/starting/installation/
-    - This program expects Python 2 to be running as `python`.
-    - This program expects Python 3 (at least 3.4) to be running as `python3`.
-
-- Install PIP: https://pip.pypa.io/en/stable/installing/ - please install it using `python3` so all packages will be installed under the new version. This is important since if you install pip under `python` (i.e. for Python 2) the packages installed will not work in the python3 version of the code. E.g.: `python3 get_pip.py`
-
-- Create a virtual environment. From now onwards, all the package installations will only be available in this directory/virtual environment:  
-    `virtualenv .env`  
-    `source .env/bin/activate`  
-
-- Install Graphviz binaries: http://www.graphviz.org/Download.php
-- Install jq for the demo: https://stedolan.github.io/jq/ (or you might just want to pipe the TETRE output to `python -m json.tool` instead)
-
-- Install the following Python/Python3 modules:  
-    - requests
-    - BeautifulSoup4
-
-E.g.:  
-    `python3 -m pip install requests BeautifulSoup4`
-
-
-## INSTALLATION MAIN PACKAGES
-
-- Install Spacy 0.101.0, Virtualenv, and Spacy's English model: https://spacy.io/docs/#getting-started
-    `python3 -m pip install spacy==0.101.0`  
-    
-- Install NLTK (as a python3 module): http://www.nltk.org/install.html
-- Install Brat 1.3 Crunchy Frog: http://brat.nlplab.org/installation.html
-- Install the following Python/Python3 modules:
-    - nltk
-    - corpkit
-    - corenlp-xml
-    - django
-    - graphviz
-
-E.g.:  
-    `python3 -m pip install nltk corpkit corenlp-xml django graphviz`
-
-
-# INSTALLATION EXTERNAL PACKAGES 
-
-These are optional packages, mostly if you want to explore available wrappers for the Stanford's relation extractor and NER processes, or
-if you want to compare the TETRE output with the externally available tools.
-
-IMPORTANT: You may skip to the [Hello World](#hello-world) section below if your intention is simply to use TETRE stand-alone.
-
-
-## INSTALLATION STANFORD'S CORENLP
-
-1. Install Java: http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html
-2. Install Maven: https://maven.apache.org/install.html
-
-3. Move into created directory:  
-    `cd external/bin/stanford`
-
-4. Download the jars for:
-    - NER
-    - Full CoreNLP
-
-5. Extract them inside the respective folder folder, thus having the following subdirectories, respectivelly:
-    - `external/bin/stanford/ner/`
-    - `external/bin/stanford/corenlp/`
-
-6. Inside `external/bin/stanford/corenlp/src` replace the code with:  
-    `external/bin/stanford/corenlp/src`  
-    `rm -rf *`  
-    `git clone https://github.com/aoldoni/comp9596-stanford-corenlp-full`  
-
-7. Return to root directory:
-    `cd ../../../../../`
-
-8. Install `ant` (e.g.: using `brew` or `apt-get`). Re-compile stanford's binaries:
-    `./bin/tetre compile`
-
-9. The file `external/bin/stanford/corenlp/stanford-corenlp-compiled.jar` should now exist.
-
-## INSTALLATION GOOGLE'S PARSEY
-
-- Move into created directory:  
-    `cd external/bin/parsey`
-
-- Install Google Syntaxnet: https://github.com/tensorflow/models/tree/master/syntaxnet#installation
-
-- Copy custom initiator file for syntaxnet available inside this project into the correct directory:   
-    `cp external/extra/google-parsey/google.sh external/bin/parsey/models/syntaxnet/syntaxnet/google.sh`
-
-## INSTALLATION CLAUSEIE
-
-- Move into created directory:  
-    `cd external/bin/clausie`
-
-- Download ClauseIE from http://resources.mpi-inf.mpg.de/d5/clausie/clausie-0-0-1.zip and extract into this folder.
-
-
-## INSTALLATION ALLENAI OPENIE
-
-- Move into created directory:  
-    `cd external/bin/allenai_openie`
-
-- Run installation process found in https://github.com/allenai/openie-standalone#command-line-interface
-
-
-# HELLO WORLD
-
-- Move your raw text data into `data/input/raw`:
+- Move your raw text data into `data/input/raw`:  
     `cp -R my_raw_text_files/* data/input/raw/`
 
-- Process your relation:
-
+- Process your relation:  
     `/bin/tetre extract --tetre_word improves --tetre_output json | jq ''`
 
 - The output will be the JSON relations, such as:
@@ -175,7 +55,130 @@ IMPORTANT: You may skip to the [Hello World](#hello-world) section below if your
   ...
 ```
 
-# SCRIPTS AND PURPOSE
+# INSTALLATION
+
+- Download TETRE:  
+    `mkdir tetre`  
+    `cd tetre`  
+    `git clone https://github.com/aoldoni/tetre.git .`  
+
+- Create directories:  
+    `./bin/tetre setup`
+    
+- Prepare the static assets link:  
+    `cd data/output/html/`  
+    `ln -s ../../../templates/assets/ assets`  
+    `cd ../../..`  
+
+The next steps depend on what TETRE submodules you will be trying to run. In case of MacOS, you might want to replace some of these steps with using `brew`. Information to installing brew can be found at http://brew.sh/.
+
+
+### INSTALLATION PYTHON DEPENDENCIES
+
+- Install Python: http://docs.python-guide.org/en/latest/starting/installation/
+    - This program expects Python 2 to be running as `python`.
+    - This program expects Python 3 (at least 3.4) to be running as `python3`.
+
+- Install PIP: https://pip.pypa.io/en/stable/installing/ - please install it using `python3` so all packages will be installed under the new version. This is important since if you install pip under `python` (i.e. for Python 2) the packages installed will not work in the python3 version of the code. E.g.: `python3 get_pip.py`
+
+- Create a virtual environment. From now onwards, all the package installations will only be available in this directory/virtual environment:  
+    `virtualenv .env`  
+    `source .env/bin/activate`  
+
+- Install Graphviz binaries: http://www.graphviz.org/Download.php
+- Install jq for the demo: https://stedolan.github.io/jq/ (or you might just want to pipe the TETRE output to `python -m json.tool` instead)
+
+- Install the following Python/Python3 modules:  
+    - requests
+    - BeautifulSoup4
+
+E.g.:  
+    `python3 -m pip install requests BeautifulSoup4`
+
+
+### INSTALLATION MAIN PACKAGES
+
+- Install Spacy 0.101.0, Virtualenv, and Spacy's English model: https://spacy.io/docs/#getting-started
+    `python3 -m pip install spacy==0.101.0`  
+    
+- Install NLTK (as a python3 module): http://www.nltk.org/install.html
+- Install Brat 1.3 Crunchy Frog: http://brat.nlplab.org/installation.html
+- Install the following Python/Python3 modules:
+    - nltk
+    - corpkit
+    - corenlp-xml
+    - django
+    - graphviz
+
+E.g.:  
+    `python3 -m pip install nltk corpkit corenlp-xml django graphviz`
+
+
+### INSTALLATION EXTERNAL PACKAGES 
+
+These are optional packages, mostly if you want to explore available wrappers for the Stanford's relation extractor and NER processes, or
+if you want to compare the TETRE output with the externally available tools.
+
+IMPORTANT: You may skip to the [Hello World](#hello-world) section below if your intention is simply to use TETRE stand-alone.
+
+
+#### INSTALLATION STANFORD'S CORENLP
+
+1. Install Java: http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html
+2. Install Maven: https://maven.apache.org/install.html
+
+3. Move into created directory:  
+    `cd external/bin/stanford`
+
+4. Download the jars for:
+    - NER
+    - Full CoreNLP
+
+5. Extract them inside the respective folder folder, thus having the following subdirectories, respectivelly:
+    - `external/bin/stanford/ner/`
+    - `external/bin/stanford/corenlp/`
+
+6. Inside `external/bin/stanford/corenlp/src` replace the code with:  
+    `external/bin/stanford/corenlp/src`  
+    `rm -rf *`  
+    `git clone https://github.com/aoldoni/comp9596-stanford-corenlp-full`  
+
+7. Return to root directory:
+    `cd ../../../../../`
+
+8. Install `ant` (e.g.: using `brew` or `apt-get`). Re-compile stanford's binaries:
+    `./bin/tetre compile`
+
+9. The file `external/bin/stanford/corenlp/stanford-corenlp-compiled.jar` should now exist.
+
+#### INSTALLATION GOOGLE'S PARSEY
+
+- Move into created directory:  
+    `cd external/bin/parsey`
+
+- Install Google Syntaxnet: https://github.com/tensorflow/models/tree/master/syntaxnet#installation
+
+- Copy custom initiator file for syntaxnet available inside this project into the correct directory:   
+    `cp external/extra/google-parsey/google.sh external/bin/parsey/models/syntaxnet/syntaxnet/google.sh`
+
+#### INSTALLATION CLAUSEIE
+
+- Move into created directory:  
+    `cd external/bin/clausie`
+
+- Download ClauseIE from http://resources.mpi-inf.mpg.de/d5/clausie/clausie-0-0-1.zip and extract into this folder.
+
+
+#### INSTALLATION ALLENAI OPENIE
+
+- Move into created directory:  
+    `cd external/bin/allenai_openie`
+
+- Run installation process found in https://github.com/allenai/openie-standalone#command-line-interface
+
+
+
+# SUBMODULES AND PURPOSE
 
 Scripts entry points are listed below with the intentions in a somewhat useful order:
 - `get_data.py` : Download data form the txt output server.
