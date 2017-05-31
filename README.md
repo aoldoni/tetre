@@ -1,7 +1,7 @@
 # TETRE: A TOOLKIT FOR EXPLORING TEXTS FOR RELATION EXTRACTION
 
 <p align="center">
-  <img src="demo_output.png" alt="A parsed depdendency tree."/>
+    <img src="/aoldoni/tetre/blob/develop/demo_tetre.png?raw=true" alt="A parsed depdendency tree."/>
 </p>
 
 TETRE is mainly a tool that uses the SpaCy dependency parser to identify relations of entities in text using rules applied to the dependency tree, having the relation word and the raw text as an input. This tool and its built in rule-set was optimised for the task of information extraction in a corpus composed of academic papers.
