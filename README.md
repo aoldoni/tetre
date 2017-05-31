@@ -6,7 +6,7 @@
 
 TETRE is mainly a tool that uses the SpaCy dependency parser to identify relations of entities in text using rules applied to the dependency tree, having the relation word and the raw text as an input. This tool and its built in rule-set was optimised for the task of information extraction in a corpus composed of academic papers.
 
-TETRE is a commandline tool with functions that do data transformation, parsing, wraps tasks of third-party binaries (such as the Stanford CorNLP), and outputs the relations in both HTML and JSON. It uses [Pickle](https://docs.python.org/3/library/pickle.html) to cache parsed relations for fast iteration when producing or fine-tuning rules.
+TETRE is a commandline tool with functions that do data transformation, parsing, wraps tasks of third-party binaries (such as the Stanford CorNLP), and outputs the relations in both HTML and JSON. It uses [Pickle](https://docs.python.org/3/library/pickle.html) to cache parsed dependency trees for fast iteration when producing or fine-tuning rules.
 
 For full description of TETRE's justification and inner workings of the rule-based approach can be found at my thesis repo at: https://raw.githubusercontent.com/aoldoni/comp9596-master-thesis/master/thesis.pdf
 
