@@ -1,5 +1,9 @@
 # TETRE: A TOOLKIT FOR EXPLORING TEXTS FOR RELATION EXTRACTION
 
+<p align="center">
+  <img src="demo_output.png" alt="A parsed depdendency tree."/>
+</p>
+
 TETRE is mainly a tool that uses the SpaCy dependency parser to identify relations of entities in text using rules applied to the dependency tree, having the relation word and the raw text as an input. This tool and its built in rule-set was optimised for the task of information extraction in a corpus composed of academic papers.
 
 TETRE is a commandline tool with functions that do data transformation, parsing, wraps tasks of third-party binaries (such as the Stanford CorNLP), and outputs the relations in both HTML and JSON. It uses [Pickle](https://docs.python.org/3/library/pickle.html) to cache parsed relations for fast iteration when producing or fine-tuning rules.
@@ -151,12 +155,12 @@ To install, please do:
     `rm -rf *`  
     `git clone https://github.com/aoldoni/comp9596-stanford-corenlp-full .`  
 
-This is needed as this modified version implements the custom relations and entity types described in the thesis PDF.
+This is needed as this modified version implements the custom relations and entity types described in the [thesis PDF](https://raw.githubusercontent.com/aoldoni/comp9596-master-thesis/master/thesis.pdf).
 
 7. Return to root directory:
     `cd ../../../../../`
 
-8. Install `ant` (e.g.: using `brew` or `apt-get`). Re-compile stanford's binaries:
+8. Install `ant` (e.g.: using `brew` or `apt-get`). Then re-compile stanford's binaries:
     `./bin/tetre compile`
 
 9. The file `external/bin/stanford/corenlp/stanford-corenlp-compiled.jar` should now exist.
@@ -306,6 +310,7 @@ Force reprocessing (avoid cache):
 # NOTES
 
 - See https://github.com/stanfordnlp/CoreNLP/issues/359 for notes on the customizations needed for the Stanford's Relation Extractor.
+
 
 # LICENSE
 
